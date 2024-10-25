@@ -3,11 +3,21 @@ const Table = ({ header, body, color }) => {
 		<table className="table-auto text-center w-full">
 			<thead className="table-header-group md:text-xl text-lg">
 				<tr className="table-row">
-					<th key="No" className={`table-cell border h-12 bg-${color} px-1`}>
+					<th
+						key="No"
+						className={`table-cell border h-12 ${
+							color === "red" ? "bg-red" : `bg-${color}`
+						} px-1`}
+					>
 						No
 					</th>
 					{header.map((title, index) => (
-						<th key={index} className={`table-cell border bg-${color} px-1`}>
+						<th
+							key={index}
+							className={`table-cell border ${
+								color === "red" ? "bg-red" : `bg-${color}`
+							} px-1`}
+						>
 							{title}
 						</th>
 					))}
