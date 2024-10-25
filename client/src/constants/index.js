@@ -94,7 +94,7 @@ export const bookingInformation = [
 	},
 	{
 		label: "Identify Card Number",
-		type: "number",
+		type: "text",
 		name: "idCardNumber",
 	},
 	{
