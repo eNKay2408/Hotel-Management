@@ -4,7 +4,7 @@ import {
 	BookingList,
 	BookingDetails,
 	RoomList,
-	EditRoom,
+	RoomDetails,
 	InvoiceList,
 	InvoiceDetails,
 	ReportsOverview,
@@ -31,7 +31,7 @@ const App = () => {
 						<Route path="/invoices" element={<InvoiceList />} />
 						<Route path="/invoices/:id" element={<InvoiceDetails />} />
 						<Route path="/rooms" element={<RoomList />} />
-						<Route path="/rooms/:id" element={<EditRoom />} />
+						<Route path="/rooms/:id" element={<RoomDetails />} />
 						<Route path="/reports" element={<ReportsOverview />} />
 						<Route path="/reports/revenue/:id" element={<RevenueReport />} />
 						<Route

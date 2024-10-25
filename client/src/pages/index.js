@@ -4,7 +4,7 @@ import BookingList from "./Booking/BookingList";
 import BookingDetails from "./Booking/BookingDetails";
 
 import RoomList from "./Room/RoomList";
-import EditRoom from "./Room/EditRoom";
+import RoomDetails from "./Room/RoomDetails";
 
 import InvoiceList from "./Invoice/InvoiceList";
 import InvoiceDetails from "./Invoice/InvoiceDetails";
@@ -21,7 +21,7 @@ export {
 	BookingList,
 	BookingDetails,
 	RoomList,
-	EditRoom,
+	RoomDetails,
 	InvoiceList,
 	InvoiceDetails,
 	ReportsOverview,
