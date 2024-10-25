@@ -84,32 +84,34 @@ const RoomList = () => {
 		<div className="flex flex-col w-full py-4 px-2">
 			<Title title="Room List" />
 
-			<div className="w-full max-w-[800px] mx-auto">
+			<div className="w-full max-w-[800px] mx-auto overflow-x-auto">
 				<table className="table-auto text-center w-full">
-					<thead className="table-header-group text-xl">
+					<thead className="table-header-group md:text-xl text-lg">
 						<tr className="table-row">
-							<th className="border bg-zinc-200 h-12">No</th>
-							<th className="border bg-zinc-200">Number</th>
-							<th className="border bg-zinc-200">Area</th>
-							<th className="border bg-zinc-200">Type</th>
-							<th className="border bg-zinc-200">Quantity</th>
-							<th className="border bg-zinc-200">Rate</th>
-							<th className="border bg-zinc-200">Actions</th>
+							<th className="border bg-zinc-200 md:h-12 h-10 px-1">No</th>
+							<th className="border bg-zinc-200 px-1">Number</th>
+							<th className="border bg-zinc-200 px-1">
+								&nbsp;&nbsp;Area&nbsp;&nbsp;
+							</th>
+							<th className="border bg-zinc-200 px-1">Type</th>
+							<th className="border bg-zinc-200 px-1">Quantity</th>
+							<th className="border bg-zinc-200 px-1">Rate</th>
+							<th className="border bg-zinc-200 px-1">Actions</th>
 						</tr>
 					</thead>
-					<tbody className="text-lg">
+					<tbody className="md:text-lg text-md">
 						{rooms.map((room, index) => (
 							<tr key={index}>
-								<td className="border">{index + 1}</td>
-								<td className="border">{room.number}</td>
-								<td className="border">
+								<td className="border px-1">{index + 1}</td>
+								<td className="border px-1">{room.number}</td>
+								<td className="border px-1">
 									{room.area} m<sup>2</sup>
 								</td>
-								<td className="border">{room.type}</td>
-								<td className="border">
+								<td className="border px-1">{room.type}</td>
+								<td className="border px-1">
 									{room.quantity} {room.quantity > 1 ? "guests" : "guest"}
 								</td>
-								<td className="border">${room.rate}</td>
+								<td className="border px-1">${room.rate}</td>
 								<td className="border p-1">
 									<div className="flex justify-center gap-2">
 										<Button

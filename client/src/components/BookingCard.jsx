@@ -8,16 +8,16 @@ const BookingCard = ({
 	};
 
 	return (
-		<div className="bg-zinc-200 p-4 rounded-md flex font-amethysta">
+		<div className="bg-zinc-200 md:p-4 p-1 rounded-md flex font-amethysta">
 			<div className="flex items-center">
 				<img
 					src={image}
 					alt={number}
-					className="w-40 h-28 rounded-md object-cover"
+					className="md:w-40 md:h-28 w-20 h-full rounded-md object-cover"
 				/>
 			</div>
 
-			<div className="md:px-4 py-2 px-2">
+			<div className="md:px-4 px-2 flex flex-col justify-center md:text-lg text-sm">
 				<p>Number: {number}</p>
 				<p>Type: {type}</p>
 				<p>Quantity: {quantity}</p>
@@ -26,7 +26,7 @@ const BookingCard = ({
 				</p>
 			</div>
 
-			<div className="flex flex-1 flex-col items-center justify-center gap-2">
+			<div className="flex flex-1 flex-col items-center justify-center gap-2 ">
 				<div className="flex flex-col">
 					<p className="font-bold tracking-widest text-yellow text-xl">
 						${price}
