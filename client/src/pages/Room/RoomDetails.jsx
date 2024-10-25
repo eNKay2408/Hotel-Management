@@ -93,7 +93,7 @@ const RoomDetails = () => {
 										{key.charAt(0).toUpperCase() + key.slice(1)}
 									</label>
 									<input
-										type="text"
+										type={`${key === "type" ? "text" : "number"}`}
 										value={value}
 										className="border rounded-md px-2 py-1 text-lg"
 										name={key}
