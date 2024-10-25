@@ -86,16 +86,16 @@ const InvoiceDetails = () => {
 					<img
 						src={logoBackground}
 						alt="logo"
-						className="w-40 md:block hidden object-contain"
+						className="w-40 lg:block hidden object-contain"
 					/>
-					<div className="flex flex-col items-center flex-1">
+					<div className="flex flex-col md:items-center items-start flex-1">
 						<h1 className="text-2xl font-bold text-yellow font-amethysta">
 							GOLDEN HOTEL
 						</h1>
 						<p>0123456789</p>
 						<p>contact@golden-hotel.com</p>
 					</div>
-					<div className="flex text-center items-center">
+					<div className="flex md:text-center text-right items-center">
 						1234, Golden Street
 						<br />
 						Thu Duc District,
