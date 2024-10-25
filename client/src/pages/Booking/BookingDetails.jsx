@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
 import { GuestForm, Title, Button } from "../../components";
 
@@ -16,6 +16,53 @@ const BookingDetails = () => {
 		if (guests.length > 1) {
 			setGuests(guests.slice(0, guests.length - 1));
 		}
+	};
+
+	const navigate = useNavigate();
+
+	const handleSubmit = async (e) => {
+		e.preventDefault();
+
+		const formData = new FormData(e.target);
+
+		const guestsData = [];
+		const guestMap = {};
+
+		formData.forEach((value, key) => {
+			const [index, field] = key.split("-");
+
+			if (!guestMap[index]) {
+				guestMap[index] = {};
+			}
+
+			guestMap[index][field] = value;
+		});
+
+		for (const index in guestMap) {
+			guestsData.push(guestMap[index]);
+		}
+
+		const response = await fetch(`/api/bookings/${id}`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify(guestsData),
+		});
+
+		navigate(`/bookings`);
+
+		/*
+		* API: Create booking
+
+		if (response.ok) {
+			alert("Booking created successfully");
+			navigate(`/bookings/${id}`);
+		} else {
+			alert("Failed to create booking");
+			console.error(response);
+		}
+		*/
 	};
 
 	return (
@@ -44,12 +91,11 @@ const BookingDetails = () => {
 
 			<form
 				className="flex flex-col items-center justify-evenly gap-4"
-				action={`/booking/${id}`}
+				onSubmit={handleSubmit}
 			>
 				{guests.map((id) => (
 					<GuestForm key={id} id={id} />
 				))}
-
 				<Button color="orange" text="CONFIRM" type="submit" />
 			</form>
 		</div>
