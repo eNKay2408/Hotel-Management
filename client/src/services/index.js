@@ -51,3 +51,9 @@ export const getOccupancy = async (id) => {
 	);
 	return response.json();
 };
+
+// * Regulations*
+export const getRegulations = async () => {
+	const response = await fetch("http://localhost:3000/api/regulations");
+	return response.json();
+};
