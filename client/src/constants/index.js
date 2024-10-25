@@ -88,23 +88,23 @@ export const socialLinks = [
 
 export const bookingInformation = [
 	{
-		id: "full-name",
 		label: "Full name",
 		type: "text",
+		name: "fullName",
 	},
 	{
-		id: "identity-card-number",
 		label: "Identify Card Number",
 		type: "number",
+		name: "idCardNumber",
 	},
 	{
-		id: "guests-type",
 		label: "Guest’s Type",
 		type: "text",
+		name: "guestType",
 	},
 	{
-		id: "address",
 		label: "Address",
 		type: "text",
+		name: "address",
 	},
 ];
