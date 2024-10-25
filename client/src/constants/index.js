@@ -46,12 +46,12 @@ export const navLinks = [
 
 export const footerLinks = [
 	{
-		id: "term",
-		title: "Term of Use",
+		id: "terms",
+		title: "Terms of Use",
 	},
 	{
 		id: "privacy",
-		title: "Privacy Police",
+		title: "Privacy Policy",
 	},
 	{
 		id: "services",
