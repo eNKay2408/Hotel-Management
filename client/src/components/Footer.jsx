@@ -12,14 +12,17 @@ const Footer = () => {
 					<input
 						type="text"
 						placeholder="Enter your email here"
-						className="p-2 rounded-l-md"
+						className="p-2 rounded-l-md md:text-lg text-sm"
 					/>
-					<button className="p-2 bg-yellow text-white rounded-r-md opacity-90 hover:opacity-100">
+					<button className="p-2 bg-yellow text-white md:text-lg text-sm rounded-r-md opacity-90 hover:opacity-100">
 						Subscribe
 					</button>
 				</form>
 				<hr className="w-full" />
-				<p>© 2024 Golden Hotels. All right reserved.</p>
+				<p>
+					© 2024 Golden Hotels.
+					<br className="md:hidden" /> All right reserved.
+				</p>
 			</div>
 
 			<div className="flex flex-col gap-4">
