@@ -9,7 +9,7 @@ import logo from "./logo.png";
 import logoBackground from "./logo-background.png";
 
 import facebook from "./social/facebook.png";
-import twitter from "./social/twitter.png";
+import x from "./social/x.png";
 import instagram from "./social/instagram.png";
 import linkedin from "./social/linkedin.png";
 
@@ -28,7 +28,7 @@ export {
 	logo,
 	logoBackground,
 	facebook,
-	twitter,
+	x,
 	instagram,
 	linkedin,
 	avatar1,
