@@ -28,7 +28,9 @@ export const getInvoices = async () => {
 };
 
 export const getInvoice = async (id) => {
-	const response = await fetch(`http://localhost:3000/api/invoices/${id}`);
+	const response = await fetch(
+		`http://localhost:3000/api/invoices/${id}`
+	);
 	return response.json();
 };
 
