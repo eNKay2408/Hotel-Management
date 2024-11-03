@@ -1,7 +1,16 @@
 import { Button } from "./index";
 
 const BookingCard = ({
-	booking: { room_id, number, type, quantity, area, price, status, image },
+	booking: {
+		room_id,
+		number,
+		type,
+		quantity,
+		area,
+		price,
+		status,
+		image,
+	},
 }) => {
 	const handleBooking = (id) => {
 		window.location.href = `/bookings/${id}`;
@@ -31,12 +40,22 @@ const BookingCard = ({
 					<p className="font-bold tracking-widest text-yellow text-xl">
 						${price}
 					</p>
-					<p className="text-zinc-600 text-[12px] mt-[-2px]">per night</p>
+					<p className="text-zinc-600 text-[12px] mt-[-2px]">
+						per night
+					</p>
 				</div>
 				<Button
 					color="orange"
-					text="BOOKING"
-					disabled={status === "unavailable" ? true : false}
+					text={
+						status === "unavailable"
+							? "BOOKED"
+							: "BOOK"
+					}
+					disabled={
+						status === "unavailable"
+							? true
+							: false
+					}
 					onClick={() => handleBooking(room_id)}
 				/>
 			</div>
