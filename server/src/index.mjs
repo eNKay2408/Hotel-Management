@@ -7,7 +7,10 @@ import InvoiceRoutes from "./routes/invoice.mjs";
 
 dotenv.config();
 
+dotenv.config();
 const app = express();
+
+app.use(express.static(`client/public`));
 app.use(express.json());
 app.use(cors());
 
