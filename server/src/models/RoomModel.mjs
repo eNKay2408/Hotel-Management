@@ -1,5 +1,7 @@
 import connection from "../database/connectSQL.mjs";
 
+//Room: {RoomId, Type, Status, Description}
+
 export default class RoomModel {
     static async getAllRooms() {
         const result = await connection.request().query("SELECT * FROM Room");

@@ -1,6 +1,8 @@
 import connection from "../database/connectSQL.mjs";
 import { sql } from "mssql";
 
+// RoomType: {Type, Price, Max_Customer, Min_Customer_for_Surcharge, Surcharge}
+
 export default class RoomTypeModel {
     static async getAllRoomTypes() {
         const result = await connection
