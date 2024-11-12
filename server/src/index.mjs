@@ -2,23 +2,19 @@ import express from "express";
 import RoomRoutes from "./routes/room.mjs";
 import BookingRotes from "./routes/booking.mjs";
 import InvoiceRoutes from "./routes/invoice.mjs";
-import sequelize from "./database/database.js";
+import connection from "./database/connectSQL.mjs";
 
 const app = express();
 app.use(express.json());
 
-// testConnection.js
-
-async function testConnection() {
-    try {
-        await sequelize.authenticate();
-        console.log("Connection has been established successfully.");
-    } catch (error) {
-        console.error("Unable to connect to the database:", error);
-    }
-}
-
-testConnection();
+connection
+    .connect()
+    .then(() => {
+        console.log("Connected to SQL Server");
+    })
+    .catch((err) => {
+        console.log("Error connecting to SQL Server", err);
+    });
 
 app.use("/room", RoomRoutes);
 app.use("/booking", BookingRotes);
