@@ -6,7 +6,7 @@ import {
 	invoiceIcon,
 	regulationIcon,
 	facebook,
-	twitter,
+	x,
 	instagram,
 	linkedin,
 } from "../assets";
@@ -70,9 +70,9 @@ export const socialLinks = [
 		url: "https://www.facebook.com",
 	},
 	{
-		id: "twitter",
-		icon: twitter,
-		url: "https://www.twitter.com",
+		id: "x",
+		icon: x,
+		url: "https://www.x.com",
 	},
 	{
 		id: "instagram",
