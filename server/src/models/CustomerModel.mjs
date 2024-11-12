@@ -2,7 +2,7 @@ import connection from "../database/connectSQL.mjs";
 
 // Customer: {Id, Name, IdentityCard, Address, Type}
 
-export default class Customer {
+export default class CustomerModel {
     static async getAllCustomers() {
         const result = await connection
             .request()
