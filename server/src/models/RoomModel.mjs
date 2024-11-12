@@ -131,6 +131,7 @@ export default class RoomModel {
             .query(`DELETE FROM Room WHERE RoomId = @RoomId`);
         return {
             message: "Room deleted successfully",
+            rowsAffected: result.rowsAffected,
         };
     }
 }
