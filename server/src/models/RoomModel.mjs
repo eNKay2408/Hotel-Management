@@ -4,15 +4,17 @@ import connection from "../database/connectSQL.mjs";
 
 export default class RoomModel {
     static async getAllRooms() {
-        const result = await connection.request().query("SELECT * FROM Room");
+        const result = await connection.request()
+            .query(`SELECT r.RoomID as Number, t.Type, t.Max_Occupancy as Occupancy, t.Price, r.Status
+                    FROM ROOM r join ROOMTYPE t on r.Type = t.Type`);
         return result.recordset;
     }
 
     static async getRoomById(id) {
-        const result = await connection
-            .request()
-            .input("id", id)
-            .query("SELECT * FROM Room WHERE id = @id");
+        const result = await connection.request().input("id", id)
+            .query(`SELECT r.RoomID as Number, t.Type, t.Max_Occupancy as Occupancy, t.Price, r.Status
+                    FROM ROOM r join ROOMTYPE t on r.Type = t.Type 
+                    WHERE RoomID = @id`);
         return result.recordset[0];
     }
 
@@ -43,25 +45,33 @@ export default class RoomModel {
         return result.recordset;
     }
 
-    static async CreateRoom(
+    static async createRoom(
         RoomId,
         Type,
         Status = "Available",
         Description = null
     ) {
-        const result = await connection
-            .request()
-            .input("RoomId", RoomId)
-            .input("Type", Type)
-            .input("Status", Status)
-            .input("Description", Description)
-            .query(
-                `INSERT INTO Room (RoomId, Type, Status, Description) VALUES (@RoomId, @Type, @Status, @Description)`
-            );
-        return result.recordset[0];
+        try {
+            const result = await connection
+                .request()
+                .input("RoomId", RoomId)
+                .input("Type", Type)
+                .input("Status", Status)
+                .input("Description", Description)
+                .query(
+                    `INSERT INTO Room (RoomId, Type, Status, Description) VALUES (@RoomId, @Type, @Status, @Description)`
+                );
+            return {
+                message: "Room created successfully",
+                rowsAffected: result.rowsAffected,
+            };
+        } catch (error) {
+            console.log(error);
+            throw error;
+        }
     }
 
-    static async UpdateRoom(
+    static async updateRoom(
         RoomId,
         Type = null,
         Status = null,
@@ -70,33 +80,57 @@ export default class RoomModel {
         try {
             let query = `UPDATE Room SET `;
             const UpdateRoom = [];
+            const params = {};
             if (Type !== null) {
-                UpdateRoom.push(`Type = ${Type}`);
+                UpdateRoom.push("Type = @Type");
+                params.Type = Type;
             }
             if (Status !== null) {
-                UpdateRoom.push(`Status = ${Status}`);
+                UpdateRoom.push("Status = @Status");
+                params.Status = Status;
             }
             if (Description !== null) {
-                UpdateRoom.push(`Description = ${Description}`);
+                UpdateRoom.push("Description = @Description");
+                params.Description = Description;
             }
+
             if (UpdateRoom.length === 0) {
                 throw new Error("No fields to update");
             }
 
             query += UpdateRoom.join(", ");
-            query += ` WHERE RoomId = ${RoomId}`;
-            const result = await connection.request().query(query);
-            return result.recordset[0];
+            query += " WHERE RoomId = @RoomId";
+            params.RoomId = RoomId;
+
+            const result = await connection
+                .request()
+                .input("RoomId", params.RoomId)
+                .input("Type", params.Type)
+                .input("Status", params.Status)
+                .input("Description", params.Description)
+                .query(query);
+
+            if (result.rowsAffected[0] > 0) {
+                return {
+                    message: "Room updated successfully",
+                    rowsAffected: result.rowsAffected,
+                };
+            } else {
+                return { message: "No room found with the specified RoomId" };
+            }
         } catch (error) {
             console.log(error);
+            throw error;
         }
     }
 
-    static async DeleteRoom(RoomId) {
+    static async deleteRoom(RoomId) {
         const result = await connection
             .request()
             .input("RoomId", RoomId)
             .query(`DELETE FROM Room WHERE RoomId = @RoomId`);
-        return result.recordset[0];
+        return {
+            message: "Room deleted successfully",
+        };
     }
 }

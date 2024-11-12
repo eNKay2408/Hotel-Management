@@ -21,14 +21,10 @@ connection
         console.log("Error connecting to SQL Server", err);
     });
 
-app.use("/room", RoomRoutes);
-app.use("/booking", BookingRotes);
-app.use("/invoice", InvoiceRoutes);
+app.use("/rooms", RoomRoutes);
+app.use("/bookings", BookingRotes);
+app.use("/invoices", InvoiceRoutes);
 app.use(cors());
-
-app.use("/room", RoomRoutes);
-app.use("/api/bookings", BookingRotes);
-app.use("/invoice", InvoiceRoutes);
 
 const HOST = process.env.BACKEND_HOSTNAME || "localhost";
 const PORT = process.env.BACKEND_PORT || 3000;
