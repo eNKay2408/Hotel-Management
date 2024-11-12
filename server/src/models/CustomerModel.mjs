@@ -1,6 +1,6 @@
 import connection from "../database/connectSQL.mjs";
 
-// Customer: {Id, Name, IdentityCard, Address, Type}
+// Customer: {Id, Name, IdentityCard, Address, TypeId}
 
 export default class CustomerModel {
     static async getAllCustomers() {
@@ -18,15 +18,15 @@ export default class CustomerModel {
         return result.recordset[0];
     }
 
-    static async CreateCustomer(Name, IdentityCard, Address, Type = 1) {
+    static async CreateCustomer(Name, IdentityCard, Address, TypeId = 1) {
         const result = await connection
             .request()
             .input("Name", Name)
             .input("IdentityCard", IdentityCard)
             .input("Address", Address)
-            .input("Type", Type)
-            .query1(`INSERT INTO Customer (Name, IdentityCard, Address, Type) 
-                VALUES (@Name, @IdentityCard, @Address, @Type)`);
+            .input("TypeId", TypeId)
+            .query1(`INSERT INTO Customer (Name, IdentityCard, Address, TypeId) 
+                VALUES (@Name, @IdentityCard, @Address, @TypeId)`);
         return result.recordset[0];
     }
 
@@ -35,7 +35,7 @@ export default class CustomerModel {
         Name = null,
         IdentityCard = null,
         Address = null,
-        Type = null
+        TypeId = null
     ) {
         try {
             let query = `UPDATE Customer SET `;
@@ -49,8 +49,8 @@ export default class CustomerModel {
             if (Address !== null) {
                 UpdateCustomer.push(`Address = ${Address}`);
             }
-            if (Type !== null) {
-                UpdateCustomer.push(`Type = ${Type}`);
+            if (TypeId !== null) {
+                UpdateCustomer.push(`TypeId = ${TypeId}`);
             }
             if (UpdateCustomer.length === 0) {
                 throw new Error("No fields to update");
