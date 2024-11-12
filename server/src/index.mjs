@@ -12,6 +12,23 @@ const app = express();
 
 app.use(express.static(`client/public`));
 app.use(express.json());
+
+// testConnection.js
+
+async function testConnection() {
+    try {
+        await sequelize.authenticate();
+        console.log("Connection has been established successfully.");
+    } catch (error) {
+        console.error("Unable to connect to the database:", error);
+    }
+}
+
+testConnection();
+
+app.use("/room", RoomRoutes);
+app.use("/booking", BookingRotes);
+app.use("/invoice", InvoiceRoutes);
 app.use(cors());
 
 app.use("/room", RoomRoutes);
@@ -26,5 +43,5 @@ app.listen(PORT, HOST, () => {
 });
 
 app.get("/", (req, res) => {
-	res.send("Back-end server is running");
+    res.send("Back-end server is running");
 });
