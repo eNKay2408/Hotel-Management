@@ -18,6 +18,7 @@ CREATE TABLE ROOM (
     Type char(1),
     Status bit DEFAULT 0,
     Description ntext,
+    ImgUrl varchar(100),
     FOREIGN KEY (Type) REFERENCES ROOMTYPE (Type),
 )
 
@@ -206,8 +207,10 @@ UPDATE BOOKING SET InvoiceId = 3 WHERE BookingID = 4
 
 UPDATE BOOKING SET InvoiceId = 4 WHERE BookingID = 5
 
-ALTER TABLE ROOM
-ADD ImgUrl varchar(100)
 UPDATE ROOM
 SET
     ImgUrl = 'https://placehold.co/400'
+
+UPDATE ROOM
+SET
+    Description = 'This is a room'

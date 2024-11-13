@@ -43,7 +43,13 @@ export default class RoomModel {
     return result.recordset;
   }
 
-  static async createRoom(RoomId, Type, Status = 0, Description = null) {
+  static async createRoom(
+    RoomId,
+    Type,
+    Status = 0,
+    Description = null,
+    ImgUrl = null
+  ) {
     try {
       const result = await connection
         .request()
@@ -51,8 +57,9 @@ export default class RoomModel {
         .input('Type', Type)
         .input('Status', Status)
         .input('Description', Description)
+        .input('ImgUrl', ImgUrl)
         .query(
-          `INSERT INTO Room (RoomId, Type, Status, Description) VALUES (@RoomId, @Type, @Status, @Description)`
+          `INSERT INTO Room (RoomId, Type, Status, Description, ImgUrl) VALUES (@RoomId, @Type, @Status, @Description, @ImgUrl)`
         );
       return {
         message: 'Room created successfully',
@@ -68,7 +75,8 @@ export default class RoomModel {
     RoomId,
     Type = null,
     Status = null,
-    Description = null
+    Description = null,
+    ImgUrl = null
   ) {
     try {
       let query = `UPDATE Room SET `;
@@ -86,6 +94,10 @@ export default class RoomModel {
         UpdateRoom.push('Description = @Description');
         params.Description = Description;
       }
+      if (ImgUrl !== null) {
+        UpdateRoom.push('ImgUrl = @ImgUrl');
+        params.ImgUrl = ImgUrl;
+      }
 
       if (UpdateRoom.length === 0) {
         throw new Error('No fields to update');
@@ -101,6 +113,7 @@ export default class RoomModel {
         .input('Type', params.Type)
         .input('Status', params.Status)
         .input('Description', params.Description)
+        .input('ImgUrl', params.ImgUrl)
         .query(query);
 
       if (result.rowsAffected[0] > 0) {
