@@ -118,13 +118,18 @@ export default class RoomModel {
   }
 
   static async deleteRoom(RoomId) {
-    const result = await connection
-      .request()
-      .input('RoomId', RoomId)
-      .query(`DELETE FROM Room WHERE RoomId = @RoomId`);
-    return {
-      message: 'Room deleted successfully',
-      rowsAffected: result.rowsAffected,
-    };
+    try {
+      const result = await connection
+        .request()
+        .input('RoomId', RoomId)
+        .query(`DELETE FROM Room WHERE RoomId = @RoomId`);
+      return {
+        message: 'Room deleted successfully',
+        rowsAffected: result.rowsAffected,
+      };
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
   }
 }
