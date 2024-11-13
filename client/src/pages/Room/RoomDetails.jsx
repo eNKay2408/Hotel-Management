@@ -1,88 +1,151 @@
-import { useParams, useNavigate } from "react-router-dom";
-import { useEffect, useState, useRef } from "react";
+import { useParams, useNavigate } from 'react-router-dom';
+import { useEffect, useState, useRef } from 'react';
 
-import { Title, Button } from "../../components";
-import { getRoom, updateRoom } from "../../services";
+import { Title, Button } from '../../components';
+import { getRoom, updateRoom, createRoom, getRoomTypes } from '../../services';
 
 const RoomDetails = () => {
   const { id: number } = useParams();
 
-  const [room, setRoom] = useState({});
+  const [room, setRoom] = useState({
+    Number: '',
+    Type: 'A',
+    Description: '',
+    ImgUrl: 'https://placehold.co/400',
+  });
+
+  const [roomTypes, setRoomTypes] = useState([]);
+
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const loadRoom = async () => {
+    const fetchData = async () => {
+      const types = await getRoomTypes();
+      setRoomTypes(types);
+
+      if (!number) return;
       const data = await getRoom(number);
       setRoom(data);
     };
-    loadRoom();
+
+    fetchData();
   }, [number]);
 
   const imageRef = useRef(null);
 
   const handleImageUpload = () => {
     const file = imageRef.current.files[0];
-    const reader = new FileReader();
+    try {
+      const reader = new FileReader();
 
-    reader.onloadend = () => {
-      setRoom({ ...room, image: reader.result });
-    };
+      reader.onload = () => {
+        setRoom({ ...room, ImgUrl: reader.result });
+      };
 
-    if (file) {
       reader.readAsDataURL(file);
+    } catch (error) {
+      alert('Image size is too large. Only images up to 2MB are allowed');
+      console.error(error);
     }
   };
 
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleUpdateRoom = async (e) => {
     e.preventDefault();
+
+    setLoading(true);
 
     const response = await updateRoom(number, room);
     const data = await response.json();
 
     if (response.ok) {
-      alert(data.message);
-      navigate("/rooms");
+      navigate('/rooms');
     } else {
       alert(data.message);
       console.error(response);
     }
+
+    setLoading(false);
+  };
+
+  const handleCreateRoom = async (e) => {
+    e.preventDefault();
+
+    setLoading(true);
+
+    room.RoomId = room.Number;
+
+    const response = await createRoom(room);
+    const data = await response.json();
+
+    if (response.ok) {
+      navigate('/rooms');
+    } else {
+      alert(data.message);
+      console.error(response);
+    }
+
+    setLoading(false);
   };
 
   return (
     <div className="flex flex-col w-full py-4 px-2">
       <Title title="Room Details" />
 
+      {loading && (
+        <p className="text-center text-red text-2xl font-bold mb-4">
+          Room is being saving...
+        </p>
+      )}
+
       <div className="mx-auto max-w-[700px] w-full">
         <form
           className="flex flex-col gap-4 items-center"
-          onSubmit={handleSubmit}
+          onSubmit={number ? handleUpdateRoom : handleCreateRoom}
         >
           <div className="grid md:grid-cols-2 grid-cols-1 font-play gap-4">
-            {Object.entries(room)
-              .filter(([key]) => key !== "image")
-              .map(([key, value]) => (
-                <div key={key} className="flex flex-col">
-                  <label className="font-bold text-xl">
-                    {key.charAt(0).toUpperCase() + key.slice(1)}
-                  </label>
-                  <input
-                    type="text"
-                    value={value}
-                    className="border rounded-md px-2 py-1 text-lg"
-                    onChange={(e) =>
-                      setRoom({ ...room, [key]: e.target.value })
-                    }
-                    disabled={key !== "Type" && key !== "Description"}
-                  />
-                </div>
-              ))}
+            <div className="flex flex-col">
+              <label className="font-bold text-xl">Number</label>
+              <input
+                type="number"
+                value={room.Number}
+                className="border rounded-md px-2 py-1 text-lg"
+                onChange={(e) => {
+                  if (e.target.value.length > 3) return;
+                  setRoom({ ...room, Number: e.target.value });
+                }}
+                disabled={number ? true : false}
+              />
+            </div>
+            <div className="flex flex-col">
+              <label className="font-bold text-xl">Type</label>
+              <select
+                className="border rounded-md px-2 py-[7px] text-lg"
+                value={room.Type}
+                onChange={(e) => setRoom({ ...room, Type: e.target.value })}
+              >
+                {roomTypes.map((type, index) => (
+                  <option key={index} value={type.Type}>
+                    {type.Type}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex flex-col">
+              <label className="font-bold text-xl">Description</label>
+              <input
+                type="text"
+                value={room.Description}
+                className="border rounded-md px-2 py-1 text-lg"
+                onChange={(e) =>
+                  setRoom({ ...room, Description: e.target.value })
+                }
+              />
+            </div>
             <div>
               <label className="font-bold text-xl">Image</label>
-              <img
-                src={room.image || "https://placehold.co/600x400"}
-                className="py-2 w-40"
-              />
+              <img src={room.ImgUrl} className="py-2 w-40" />
               <input
                 type="file"
                 className="border rounded-md px-2 py-1 text-sm w-full"
