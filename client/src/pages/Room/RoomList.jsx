@@ -1,138 +1,190 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-import { redirect } from "react-router-dom";
-import { Title, Button } from "../../components";
+import { Title, Button } from '../../components';
 
-import { getRooms, deleteRoom } from "../../services";
+import { getRooms, deleteRoom, getRoomTypes } from '../../services';
 
 const RoomList = () => {
-	/*
-	* Get rooms data from API
-	* API: GET /api/room
+  const [rooms, setRooms] = useState([]);
+  const [allRooms, setAllRooms] = useState([]);
 
-	const [rooms, setRooms] = useState([]);
+  const [searchNumber, setSearchNumber] = useState('');
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [filterType, setFilterType] = useState('all');
 
-	useEffect(() => {
-		const loadRooms = async () => {
-			const data = await getRooms();
-			setRooms(data);
-		};
-		loadRooms();
-	}, []);
-	*/
+  const [roomTypes, setRoomTypes] = useState([]);
 
-	const [rooms, setRooms] = useState([
-		{
-			id: 1,
-			number: 101,
-			area: 500,
-			type: "A",
-			quantity: 3,
-			rate: 299,
-		},
-		{
-			id: 2,
-			number: 102,
-			area: 800,
-			type: "B",
-			quantity: 2,
-			rate: 199,
-		},
-		{
-			id: 3,
-			number: 103,
-			area: 600,
-			type: "C",
-			quantity: 1,
-			rate: 99,
-		},
-		{
-			id: 4,
-			number: 104,
-			area: 900,
-			type: "D",
-			quantity: 4,
-			rate: 399,
-		},
-	]);
+  useEffect(() => {
+    const fetchData = async () => {
+      const rooms = await getRooms();
+      setRooms(rooms);
+      setAllRooms(rooms);
 
-	const handleEditRoom = (id) => {
-		window.location.href = `/rooms/${id}`;
-	};
+      const roomTypes = await getRoomTypes();
+      setRoomTypes(roomTypes);
+    };
 
-	const handleDeleteRoom = async (id, number) => {
-		if (!window.confirm(`Are you sure you want to delete Room ${number}?`)) {
-			return;
-		}
+    fetchData();
+  }, []);
 
-		setRooms(rooms.filter((room) => room.id !== id));
+  useEffect(() => {
+    let filteredRooms = allRooms;
 
-		// TODO: Delete room from API
-		/*
-		try {
-			await deleteRoom(id);
+    if (searchNumber) {
+      filteredRooms = filteredRooms.filter((room) =>
+        room.Number.toString().includes(searchNumber)
+      );
+    }
 
-			setRooms(rooms.filter((room) => room.id !== id));
-		} catch (error) {
-			console.error(error);
-			alert("Failed to delete room");
-		}
-		*/
-	};
+    if (filterStatus !== 'all') {
+      filteredRooms = filteredRooms.filter(
+        (room) => room.Status === (filterStatus === 'available' ? false : true)
+      );
+    }
 
-	return (
-		<div className="flex flex-col w-full py-4 px-2">
-			<Title title="Room List" />
+    if (filterType !== 'all') {
+      filteredRooms = filteredRooms.filter(
+        (room) => room.Type.toLowerCase() === filterType
+      );
+    }
 
-			<div className="w-full max-w-[800px] mx-auto overflow-x-auto">
-				<table className="table-auto text-center w-full">
-					<thead className="table-header-group md:text-xl text-lg">
-						<tr className="table-row">
-							<th className="border bg-zinc-200 md:h-12 h-10 px-1">No</th>
-							<th className="border bg-zinc-200 px-1">Number</th>
-							<th className="border bg-zinc-200 px-1">
-								&nbsp;&nbsp;Area&nbsp;&nbsp;
-							</th>
-							<th className="border bg-zinc-200 px-1">Type</th>
-							<th className="border bg-zinc-200 px-1">Quantity</th>
-							<th className="border bg-zinc-200 px-1">Rate</th>
-							<th className="border bg-zinc-200 px-1">Actions</th>
-						</tr>
-					</thead>
-					<tbody className="md:text-lg text-md">
-						{rooms.map((room, index) => (
-							<tr key={index}>
-								<td className="border px-1">{index + 1}</td>
-								<td className="border px-1">{room.number}</td>
-								<td className="border px-1">
-									{room.area} m<sup>2</sup>
-								</td>
-								<td className="border px-1">{room.type}</td>
-								<td className="border px-1">
-									{room.quantity} {room.quantity > 1 ? "guests" : "guest"}
-								</td>
-								<td className="border px-1">${room.rate}</td>
-								<td className="border p-1">
-									<div className="flex justify-center gap-2">
-										<Button
-											color="orange"
-											text="✏️"
-											onClick={() => handleEditRoom(room.id)}
-										/>
-										<Button
-											color="red"
-											text="❌"
-											onClick={() => handleDeleteRoom(room.id, room.number)}
-										/>
-									</div>
-								</td>
-							</tr>
-						))}
-					</tbody>
-				</table>
-			</div>
-		</div>
-	);
+    setRooms(filteredRooms);
+  }, [searchNumber, filterStatus, filterType, allRooms]);
+
+  const handleReset = () => {
+    setSearchNumber('');
+    setFilterStatus('all');
+    setFilterType('all');
+
+    setRooms(allRooms);
+  };
+
+  const navigate = useNavigate();
+
+  const handleEditRoom = (number) => {
+    navigate(`/rooms/${number}`);
+  };
+
+  const handleDeleteRoom = async (number) => {
+    if (!window.confirm(`Are you sure you want to delete Room ${number}?`)) {
+      return;
+    }
+
+    const response = await deleteRoom(number);
+
+    if (response.ok) {
+      setRooms(rooms.filter((room) => room.Number !== number));
+    } else {
+      alert('Room has currently booking');
+      const message = await response.text();
+      console.error(message);
+    }
+  };
+
+  return (
+    <div className="flex flex-col w-full py-4 px-2">
+      <Title title="Room List" />
+
+      <div className="w-full max-w-[900px] mx-auto overflow-x-auto">
+        <div className="flex justify-between mb-4">
+          <div className="min-w-32 mr-2">
+            <Button
+              color="red"
+              text="Create Room"
+              onClick={() => navigate('/rooms/create')}
+            />
+          </div>
+          <div className="flex gap-2 md:text-xl text-md font-play ">
+            <input
+              type="number"
+              placeholder="🔍 Room Number"
+              className="border rounded-md px-2 font-bold md:w-52 w-[116px]"
+              value={searchNumber}
+              onChange={(e) => setSearchNumber(e.target.value)}
+            />
+            <select
+              className="border rounded-md font-bold px-2"
+              value={filterType}
+              onChange={(e) => setFilterType(e.target.value)}
+            >
+              <option value="all">Type</option>
+              {roomTypes.map((type, index) => (
+                <option key={index} value={type.Type.toLowerCase()}>
+                  {type.Type}
+                </option>
+              ))}
+            </select>
+            <select
+              className="border rounded-md font-bold px-2"
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+            >
+              <option value="all">Status</option>
+              <option value="available">Available</option>
+              <option value="unavailable">Unavailable</option>
+            </select>
+            <div className="min-w-24">
+              <Button text="🔄 Reset" onClick={handleReset} />
+            </div>
+          </div>
+        </div>
+
+        <table className="table-auto text-center w-full">
+          <thead className="table-header-group md:text-lg text-md">
+            <tr className="table-row">
+              <th className="border bg-zinc-200 md:h-12 h-10 px-2">No</th>
+              <th className="border bg-zinc-200 px-2">Number</th>
+              <th className="border bg-zinc-200 px-2">Type</th>
+              <th className="border bg-zinc-200 px-2">Occupancy</th>
+              <th className="border bg-zinc-200 px-2">Price</th>
+              <th className="border bg-zinc-200 px-2">Status</th>
+              <th className="border bg-zinc-200 px-2">Image</th>
+              <th className="border bg-zinc-200 px-2">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="md:text-lg text-md">
+            {rooms.map((room, index) => (
+              <tr key={index}>
+                <td className="border px-2">{index + 1}</td>
+                <td className="border px-2">{room.Number}</td>
+                <td className="border px-2">{room.Type}</td>
+                <td className="border px-2">
+                  {room.Occupancy} {room.Occupancy > 1 ? 'guests' : 'guest'}
+                </td>
+                <td className="border px-2">${room.Price}</td>
+                <td className="border px-2">
+                  {room.Status === false ? 'Available' : 'Unavailable'}
+                </td>
+                <td className="border px-2">
+                  <img
+                    src={room.ImgUrl}
+                    alt={room.Number}
+                    className="md:w-20 md:h-20 w-12 h-12 object-cover p-1 mx-auto rounded-lg"
+                  />
+                </td>
+                <td className="border p-1">
+                  <div className="flex justify-center gap-2">
+                    <Button
+                      color="orange"
+                      text="✏️"
+                      onClick={() => handleEditRoom(room.Number)}
+                      disabled={room.Status}
+                    />
+                    <Button
+                      color="red"
+                      text="❌"
+                      onClick={() => handleDeleteRoom(room.Number)}
+                    />
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
 };
 
 export default RoomList;

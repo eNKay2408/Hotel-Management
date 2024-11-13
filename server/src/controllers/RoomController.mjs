@@ -1,106 +1,130 @@
-import { validationResult, matchedData } from "express-validator";
-import MockData from "../database/MockData.mjs";
-import { StatusCodes } from "http-status-codes";
+import { StatusCodes } from 'http-status-codes';
+import RoomModel from '../models/RoomModel.mjs';
+import RoomTypeModel from '../models/RoomTypeModel.mjs';
 
-const roomData = MockData.MockRoom;
-const roomType = ["A", "B", "C"];
+import { v2 as cloudinary } from 'cloudinary';
 
-export const resolveRoomById = (req, res, next) => {
-    const { id } = req.params;
-    if (isNaN(id)) {
-        return res.status(StatusCodes.BAD_REQUEST).send("Invalid ID supplied");
-    }
-    const roomIndex = roomData.findIndex(
-        (room) => room.RoomID === parseInt(id)
-    );
-    if (roomIndex === -1) {
-        return res.status(StatusCodes.NOT_FOUND).send("Room not found");
-    }
-
-    req.roomIndex = roomIndex;
-    next();
-};
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 export const RoomController = {
-    get: (req, res) => {
-        const { RoomID, RoomType, Price, RoomStatus } = req.query;
-        let rooms = roomData;
+  getAllRooms: async (req, res) => {
+    try {
+      const rooms = await RoomModel.getAllRooms();
+      return res.status(StatusCodes.OK).json(rooms);
+    } catch (err) {
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  },
 
-        //check valid value
-        if (RoomType && !roomType.includes(RoomType)) {
-            return res
-                .status(StatusCodes.BAD_REQUEST)
-                .send("Invalid RoomType supplied");
-        }
-        if (RoomID && isNaN(RoomID)) {
-            return res
-                .status(StatusCodes.BAD_REQUEST)
-                .send("Invalid RoomID supplied");
-        }
-        if (Price && isNaN(Price)) {
-            return res
-                .status(StatusCodes.BAD_REQUEST)
-                .send("Invalid Price supplied");
-        }
-        if (RoomStatus && !["In Use", "Empty"].includes(RoomStatus)) {
-            return res
-                .status(StatusCodes.BAD_REQUEST)
-                .send("Invalid RoomStatus supplied");
-        }
+  getRoomById: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const room = await RoomModel.getRoomById(id);
+      if (!room) {
+        return res.status(StatusCodes.NOT_FOUND).send('Room not found');
+      }
+      return res.status(StatusCodes.OK).json(room);
+    } catch (err) {
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  },
 
-        //filter rooms
-        if (RoomID) {
-            rooms = rooms.filter((room) => room.RoomID === parseInt(RoomID));
-        }
-        if (RoomType) {
-            rooms = rooms.filter((room) => room.RoomType === RoomType);
-        }
-        if (Price) {
-            rooms = rooms.filter((room) => room.Price === parseInt(Price));
-        }
-        if (RoomStatus) {
-            rooms = rooms.filter((room) => room.RoomStatus === RoomStatus);
-        }
+  addNewRoom: async (req, res) => {
+    try {
+      const { RoomId, Type, Status, Description } = req.body;
+      let { ImgUrl } = req.body;
 
-        //return result
-        if (rooms.length === 0) {
-            return res.status(StatusCodes.NOT_FOUND).send("Room not found");
-        }
-        return res.status(StatusCodes.OK).send(rooms);
-    },
+      if (!RoomId || !Type) {
+        return res
+          .status(StatusCodes.BAD_REQUEST)
+          .send('RoomId and Type are required');
+      }
 
-    post: (req, res) => {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(StatusCodes.BAD_REQUEST).send(errors.array());
-        }
-        const data = matchedData(req);
-        const newRoom = new MockData.Room(
-            data.RoomID,
-            data.RoomType,
-            data.Price,
-            data.RoomStatus,
-            data.Des
-        );
-        roomData.push(newRoom);
-        return res.status(StatusCodes.CREATED).send(newRoom);
-    },
+      if (Status === null) {
+        Status = 'Available';
+      }
 
-    put: (req, res) => {
-        const { body, roomIndex } = req;
-        roomData[roomIndex] = body;
-        return res.status(StatusCodes.OK).send(roomData[roomIndex]);
-    },
+      if (Description === null) {
+        Description = '';
+      }
 
-    patch: (req, res) => {
-        const { body, roomIndex } = req;
-        roomData[roomIndex] = { ...roomData[roomIndex], ...body };
-        return res.status(StatusCodes.OK).send(roomData[roomIndex]);
-    },
+      if (ImgUrl.startsWith('data:image')) {
+        const result = await cloudinary.uploader.upload(ImgUrl, {
+          folder: 'HotelManagement/Rooms',
+        });
+        ImgUrl = result.secure_url;
+      }
 
-    delete: (req, res) => {
-        const { roomIndex } = req;
-        roomData.splice(roomIndex, 1);
-        return res.status(StatusCodes.NO_CONTENT).send();
-    },
+      const room = await RoomModel.createRoom(
+        RoomId,
+        Type,
+        Status,
+        Description,
+        ImgUrl
+      );
+
+      return res.status(StatusCodes.CREATED).json(room);
+    } catch (err) {
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  },
+
+  updateRoom: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { Type, Status, Description } = req.body;
+      let { ImgUrl } = req.body;
+
+      if (ImgUrl.startsWith('data:image')) {
+        const result = await cloudinary.uploader.upload(ImgUrl, {
+          folder: 'HotelManagement/Rooms',
+        });
+        ImgUrl = result.secure_url;
+      }
+
+      const room = await RoomModel.updateRoom(
+        id,
+        Type,
+        Status,
+        Description,
+        ImgUrl
+      );
+
+      return res.status(StatusCodes.OK).json(room);
+    } catch (err) {
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  },
+
+  deleteRoom: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const room = await RoomModel.deleteRoom(id);
+      return res.status(StatusCodes.OK).json(room);
+    } catch (err) {
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  },
+  deleteRoom: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const room = await RoomModel.deleteRoom(id);
+      return res.status(StatusCodes.OK).json(room);
+    } catch (err) {
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  },
+
+  getAllRoomsTypes: async (req, res) => {
+    try {
+      const roomTypes = await RoomTypeModel.getAllRoomTypes();
+      return res.status(StatusCodes.OK).json(roomTypes);
+    } catch (err) {
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  },
 };

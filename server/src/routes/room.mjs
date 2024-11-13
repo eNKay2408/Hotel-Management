@@ -1,23 +1,22 @@
 import { Router } from 'express';
-import { RoomValidationSchema } from '../utils/validationSchema.mjs';
-import { checkSchema } from 'express-validator';
-import { RoomController, resolveRoomById } from '../controllers/RoomController.mjs';
+import { RoomController } from '../controllers/RoomController.mjs';
 
 const router = Router();
 
 // get all rooms
-router.get('/get', RoomController.get);
+router.get('/', RoomController.getAllRooms);
 
-// Add a room
-router.post('/post', checkSchema(RoomValidationSchema), RoomController.post);
+// get room by id
+router.get('/:id', RoomController.getRoomById);
 
-// Edit a room with patch method
-router.patch('/patch/:id', resolveRoomById, router.patch);
+// add a new room
+router.post('/', RoomController.addNewRoom);
 
-// Edit a room with put method
-router.put('/put/:id', resolveRoomById, router.put);
+// update a room
+router.put('/:id', RoomController.updateRoom);
 
-// Delete a room
-router.delete('/delete/:id', resolveRoomById, router.delete);
+// delete a room
+router.delete('/:id', RoomController.deleteRoom);
+
 
 export default router;
