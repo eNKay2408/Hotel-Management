@@ -27,19 +27,24 @@ export default class RoomTypeModel {
     Min_Customer_for_Surcharge = 3,
     Surcharge = 0.25
   ) {
-    const result = await connection
-      .request()
-      .input('Type', Type)
-      .input('Price', Price)
-      .input('Max_Customer', Max_Customer)
-      .input('Min_Customer_for_Surcharge', Min_Customer_for_Surcharge)
-      .input('Surcharge', Surcharge)
-      .query1(`INSERT INTO RoomType (Type, Price, Max_Customer, Min_Customer_for_Surcharge, Surcharge) 
-                VALUES (@Type, @Price, @Max_Customer, @Min_Customer_for_Surcharge, @Surcharge)`);
-    return {
-      message: 'RoomType created successfully',
-      rowsAffected: result.rowsAffected,
-    };
+    try {
+      const result = await connection
+        .request()
+        .input('Type', Type)
+        .input('Price', Price)
+        .input('Max_Customer', Max_Customer)
+        .input('Min_Customer_for_Surcharge', Min_Customer_for_Surcharge)
+        .input('Surcharge', Surcharge)
+        .query1(`INSERT INTO RoomType (Type, Price, Max_Customer, Min_Customer_for_Surcharge, Surcharge) 
+                  VALUES (@Type, @Price, @Max_Customer, @Min_Customer_for_Surcharge, @Surcharge)`);
+      return {
+        message: 'RoomType created successfully',
+        rowsAffected: result.rowsAffected,
+      };
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
   }
 
   static async UpdateRoomType(
@@ -90,14 +95,20 @@ export default class RoomTypeModel {
       };
     } catch (err) {
       console.log(err);
+      throw err;
     }
   }
 
   static async DeleteRoomType(Type) {
-    const result = await connection
-      .request()
-      .input('Type', Type)
-      .query('DELETE FROM RoomType WHERE Type = @Type');
-    return result.recordset[0];
+    try {
+      const result = await connection
+        .request()
+        .input('Type', Type)
+        .query('DELETE FROM RoomType WHERE Type = @Type');
+      return result.recordset[0];
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
   }
 }
