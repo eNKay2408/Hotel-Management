@@ -5,14 +5,14 @@ import connection from '../database/connectSQL.mjs';
 export default class RoomModel {
   static async getAllRooms() {
     const result = await connection.request()
-      .query(`SELECT r.RoomID as Number, t.Type, t.Max_Occupancy as Occupancy, t.Price, r.Status
+      .query(`SELECT r.RoomID as Number, t.Type, t.Max_Occupancy as Occupancy, t.Price, r.Status, r.Description, r.ImgUrl
                     FROM ROOM r join ROOMTYPE t on r.Type = t.Type`);
     return result.recordset;
   }
 
   static async getRoomById(id) {
     const result = await connection.request().input('id', id)
-      .query(`SELECT r.RoomID as Number, t.Type, t.Max_Occupancy as Occupancy, t.Price, r.Status
+      .query(`SELECT r.RoomID as Number, t.Type, t.Max_Occupancy as Occupancy, t.Price, r.Status, r.Description, r.ImgUrl
                     FROM ROOM r join ROOMTYPE t on r.Type = t.Type 
                     WHERE RoomID = @id`);
     return result.recordset[0];
