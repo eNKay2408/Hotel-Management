@@ -105,7 +105,10 @@ export default class RoomTypeModel {
         .request()
         .input('Type', Type)
         .query('DELETE FROM RoomType WHERE Type = @Type');
-      return result.recordset[0];
+      return {
+        message: 'Delete success',
+        rowsAffected: result.rowsAffected,
+      };
     } catch (err) {
       console.log(err);
       throw err;
