@@ -2,6 +2,14 @@ import { StatusCodes } from 'http-status-codes';
 import RoomModel from '../models/RoomModel.mjs';
 import RoomTypeModel from '../models/RoomTypeModel.mjs';
 
+import { v2 as cloudinary } from 'cloudinary';
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
 export const RoomController = {
   getAllRooms: async (req, res) => {
     try {
@@ -27,26 +35,38 @@ export const RoomController = {
 
   addNewRoom: async (req, res) => {
     try {
-      if (!req.body.RoomId || !req.body.Type) {
+      const { RoomId, Type, Status, Description } = req.body;
+      let { ImgUrl } = req.body;
+
+      if (!RoomId || !Type) {
         return res
           .status(StatusCodes.BAD_REQUEST)
           .send('RoomId and Type are required');
       }
 
-      if (req.body.Status === null) {
-        req.body.Status = 'Available';
+      if (Status === null) {
+        Status = 'Available';
       }
 
-      if (req.body.Description === null) {
-        req.body.Description = '';
+      if (Description === null) {
+        Description = '';
       }
-      const { RoomId, Type, Status, Description } = req.body;
+
+      if (ImgUrl.startsWith('data:image')) {
+        const result = await cloudinary.uploader.upload(ImgUrl, {
+          folder: 'HotelManagement/Rooms',
+        });
+        ImgUrl = result.secure_url;
+      }
+
       const room = await RoomModel.createRoom(
         RoomId,
         Type,
         Status,
-        Description
+        Description,
+        ImgUrl
       );
+
       return res.status(StatusCodes.CREATED).json(room);
     } catch (err) {
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
@@ -57,13 +77,38 @@ export const RoomController = {
     try {
       const { id } = req.params;
       const { Type, Status, Description } = req.body;
-      const room = await RoomModel.updateRoom(id, Type, Status, Description);
+      let { ImgUrl } = req.body;
+
+      if (ImgUrl.startsWith('data:image')) {
+        const result = await cloudinary.uploader.upload(ImgUrl, {
+          folder: 'HotelManagement/Rooms',
+        });
+        ImgUrl = result.secure_url;
+      }
+
+      const room = await RoomModel.updateRoom(
+        id,
+        Type,
+        Status,
+        Description,
+        ImgUrl
+      );
+
       return res.status(StatusCodes.OK).json(room);
     } catch (err) {
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
     }
   },
 
+  deleteRoom: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const room = await RoomModel.deleteRoom(id);
+      return res.status(StatusCodes.OK).json(room);
+    } catch (err) {
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  },
   deleteRoom: async (req, res) => {
     try {
       const { id } = req.params;
