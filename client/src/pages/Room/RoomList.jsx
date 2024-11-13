@@ -74,7 +74,9 @@ const RoomList = () => {
     const response = await deleteRoom(number);
 
     if (response.ok) {
-      setRooms(rooms.filter((room) => room.Number !== number));
+      const updatedRooms = rooms.filter((room) => room.Number !== number);
+      setRooms(updatedRooms);
+      setAllRooms(updatedRooms);
     } else {
       alert('Room has currently booking');
       const message = await response.text();
