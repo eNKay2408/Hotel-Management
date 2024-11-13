@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import RoomRoutes from './routes/room.mjs';
 import BookingRotes from './routes/booking.mjs';
 import InvoiceRoutes from './routes/invoice.mjs';
+import RoomTypeRoutes from './routes/roomType.mjs';
 import connection from './database/connectSQL.mjs';
 
 dotenv.config();
@@ -25,6 +26,7 @@ connection
 app.use('/api/rooms', RoomRoutes);
 app.use('/api/bookings', BookingRotes);
 app.use('/api/invoices', InvoiceRoutes);
+app.use('/api/RoomTypes', RoomTypeRoutes);
 
 const HOST = process.env.BACKEND_HOSTNAME || 'localhost';
 const PORT = process.env.BACKEND_PORT || 3000;

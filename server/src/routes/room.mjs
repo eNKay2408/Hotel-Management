@@ -18,7 +18,5 @@ router.put('/:id', RoomController.updateRoom);
 // delete a room
 router.delete('/:id', RoomController.deleteRoom);
 
-// get all room types
-router.get('/Types', RoomController.getAllRoomsTypes);
 
 export default router;
