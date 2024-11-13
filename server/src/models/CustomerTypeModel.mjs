@@ -1,6 +1,6 @@
 import connection from "../database/connectSQL.mjs";
 
-// CustomerType: {Id, Name, Coefficient}
+// CustomerType: {Type, Name, Coefficient}
 
 export default class CustomerTypeModel {
     static async getAllCustomerTypes() {
@@ -10,11 +10,11 @@ export default class CustomerTypeModel {
         return result.recordset;
     }
 
-    static async getCustomerTypeInfo(Id) {
+    static async getCustomerTypeInfo(Type) {
         const result = await connection
             .request()
-            .input("Id", Id)
-            .query("SELECT * FROM CustomerType WHERE Id = @Id");
+            .input("Type", Type)
+            .query("SELECT * FROM CustomerType WHERE Type = @Type");
         return result.recordset[0];
     }
 
@@ -28,7 +28,7 @@ export default class CustomerTypeModel {
         return result.recordset[0];
     }
 
-    static async UpdateCustomerType(Id, Name = null, Coefficient = null) {
+    static async UpdateCustomerType(Type, Name = null, Coefficient = null) {
         try {
             let query = `UPDATE CustomerType SET `;
             const UpdateCustomerType = [];
@@ -42,7 +42,7 @@ export default class CustomerTypeModel {
                 throw new Error("No fields to update");
             }
             query += UpdateCustomerType.join(", ");
-            query += ` WHERE Id = ${Id}`;
+            query += ` WHERE Type = ${Type}`;
             const result = await connection.request().query(query);
             return result.recordset[0];
         } catch (error) {
@@ -50,11 +50,11 @@ export default class CustomerTypeModel {
         }
     }
 
-    static async DeleteCustomerType(Id) {
+    static async DeleteCustomerType(Type) {
         const result = await connection
             .request()
-            .input("Id", Id)
-            .query("DELETE FROM CustomerType WHERE Id = @Id");
+            .input("Type", Type)
+            .query("DELETE FROM CustomerType WHERE Type = @Type");
         return result.recordset[0];
     }
 }

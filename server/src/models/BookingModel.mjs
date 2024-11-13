@@ -1,6 +1,6 @@
 import connection from "../database/connectSQL.mjs";
 
-// Booking: {Id, CheckInDate, RoomId, InvoiceId, Cost}
+// Booking: {BookingId, CheckInDate, RoomId, InvoiceId, Cost}
 
 export default class BookingModel {
     static async getAllBookings() {
@@ -10,11 +10,11 @@ export default class BookingModel {
         return result.recordset;
     }
 
-    static async getBookingInfo(Id) {
+    static async getBookingInfo(BookingId) {
         const result = await connection
             .request()
-            .input("Id", Id)
-            .query("SELECT * FROM Booking WHERE Id = @Id");
+            .input("BookingId", BookingId)
+            .query("SELECT * FROM Booking WHERE BookingId = @BookingId");
         return result.recordset[0];
     }
 
@@ -29,7 +29,7 @@ export default class BookingModel {
     }
 
     static async UpdateBooking(
-        Id,
+        BookingId,
         CheckInDate = null,
         RoomId = null,
         InvoiceId = null,
@@ -54,7 +54,7 @@ export default class BookingModel {
                 throw new Error("No fields to update");
             }
             query += UpdateBooking.join(", ");
-            query += ` WHERE Id = ${Id}`;
+            query += ` WHERE BookingId = ${BookingId}`;
             const result = await connection.request().query(query);
             return result.recordset[0];
         } catch (error) {
@@ -62,11 +62,11 @@ export default class BookingModel {
         }
     }
 
-    static async DeleteBooking(Id) {
+    static async DeleteBooking(BookingId) {
         const result = await connection
             .request()
-            .input("Id", Id)
-            .query("DELETE FROM Booking WHERE Id = @Id");
+            .input("BookingId", BookingId)
+            .query("DELETE FROM Booking WHERE BookingId = @BookingId");
         return result.recordset[0];
     }
 }

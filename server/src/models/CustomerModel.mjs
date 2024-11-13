@@ -1,6 +1,6 @@
 import connection from "../database/connectSQL.mjs";
 
-// Customer: {Id, Name, IdentityCard, Address, TypeId}
+// Customer: {CustomerId, Name, IdentityCard, Address, Type}
 
 export default class CustomerModel {
     static async getAllCustomers() {
@@ -10,32 +10,32 @@ export default class CustomerModel {
         return result.recordset;
     }
 
-    static async getCustomerInfo(Id) {
+    static async getCustomerInfo(CustomerId) {
         const result = await connection
             .request()
-            .input("Id", Id)
-            .query("SELECT * FROM Customer WHERE Id = @Id");
+            .input("CustomerId", CustomerId)
+            .query("SELECT * FROM Customer WHERE CustomerId = @CustomerId");
         return result.recordset[0];
     }
 
-    static async CreateCustomer(Name, IdentityCard, Address, TypeId = 1) {
+    static async CreateCustomer(Name, IdentityCard, Address, Type = 1) {
         const result = await connection
             .request()
             .input("Name", Name)
             .input("IdentityCard", IdentityCard)
             .input("Address", Address)
-            .input("TypeId", TypeId)
-            .query1(`INSERT INTO Customer (Name, IdentityCard, Address, TypeId) 
-                VALUES (@Name, @IdentityCard, @Address, @TypeId)`);
+            .input("Type", Type)
+            .query1(`INSERT INTO Customer (Name, IdentityCard, Address, Type) 
+                VALUES (@Name, @IdentityCard, @Address, @Type)`);
         return result.recordset[0];
     }
 
     static async UpdateCustomer(
-        Id,
+        CustomerId,
         Name = null,
         IdentityCard = null,
         Address = null,
-        TypeId = null
+        Type = null
     ) {
         try {
             let query = `UPDATE Customer SET `;
@@ -49,14 +49,14 @@ export default class CustomerModel {
             if (Address !== null) {
                 UpdateCustomer.push(`Address = ${Address}`);
             }
-            if (TypeId !== null) {
-                UpdateCustomer.push(`TypeId = ${TypeId}`);
+            if (Type !== null) {
+                UpdateCustomer.push(`Type = ${Type}`);
             }
             if (UpdateCustomer.length === 0) {
                 throw new Error("No fields to update");
             }
             query += UpdateCustomer.join(", ");
-            query += ` WHERE Id = ${Id}`;
+            query += ` WHERE CustomerId = ${CustomerId}`;
             const result = await connection.request().query(query);
             return result.recordset[0];
         } catch (error) {
@@ -64,11 +64,11 @@ export default class CustomerModel {
         }
     }
 
-    static async DeleteCustomer(Id) {
+    static async DeleteCustomer(CustomerId) {
         const result = await connection
             .request()
-            .input("Id", Id)
-            .query("DELETE FROM Customer WHERE Id = @Id");
+            .input("CustomerId", CustomerId)
+            .query("DELETE FROM Customer WHERE CustomerId = @CustomerId");
         return result.recordset[0];
     }
 }

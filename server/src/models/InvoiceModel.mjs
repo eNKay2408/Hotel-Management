@@ -1,6 +1,6 @@
 import connection from "../database/connectSQL.mjs";
 
-// Invoice: {Id, CheckOutDate, Amount, representative} (representative is the Id of the Customer)
+// Invoice: {InvoiceId, CheckOutDate, Amount, representative} (representative is the InvoiceId of the Customer)
 
 export default class InvoiceModel {
     static async getAllInvoices() {
@@ -10,11 +10,11 @@ export default class InvoiceModel {
         return result.recordset;
     }
 
-    static async getInvoiceInfo(Id) {
+    static async getInvoiceInfo(InvoiceId) {
         const result = await connection
             .request()
-            .input("Id", Id)
-            .query("SELECT * FROM Invoice WHERE Id = @Id");
+            .input("InvoiceId", InvoiceId)
+            .query("SELECT * FROM Invoice WHERE InvoiceId = @InvoiceId");
         return result.recordset[0];
     }
 
@@ -30,7 +30,7 @@ export default class InvoiceModel {
     }
 
     static async UpdateInvoice(
-        Id,
+        InvoiceId,
         CheckOutDate = null,
         Amount = null,
         representative = null
@@ -51,7 +51,7 @@ export default class InvoiceModel {
                 throw new Error("No fields to update");
             }
             query += UpdateInvoice.join(", ");
-            query += ` WHERE Id = ${Id}`;
+            query += ` WHERE InvoiceId = ${InvoiceId}`;
             const result = await connection.request().query(query);
             return result.recordset[0];
         } catch (error) {
@@ -59,11 +59,11 @@ export default class InvoiceModel {
         }
     }
 
-    static async DeleteInvoice(Id) {
+    static async DeleteInvoice(InvoiceId) {
         const result = await connection
             .request()
-            .input("Id", Id)
-            .query("DELETE FROM Invoice WHERE Id = @Id");
+            .input("InvoiceId", InvoiceId)
+            .query("DELETE FROM Invoice WHERE InvoiceId = @InvoiceId");
         return result.recordset[0];
     }
 }
