@@ -95,7 +95,7 @@ const RoomDetails = () => {
 
       {loading && (
         <p className="text-center text-red text-2xl font-bold mb-4">
-          Room is being saving...
+          Room is being saved...
         </p>
       )}
 
@@ -134,10 +134,11 @@ const RoomDetails = () => {
             </div>
             <div className="flex flex-col">
               <label className="font-bold text-xl">Description</label>
-              <input
+              <textarea
                 type="text"
                 value={room.Description}
                 className="border rounded-md px-2 py-1 text-lg"
+                rows="6"
                 onChange={(e) =>
                   setRoom({ ...room, Description: e.target.value })
                 }
@@ -145,13 +146,13 @@ const RoomDetails = () => {
             </div>
             <div>
               <label className="font-bold text-xl">Image</label>
-              <img src={room.ImgUrl} className="py-2 w-40" />
               <input
                 type="file"
-                className="border rounded-md px-2 py-1 text-sm w-full"
+                className="border rounded-md px-2 py-[5px] text-sm w-full"
                 ref={imageRef}
                 onChange={() => handleImageUpload()}
               />
+              <img src={room.ImgUrl} className="py-2 w-36 h-36 object-cover" />
             </div>
           </div>
 
