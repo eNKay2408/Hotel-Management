@@ -21,11 +21,21 @@ export const BookingController = {
         RoomId
       );
 
+      const newBookingId = await BookingModel.getTheNewestBookingId();
+      let CustomersId = [];
+
       for (const Customer of Customers) {
         const { Name, IdentityCard, Address, Type } = Customer;
         console.log(Customer);
         await customerModel.CreateCustomer(Name, IdentityCard, Address, Type);
+        const newCustomerId = await customerModel.getCustomerIdByIdentityCard();
+        CustomersId.push(newCustomerId);
       }
+
+      for (const CustomerId of CustomersId) {
+        await BookingModel.createBookingCustomer(newBookingId, CustomerId);
+      }
+
       return res.status(StatusCodes.CREATED).json(booking);
     } catch (err) {
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);

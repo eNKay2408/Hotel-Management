@@ -71,4 +71,14 @@ export default class CustomerModel {
       .query('DELETE FROM Customer WHERE CustomerId = @CustomerId');
     return result.recordset[0];
   }
+
+  static async getCustomerIdByIdentityCard(IdentityCard) {
+    const result = await connection
+      .request()
+      .input('IdentityCard', IdentityCard)
+      .query(
+        'SELECT CustomerId FROM Customer WHERE IdentityCard = @IdentityCard'
+      );
+    return result.recordset;
+  }
 }

@@ -90,4 +90,11 @@ export default class BookingModel {
       throw error;
     }
   }
+
+  getTheNewestBookingId() {
+    const result = connection
+      .request()
+      .query('SELECT TOP 1 BookingId FROM Booking ORDER BY BookingId DESC');
+    return result.recordset;
+  }
 }

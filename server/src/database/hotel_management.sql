@@ -129,11 +129,7 @@ VALUES (101, 'A'),
 INSERT INTO CUSTOMERTYPE VALUES ('domestic', 1), ('foreign', 1.5)
 
 INSERT INTO
-    CUSTOMER (
-        Name,
-        Address,
-        IdentityCard
-    )
+    CUSTOMER (Name, Address, IdentityCard)
 VALUES (
         N'Hoàng Tiến Huy',
         N'Dĩ An, Bình Dương',
