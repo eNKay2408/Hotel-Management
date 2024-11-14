@@ -1,5 +1,6 @@
 import BookingModel from '../models/BookingModel.mjs';
 import customerModel from '../models/CustomerModel.mjs';
+import BookingCustomerModel from '../models/BookingCustomerModel.mjs';
 import { StatusCodes } from 'http-status-codes';
 
 export const BookingController = {
@@ -7,7 +8,6 @@ export const BookingController = {
     //req: {RoomID: , customer: [{CustomerId:, IdentityCard:, address:, Type:, }, {CustomerId:, IdentityCard:, address:, Type:, }]}
     try {
       const { RoomId, Customers } = req.body;
-      console.log(Customers);
       const getCurrentDate = () => {
         const now = new Date();
         const year = now.getUTCFullYear();
@@ -16,32 +16,38 @@ export const BookingController = {
 
         return `${year}-${month}-${day}`;
       };
+      // create new booking
       const booking = await BookingModel.createBooking(
         getCurrentDate(),
         RoomId
       );
 
+      //get bookingId of the new booking
       const newBookingId = await BookingModel.getTheNewestBookingId();
-      let CustomersId = [];
+      //get all customerIds
+      var CustomerIds = [];
 
+      //create new customer if not exist
       for (const Customer of Customers) {
         const { Name, IdentityCard, Address, Type } = Customer;
         const CustomerId = await customerModel.getCustomerIdByIdentityCard(
           IdentityCard
         );
-        if (CustomerId === null) {
+        if (CustomerId.length === 0) {
           await customerModel.CreateCustomer(Name, IdentityCard, Address, Type);
-          CustomersId.push(
-            await customerModel.getCustomerIdByIdentityCard(IdentityCard)
+          CustomerIds.push(
+            (await customerModel.getCustomerIdByIdentityCard(IdentityCard))[0]
           );
         }
-        CustomersId.push(CustomerId);
+        CustomerIds.push(CustomerId[0]);
       }
 
-      console.log(newBookingId, CustomersId);
-
-      for (const CustomerId of CustomersId) {
-        await BookingModel.createBookingCustomer(newBookingId, CustomerId);
+      //create new bookingCustomer for each customer
+      for (const CustomerId of CustomerIds) {
+        await BookingCustomerModel.CreateBookingCustomer(
+          newBookingId[0].BookingId,
+          CustomerId.CustomerId
+        );
       }
 
       return res.status(StatusCodes.CREATED).json(booking);

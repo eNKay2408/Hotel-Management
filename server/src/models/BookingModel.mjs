@@ -26,7 +26,6 @@ export default class BookingModel {
                   VALUES (@BookingDate, @RoomId)`);
       return {
         message: 'Booking created successfully',
-        rowsAffected: result.rowsAffected,
       };
     } catch (error) {
       console.log(error);
@@ -83,7 +82,6 @@ export default class BookingModel {
         .query('DELETE FROM Booking WHERE BookingId = @BookingId');
       return {
         message: 'Booking deleted successfully',
-        rowsAffected: result.rowsAffected,
       };
     } catch (error) {
       console.log(error);
@@ -91,10 +89,10 @@ export default class BookingModel {
     }
   }
 
-  getTheNewestBookingId() {
+  static async getTheNewestBookingId() {
     const result = connection
       .request()
       .query('SELECT TOP 1 BookingId FROM Booking ORDER BY BookingId DESC');
-    return result.recordset;
+    return (await result).recordset;
   }
 }
