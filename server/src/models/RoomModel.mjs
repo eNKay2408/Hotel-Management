@@ -27,10 +27,10 @@ export default class RoomModel {
   }
 
   static async getRoomByStatus(Status) {
-    const result = await connection
-      .request()
-      .input('Status', Status)
-      .query('SELECT * FROM Room WHERE Status = @Status');
+    const result = await connection.request().input('Status', Status)
+      .query(`SELECT r.RoomID as Number, t.Type, t.Max_Occupancy as Occupancy, t.Price, r.ImgUrl
+              FROM ROOM r join ROOMTYPE t on r.Type = t.Type
+              WHERE Status = @Status`);
     return result.recordset;
   }
 

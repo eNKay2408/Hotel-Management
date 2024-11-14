@@ -1,17 +1,9 @@
-import { Router } from "express";
-import {
-	BookingController,
-	resolveBookingById,
-} from "../controllers/BookingController.mjs";
+import { Router } from 'express';
+import { BookingController } from '../controllers/BookingController.mjs';
+import { RoomController } from '../controllers/RoomController.mjs';
 
 const router = Router();
 
-router.get("/", BookingController.get);
-
-router.get("/get/:id/numberOfCustomer", BookingController.getNumberOfCustomer);
-
-router.post("/post", BookingController.post);
-
-router.patch("/patch/:id", resolveBookingById, BookingController.patch);
-
+router.get('/', RoomController.getAllRoomsAvailable);
+router.post('/', BookingController.createNewBooking);
 export default router;

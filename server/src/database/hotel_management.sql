@@ -30,7 +30,7 @@ CREATE TABLE CUSTOMERTYPE (
 
 CREATE TABLE CUSTOMER (
     CustomerID int IDENTITY (1, 1) PRIMARY KEY,
-    CustomerName nvarchar (40),
+    Name nvarchar (40),
     Address nvarchar (100),
     IdentityCard varchar(12),
     Type int NOT NULL DEFAULT 1,
@@ -130,7 +130,7 @@ INSERT INTO CUSTOMERTYPE VALUES ('domestic', 1), ('foreign', 1.5)
 
 INSERT INTO
     CUSTOMER (
-        CustomerName,
+        Name,
         Address,
         IdentityCard
     )
@@ -161,7 +161,7 @@ VALUES (
     )
 
 INSERT INTO
-    CUSTOMER (CustomerName, Type)
+    CUSTOMER (Name, Type)
 VALUES (N'Lebrons James', 2),
     (N'Ishow Speed', 2),
     (N'Leo Messi', 2),
@@ -207,10 +207,6 @@ UPDATE BOOKING SET InvoiceId = 3 WHERE BookingID = 4
 
 UPDATE BOOKING SET InvoiceId = 4 WHERE BookingID = 5
 
-UPDATE ROOM
-SET
-    ImgUrl = 'https://placehold.co/400'
+UPDATE ROOM SET ImgUrl = 'https://placehold.co/400'
 
-UPDATE ROOM
-SET
-    Description = 'This is a room'
+UPDATE ROOM SET Description = 'This is a room'
