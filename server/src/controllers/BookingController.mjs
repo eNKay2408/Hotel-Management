@@ -26,11 +26,19 @@ export const BookingController = {
 
       for (const Customer of Customers) {
         const { Name, IdentityCard, Address, Type } = Customer;
-        console.log(Customer);
-        await customerModel.CreateCustomer(Name, IdentityCard, Address, Type);
-        const newCustomerId = await customerModel.getCustomerIdByIdentityCard();
-        CustomersId.push(newCustomerId);
+        const CustomerId = await customerModel.getCustomerIdByIdentityCard(
+          IdentityCard
+        );
+        if (CustomerId === null) {
+          await customerModel.CreateCustomer(Name, IdentityCard, Address, Type);
+          CustomersId.push(
+            await customerModel.getCustomerIdByIdentityCard(IdentityCard)
+          );
+        }
+        CustomersId.push(CustomerId);
       }
+
+      console.log(newBookingId, CustomersId);
 
       for (const CustomerId of CustomersId) {
         await BookingModel.createBookingCustomer(newBookingId, CustomerId);

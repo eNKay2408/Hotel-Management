@@ -32,7 +32,7 @@ CREATE TABLE CUSTOMER (
     CustomerID int IDENTITY (1, 1) PRIMARY KEY,
     Name nvarchar (40),
     Address nvarchar (100),
-    IdentityCard varchar(12) UNIQUE,
+    IdentityCard varchar(12),
     Type int NOT NULL DEFAULT 1,
     FOREIGN KEY (Type) REFERENCES CUSTOMERTYPE (Type),
 )
