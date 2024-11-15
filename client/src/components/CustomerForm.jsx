@@ -1,15 +1,33 @@
 import { bookingInformation } from '../constants';
-import { avatar1, avatar2, avatar3, avatar4 } from '../assets';
+import {
+  avatar1,
+  avatar2,
+  avatar3,
+  avatar4,
+  avatar5,
+  avatar6,
+  avatar7,
+  avatar8,
+  avatar9,
+  avatar10,
+} from '../assets';
 
 import { getCustomerTypes } from '../services';
 import { useState, useEffect } from 'react';
 
-const disallowNonNumericInput = (e) => {
-  e.target.value = e.target.value.replace(/[^0-9]/, '');
-};
-
 const CustomerForm = ({ index }) => {
-  const imageUrlList = [avatar1, avatar2, avatar3, avatar4];
+  const imageUrlList = [
+    avatar1,
+    avatar2,
+    avatar3,
+    avatar4,
+    avatar5,
+    avatar6,
+    avatar7,
+    avatar8,
+    avatar9,
+    avatar10,
+  ];
 
   const [customerTypes, setCustomerTypes] = useState();
 
@@ -22,6 +40,10 @@ const CustomerForm = ({ index }) => {
     fetchCustomerTypes();
   }, []);
 
+  const disallowNonNumericInput = (e) => {
+    e.target.value = e.target.value.replace(/[^0-9]/, '');
+  };
+
   return (
     <div className="flex flex-col">
       <div className=" p-2 font-play text-2xl bg-zinc-200 rounded-t-lg">
@@ -30,7 +52,11 @@ const CustomerForm = ({ index }) => {
 
       <div className="flex md:flex-row flex-col items-center justify-evenly gap-4 border-4 border-zinc-200 p-2">
         <div className="flex items-center">
-          <img className="w-28 h-28" src={imageUrlList[index - 1]} />
+          <img
+            className="w-28 h-28"
+            src={imageUrlList[index - 1]}
+            alt={`Avatar ${index}`}
+          />
         </div>
         <div className="grid md:grid-cols-2 grid-cols-1 gap-4 font-amethysta p-2">
           {bookingInformation.map((info) => (
