@@ -33,13 +33,15 @@ export const BookingController = {
         const CustomerId = await customerModel.getCustomerIdByIdentityCard(
           IdentityCard
         );
+
         if (CustomerId.length === 0) {
           await customerModel.CreateCustomer(Name, IdentityCard, Address, Type);
           CustomerIds.push(
             (await customerModel.getCustomerIdByIdentityCard(IdentityCard))[0]
           );
+        } else {
+          CustomerIds.push(CustomerId[0]);
         }
-        CustomerIds.push(CustomerId[0]);
       }
 
       //create new bookingCustomer for each customer
