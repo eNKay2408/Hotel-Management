@@ -1,105 +1,135 @@
-import { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useState, useEffect, useRef } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 
-import { GuestForm, Title, Button } from "../../components";
+import { CustomerForm, Title, Button } from '../../components';
+
+import { createBooking, getRooms } from '../../services';
 
 const BookingDetails = () => {
-	const { id } = useParams();
+  const { id: Number } = useParams();
 
-	const [guests, setGuests] = useState([1]);
+  const [maxOccupancy, setMaxOccupancy] = useState();
+  const [occupancy, setOccupancy] = useState();
 
-	const handleAddGuest = () => {
-		setGuests([...guests, guests.length + 1]);
-	};
+  const navigate = useNavigate();
+  const isExecuted = useRef(false);
 
-	const handleDeleteGuest = () => {
-		if (guests.length > 1) {
-			setGuests(guests.slice(0, guests.length - 1));
-		}
-	};
+  useEffect(() => {
+    const fetchData = async () => {
+      if (isExecuted.current) return;
+      isExecuted.current = true;
 
-	const navigate = useNavigate();
+      const rooms = await getRooms();
+      const room = rooms.find((room) => room.Number == Number);
 
-	const handleSubmit = async (e) => {
-		e.preventDefault();
+      if (!room) {
+        alert('Room not found');
+        navigate('/bookings');
+        return;
+      }
 
-		const formData = new FormData(e.target);
+      if (room.Status) {
+        alert('Room is not available');
+        navigate('/bookings');
+        return;
+      }
 
-		const guestsData = [];
-		const guestMap = {};
+      setMaxOccupancy(room.Occupancy);
+      setOccupancy(room.Occupancy);
+    };
 
-		formData.forEach((value, key) => {
-			const [index, field] = key.split("-");
+    fetchData();
+  }, [Number, navigate]);
 
-			if (!guestMap[index]) {
-				guestMap[index] = {};
-			}
+  const handleAddCustomer = () => {
+    if (occupancy < maxOccupancy) {
+      setOccupancy(occupancy + 1);
+    } else {
+      alert('Maximum occupancy reached');
+    }
+  };
 
-			guestMap[index][field] = value;
-		});
+  const handleDeleteCustomer = () => {
+    if (occupancy > 1) {
+      setOccupancy(occupancy - 1);
+    } else {
+      alert('Minimum occupancy is 1');
+    }
+  };
 
-		for (const index in guestMap) {
-			guestsData.push(guestMap[index]);
-		}
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-		const response = await fetch(`/api/bookings/${id}`, {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify(guestsData),
-		});
+    const formData = new FormData(e.target);
 
-		navigate(`/bookings`);
+    const customerMap = {};
+    const customersData = [];
 
-		/*
-		* API: Create booking
+    formData.forEach((value, key) => {
+      const [index, field] = key.split('-');
 
-		if (response.ok) {
-			alert("Booking created successfully");
-			navigate(`/bookings/${id}`);
-		} else {
-			alert("Failed to create booking");
-			console.error(response);
-		}
-		*/
-	};
+      if (!customerMap[index]) {
+        customerMap[index] = {};
+      }
 
-	return (
-		<div className="flex flex-col w-full py-4 px-2">
-			<Title title={`Booking Details`} />
+      customerMap[index][field] = value;
+    });
 
-			<div className="text-center font-play mt-[-16px] text-2xl opacity-60">
-				Start date:{" "}
-				<span className="font-bold">
-					{new Date().toLocaleDateString("en-GB")}
-				</span>
-			</div>
+    for (const index in customerMap) {
+      customersData.push(customerMap[index]);
+    }
 
-			<div className="flex justify-center gap-2 mt-4 py-4">
-				<Button
-					color="green"
-					text="Add Guest"
-					onClick={() => handleAddGuest()}
-				/>
-				<Button
-					color="red"
-					text="Delete Guest"
-					onClick={() => handleDeleteGuest()}
-				/>
-			</div>
+    const bookingData = {
+      RoomId: Number,
+      Customers: customersData,
+    };
 
-			<form
-				className="flex flex-col items-center justify-evenly gap-4"
-				onSubmit={handleSubmit}
-			>
-				{guests.map((id) => (
-					<GuestForm key={id} id={id} />
-				))}
-				<Button color="orange" text="CONFIRM" type="submit" />
-			</form>
-		</div>
-	);
+    const response = await createBooking(bookingData);
+
+    if (response.status === 201) {
+      alert('Booking created successfully');
+      navigate('/bookings');
+    } else {
+      alert(response.text);
+      console.error(response.text);
+    }
+  };
+
+  return (
+    <div className="flex flex-col w-full py-4 px-2">
+      <Title title={`Booking Details - Room ${Number}`} />
+
+      <div className="text-center font-play mt-[-16px] text-2xl opacity-60">
+        Start date:{' '}
+        <span className="font-bold">
+          {new Date().toLocaleDateString('en-GB')}
+        </span>
+      </div>
+
+      <div className="flex justify-center gap-2 mt-4 py-4">
+        <Button
+          color="green"
+          text="Add Customer"
+          onClick={() => handleAddCustomer()}
+        />
+        <Button
+          color="red"
+          text="Delete Customer"
+          onClick={() => handleDeleteCustomer()}
+        />
+      </div>
+
+      <form
+        className="flex flex-col items-center justify-evenly gap-4"
+        onSubmit={handleSubmit}
+      >
+        {[...Array(occupancy)].map((_, index) => (
+          <CustomerForm key={index} index={index + 1} />
+        ))}
+        <Button color="orange" text="CONFIRM" type="submit" />
+      </form>
+    </div>
+  );
 };
 
 export default BookingDetails;
