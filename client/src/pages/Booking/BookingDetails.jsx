@@ -8,7 +8,6 @@ import { createBooking, getRooms } from '../../services';
 const BookingDetails = () => {
   const { id: Number } = useParams();
 
-  const [maxOccupancy, setMaxOccupancy] = useState();
   const [occupancy, setOccupancy] = useState();
 
   const navigate = useNavigate();
@@ -34,7 +33,6 @@ const BookingDetails = () => {
         return;
       }
 
-      setMaxOccupancy(room.Occupancy);
       setOccupancy(room.Occupancy);
     };
 
@@ -42,10 +40,11 @@ const BookingDetails = () => {
   }, [Number, navigate]);
 
   const handleAddCustomer = () => {
-    if (occupancy < maxOccupancy) {
-      setOccupancy(occupancy + 1);
+    if (occupancy >= 10) {
+      alert('Maximum occupancy is 10');
+      return;
     } else {
-      alert('Maximum occupancy reached');
+      setOccupancy(occupancy + 1);
     }
   };
 
@@ -124,7 +123,7 @@ const BookingDetails = () => {
         onSubmit={handleSubmit}
       >
         {[...Array(occupancy)].map((_, index) => (
-          <CustomerForm key={index} index={index + 1} />
+          <CustomerForm key={index + 1} index={index + 1} />
         ))}
         <Button color="orange" text="CONFIRM" type="submit" />
       </form>
