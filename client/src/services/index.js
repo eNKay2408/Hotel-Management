@@ -4,6 +4,22 @@ export const getBookings = async () => {
   return response.json();
 };
 
+export const createBooking = async (data) => {
+  const response = await fetch('http://localhost:3000/api/bookings', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  return response;
+};
+
+export const getCustomerTypes = async () => {
+  const response = await fetch('http://localhost:3000/api/customertypes');
+  return response.json();
+};
+
 // *Rooms*
 export const getRooms = async () => {
   const response = await fetch('http://localhost:3000/api/rooms');
