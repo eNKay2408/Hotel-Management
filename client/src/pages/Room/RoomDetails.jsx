@@ -108,6 +108,7 @@ const RoomDetails = () => {
             <div className="flex flex-col">
               <label className="font-bold text-xl">Number</label>
               <input
+                required
                 type="number"
                 value={room.Number}
                 className="border rounded-md px-2 py-1 text-lg"
@@ -121,6 +122,7 @@ const RoomDetails = () => {
             <div className="flex flex-col">
               <label className="font-bold text-xl">Type</label>
               <select
+                required
                 className="border rounded-md px-2 py-[7px] text-lg"
                 value={room.Type}
                 onChange={(e) => setRoom({ ...room, Type: e.target.value })}
