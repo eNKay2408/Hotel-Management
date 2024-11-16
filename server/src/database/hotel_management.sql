@@ -208,12 +208,10 @@ UPDATE ROOM SET Description = 'This is a room'
 --Set imgurl for each room
 DECLARE @RoomId INT;
 DECLARE @i INT = 1;
-
 DECLARE RoomCursor CURSOR FOR
 SELECT RoomId FROM Room;
 
 OPEN RoomCursor;
-
 FETCH NEXT FROM RoomCursor INTO @RoomId;
 
 WHILE @@FETCH_STATUS = 0
@@ -222,11 +220,13 @@ BEGIN
     SET ImgUrl = CONCAT('https://res.cloudinary.com/dvzhmi7a9/image/upload/v1731698679/HotelManagement/', @i, '.jpg')
     WHERE RoomId = @RoomId;
 
-    SET @i = @i + 1; -- Tăng giá trị URL
+    SET @i = @i + 1;
+    IF(@I > 20)
+    BEGIN
+        SET @i = 1;
+    END
     FETCH NEXT FROM RoomCursor INTO @RoomId;
 END;
 
 CLOSE RoomCursor;
 DEALLOCATE RoomCursor;
-
-select * from room
