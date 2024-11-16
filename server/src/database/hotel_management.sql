@@ -203,6 +203,30 @@ UPDATE BOOKING SET InvoiceId = 3 WHERE BookingID = 4
 
 UPDATE BOOKING SET InvoiceId = 4 WHERE BookingID = 5
 
-UPDATE ROOM SET ImgUrl = 'https://placehold.co/400'
-
 UPDATE ROOM SET Description = 'This is a room'
+
+--Set imgurl for each room
+DECLARE @RoomId INT;
+DECLARE @i INT = 1;
+
+DECLARE RoomCursor CURSOR FOR
+SELECT RoomId FROM Room;
+
+OPEN RoomCursor;
+
+FETCH NEXT FROM RoomCursor INTO @RoomId;
+
+WHILE @@FETCH_STATUS = 0
+BEGIN
+    UPDATE Room
+    SET ImgUrl = CONCAT('https://res.cloudinary.com/dvzhmi7a9/image/upload/v1731698679/HotelManagement/', @i, '.jpg')
+    WHERE RoomId = @RoomId;
+
+    SET @i = @i + 1; -- Tăng giá trị URL
+    FETCH NEXT FROM RoomCursor INTO @RoomId;
+END;
+
+CLOSE RoomCursor;
+DEALLOCATE RoomCursor;
+
+select * from room

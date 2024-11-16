@@ -1,5 +1,6 @@
 import BookingModel from '../models/BookingModel.mjs';
 import customerModel from '../models/CustomerModel.mjs';
+import RoomModel from '../models/RoomModel.mjs';
 import BookingCustomerModel from '../models/BookingCustomerModel.mjs';
 import { StatusCodes } from 'http-status-codes';
 
@@ -21,7 +22,11 @@ export const BookingController = {
         getCurrentDate(),
         RoomId
       );
-
+      //update room status
+      await RoomModel.updateRoom({
+        RoomId: RoomId,
+        IsAvailable: 0,
+      });
       //get bookingId of the new booking
       const newBookingId = await BookingModel.getTheNewestBookingId();
       //get all customerIds

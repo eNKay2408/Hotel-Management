@@ -24,6 +24,8 @@ export default class BookingModel {
         .input('RoomId', RoomId)
         .query(`INSERT INTO Booking (BookingDate, RoomId) 
                   VALUES (@BookingDate, @RoomId)`);
+
+        
       return {
         message: 'Booking created successfully',
       };
