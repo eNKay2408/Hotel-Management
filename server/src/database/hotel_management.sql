@@ -18,7 +18,7 @@ CREATE TABLE ROOM (
     Type char(1),
     IsAvailable bit DEFAULT 1,
     Description ntext,
-    ImgUrl varchar(100),
+    ImgUrl varchar(150),
     FOREIGN KEY (Type) REFERENCES ROOMTYPE (Type),
 )
 
@@ -222,7 +222,7 @@ FETCH NEXT FROM RoomCursor INTO @RoomId;
 WHILE @@FETCH_STATUS = 0
 BEGIN
     UPDATE Room
-    SET ImgUrl = CONCAT('https://res.cloudinary.com/dvzhmi7a9/image/upload/v1731698679/HotelManagement/', @i, '.jpg')
+    SET ImgUrl = CONCAT('https://res.cloudinary.com/dvzhmi7a9/image/upload/t_scale_10/HotelManagement/', @i)
     WHERE RoomId = @RoomId;
 
     SET @i = @i + 1;

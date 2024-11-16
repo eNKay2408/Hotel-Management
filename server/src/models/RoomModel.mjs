@@ -5,8 +5,8 @@ import connection from '../database/connectSQL.mjs';
 export default class RoomModel {
   static async getAllRooms() {
     const result = await connection.request()
-      .query(`SELECT r.RoomID as Number, t.Type, t.Max_Occupancy as Occupancy, t.Price, r.IsAvailable, r.Description, r.ImgUrl
-                    FROM ROOM r join ROOMTYPE t on r.Type = t.Type`);
+      .query(`SELECT r.RoomID as Number, Type, r.IsAvailable, r.Description, r.ImgUrl
+                    FROM ROOM r`);
     return result.recordset;
   }
 

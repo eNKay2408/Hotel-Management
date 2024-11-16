@@ -35,6 +35,12 @@ const RoomDetails = () => {
 
   const handleImageUpload = () => {
     const file = imageRef.current.files[0];
+
+    if (file.size > 1 * 1024 * 1024) {
+      alert('Image size is too large. Only images up to 1MB are allowed');
+      return;
+    }
+
     try {
       const reader = new FileReader();
 
@@ -44,7 +50,7 @@ const RoomDetails = () => {
 
       reader.readAsDataURL(file);
     } catch (error) {
-      alert('Image size is too large. Only images up to 2MB are allowed');
+      alert('An error occurred while uploading the image');
       console.error(error);
     }
   };
