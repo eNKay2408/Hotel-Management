@@ -1,18 +1,18 @@
 import connection from '../database/connectSQL.mjs';
 
-//Room: {RoomId, Type, Status, Description}
+//Room: {RoomId, Type, IsAvailable, Description}
 
 export default class RoomModel {
   static async getAllRooms() {
     const result = await connection.request()
-      .query(`SELECT r.RoomID as Number, t.Type, t.Max_Occupancy as Occupancy, t.Price, r.Status, r.Description, r.ImgUrl
+      .query(`SELECT r.RoomID as Number, t.Type, t.Max_Occupancy as Occupancy, t.Price, r.IsAvailable, r.Description, r.ImgUrl
                     FROM ROOM r join ROOMTYPE t on r.Type = t.Type`);
     return result.recordset;
   }
 
   static async getRoomById(id) {
     const result = await connection.request().input('id', id)
-      .query(`SELECT r.RoomID as Number, t.Type, t.Max_Occupancy as Occupancy, t.Price, r.Status, r.Description, r.ImgUrl
+      .query(`SELECT r.RoomID as Number, t.Type, t.Max_Occupancy as Occupancy, t.Price, r.IsAvailable, r.Description, r.ImgUrl
                     FROM ROOM r join ROOMTYPE t on r.Type = t.Type 
                     WHERE RoomID = @id`);
     return result.recordset[0];
@@ -26,27 +26,29 @@ export default class RoomModel {
     return result.recordset;
   }
 
-  static async getRoomByStatus(Status) {
-    const result = await connection.request().input('Status', Status)
+  static async getRoomByStatus(IsAvailable) {
+    const result = await connection.request().input('IsAvailable', IsAvailable)
       .query(`SELECT r.RoomID as Number, t.Type, t.Max_Occupancy as Occupancy, t.Price, r.ImgUrl
               FROM ROOM r join ROOMTYPE t on r.Type = t.Type
-              WHERE Status = @Status`);
+              WHERE IsAvailable = @IsAvailable`);
     return result.recordset;
   }
 
-  static async getRoomByTypeAndStatus(Type, Status) {
+  static async getRoomByTypeAndStatus(Type, IsAvailable) {
     const result = await connection
       .request()
       .input('Type', Type)
-      .input('Status', Status)
-      .query('SELECT * FROM Room WHERE Type = @Type AND Status = @Status');
+      .input('IsAvailable', IsAvailable)
+      .query(
+        'SELECT * FROM Room WHERE Type = @Type AND IsAvailable = @IsAvailable'
+      );
     return result.recordset;
   }
 
   static async createRoom(
     RoomId,
     Type,
-    Status = 0,
+    IsAvailable = 1,
     Description = null,
     ImgUrl = null
   ) {
@@ -55,11 +57,11 @@ export default class RoomModel {
         .request()
         .input('RoomId', RoomId)
         .input('Type', Type)
-        .input('Status', Status)
+        .input('IsAvailable', IsAvailable)
         .input('Description', Description)
         .input('ImgUrl', ImgUrl)
         .query(
-          `INSERT INTO Room (RoomId, Type, Status, Description, ImgUrl) VALUES (@RoomId, @Type, @Status, @Description, @ImgUrl)`
+          `INSERT INTO Room (RoomId, Type, IsAvailable, Description, ImgUrl) VALUES (@RoomId, @Type, @IsAvailable, @Description, @ImgUrl)`
         );
       return {
         message: 'Room created successfully',
@@ -74,7 +76,7 @@ export default class RoomModel {
   static async updateRoom(
     RoomId,
     Type = null,
-    Status = null,
+    IsAvailable = null,
     Description = null,
     ImgUrl = null
   ) {
@@ -86,9 +88,9 @@ export default class RoomModel {
         UpdateRoom.push('Type = @Type');
         params.Type = Type;
       }
-      if (Status !== null) {
-        UpdateRoom.push('Status = @Status');
-        params.Status = Status;
+      if (IsAvailable !== null) {
+        UpdateRoom.push('IsAvailable = @IsAvailable');
+        params.IsAvailable = IsAvailable;
       }
       if (Description !== null) {
         UpdateRoom.push('Description = @Description');
@@ -111,7 +113,7 @@ export default class RoomModel {
         .request()
         .input('RoomId', params.RoomId)
         .input('Type', params.Type)
-        .input('Status', params.Status)
+        .input('IsAvailable', params.IsAvailable)
         .input('Description', params.Description)
         .input('ImgUrl', params.ImgUrl)
         .query(query);
