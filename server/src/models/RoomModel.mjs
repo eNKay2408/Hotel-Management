@@ -147,4 +147,12 @@ export default class RoomModel {
       throw error;
     }
   }
+
+  static async getTypeInfoOfRoom(RoomId) {
+    const result = await connection.request().input('RoomId', RoomId)
+      .query(`SELECT t.*
+              FROM Room r join ROOMTYPE t on r.Type = t.Type
+              WHERE r.RoomID = @RoomId`);
+    return result.recordset;
+  }
 }

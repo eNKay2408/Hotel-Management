@@ -120,6 +120,16 @@ export const RoomController = {
   },
 
   getAllRoomsTypes: async (req, res) => {
+    const { roomNumber } = req.query;
+    if (roomNumber) {
+      try {
+        const roomTypes = await RoomModel.getTypeInfoOfRoom(roomNumber);
+        return res.status(StatusCodes.OK).json(roomTypes);
+      } catch (err) {
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+      }
+    }
+
     try {
       const roomTypes = await RoomTypeModel.getAllRoomTypes();
       return res.status(StatusCodes.OK).json(roomTypes);
