@@ -122,6 +122,17 @@ const RoomDetails = () => {
                   if (e.target.value.length > 3) return;
                   setRoom({ ...room, Number: e.target.value });
                 }}
+                onKeyDown={(e) => {
+                  if (
+                    e.key === 'e' ||
+                    e.key === '.' ||
+                    e.key === '-' ||
+                    e.key === '+' ||
+                    e.key === 'E'
+                  ) {
+                    e.preventDefault();
+                  }
+                }}
                 disabled={number ? true : false}
               />
             </div>
