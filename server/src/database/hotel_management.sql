@@ -183,6 +183,11 @@ VALUES (1, 1),
     (5, 8),
     (5, 9)
 
+update ROOM
+set IsAvailable = 0
+where RoomID = 101 or RoomID = 102 or RoomID = 201 
+		or RoomID = 202 or RoomID = 301
+
 INSERT INTO
     INVOICE (RepresentativeId, InvoiceDate)
 VALUES (1, '8-3-2024'),

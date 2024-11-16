@@ -25,7 +25,6 @@ export default class BookingModel {
         .query(`INSERT INTO Booking (BookingDate, RoomId) 
                   VALUES (@BookingDate, @RoomId)`);
 
-        
       return {
         message: 'Booking created successfully',
       };
@@ -92,9 +91,16 @@ export default class BookingModel {
   }
 
   static async getTheNewestBookingId() {
-    const result = connection
+    const result = await connection
       .request()
       .query('SELECT TOP 1 BookingId FROM Booking ORDER BY BookingId DESC');
-    return (await result).recordset;
+    return result.recordset;
+  }
+
+  static async getAllBookingUnpaid() {
+    const result = await connection
+      .request()
+      .query('SELECT * FROM Booking WHERE InvoiceId IS NULL');
+    return result.recordset;
   }
 }
