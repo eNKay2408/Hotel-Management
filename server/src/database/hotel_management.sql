@@ -16,7 +16,7 @@ CREATE TABLE ROOMTYPE (
 CREATE TABLE ROOM (
     RoomID int PRIMARY KEY CHECK (RoomID > 100),
     Type char(1),
-    Status bit DEFAULT 0,
+    IsAvailable bit DEFAULT 1,
     Description ntext,
     ImgUrl varchar(100),
     FOREIGN KEY (Type) REFERENCES ROOMTYPE (Type),
