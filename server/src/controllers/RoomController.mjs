@@ -140,7 +140,7 @@ export const RoomController = {
 
   getAllRoomsAvailable: async (req, res) => {
     try {
-      const rooms = await RoomModel.getRoomByStatus(0); //0 is the status code for available rooms
+      const rooms = await RoomModel.getRoomByStatus(1); //1 is the status code for available rooms
       return res.status(StatusCodes.OK).json(rooms);
     } catch (err) {
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);

@@ -101,10 +101,6 @@ export default class RoomModel {
         params.ImgUrl = ImgUrl;
       }
 
-      if (UpdateRoom.length === 0) {
-        throw new Error('No fields to update');
-      }
-
       query += UpdateRoom.join(', ');
       query += ' WHERE RoomId = @RoomId';
       params.RoomId = RoomId;

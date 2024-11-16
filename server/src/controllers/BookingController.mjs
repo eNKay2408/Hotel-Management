@@ -6,7 +6,7 @@ import { StatusCodes } from 'http-status-codes';
 
 export const BookingController = {
   createNewBooking: async (req, res) => {
-    //req: {RoomID: , customer: [{CustomerId:, IdentityCard:, address:, Type:, }, {CustomerId:, IdentityCard:, address:, Type:, }]}
+    //req: {RoomID: , Customers: [{Name:, IdentityCard:, address:, Type:, }, {Name:, IdentityCard:, address:, Type:, }]}
     try {
       const { RoomId, Customers } = req.body;
       const getCurrentDate = () => {
@@ -23,10 +23,7 @@ export const BookingController = {
         RoomId
       );
       //update room status
-      await RoomModel.updateRoom({
-        RoomId: RoomId,
-        IsAvailable: 0,
-      });
+      await RoomModel.updateRoom(RoomId, null, 0, null, null);
       //get bookingId of the new booking
       const newBookingId = await BookingModel.getTheNewestBookingId();
       //get all customerIds
