@@ -5,15 +5,15 @@ import connection from '../database/connectSQL.mjs';
 export default class RoomModel {
   static async getAllRooms() {
     const result = await connection.request()
-      .query(`SELECT r.RoomID as Number, Type, r.IsAvailable, r.Description, r.ImgUrl
+      .query(`SELECT r.RoomID as Number, r.Type, r.IsAvailable, r.Description, r.ImgUrl
                     FROM ROOM r`);
     return result.recordset;
   }
 
   static async getRoomById(id) {
     const result = await connection.request().input('id', id)
-      .query(`SELECT r.RoomID as Number, t.Type, t.Max_Occupancy as Occupancy, t.Price, r.IsAvailable, r.Description, r.ImgUrl
-                    FROM ROOM r join ROOMTYPE t on r.Type = t.Type 
+      .query(`SELECT r.RoomID as Number, r.Type, r.IsAvailable, r.Description, r.ImgUrl
+                    FROM ROOM r  
                     WHERE RoomID = @id`);
     return result.recordset[0];
   }
@@ -28,7 +28,7 @@ export default class RoomModel {
 
   static async getRoomByStatus(IsAvailable) {
     const result = await connection.request().input('IsAvailable', IsAvailable)
-      .query(`SELECT r.RoomID as Number, t.Type, t.Max_Occupancy as MaxOccupancy, t.Min_Customer_for_Surcharge as BaseCustomers, t.Price, r.ImgUrl
+      .query(`SELECT r.RoomID as Number, t.Type, t.Max_Occupancy as MaxOccupancy, t.Min_Customer_for_Surcharge as BaseCustomers, t.Price, r.ImgUrl, t.Surcharge_Rate as SurchargeRate
               FROM ROOM r join ROOMTYPE t on r.Type = t.Type
               WHERE IsAvailable = @IsAvailable`);
     return result.recordset;

@@ -3,57 +3,73 @@ import { useParams, useNavigate } from 'react-router-dom';
 
 import { CustomerForm, Title, Button } from '../../components';
 
-import { createBooking, getRooms } from '../../services';
+import { createBooking, getRoomTypeByRoomNumber } from '../../services';
 
 const BookingDetails = () => {
   const { id: Number } = useParams();
 
-  const [occupancy, setOccupancy] = useState();
-
   const navigate = useNavigate();
   const isExecuted = useRef(false);
 
+  const [customers, setCustomers] = useState([]);
+  const [type, setType] = useState();
+
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchType = async () => {
       if (isExecuted.current) return;
       isExecuted.current = true;
 
-      const rooms = await getRooms();
-      const room = rooms.find((room) => room.Number == Number);
+      const roomType = await getRoomTypeByRoomNumber(Number);
 
-      if (!room) {
-        alert('Room not found');
+      if (roomType.length === 0) {
+        alert(`Room ${Number} not found`);
         navigate('/bookings');
         return;
       }
 
-      if (room.Status) {
-        alert('Room is not available');
-        navigate('/bookings');
-        return;
-      }
+      setType({
+        Type: roomType[0].Type,
+        Price: roomType[0].Price,
+        MaxOccupancy: roomType[0].Max_Occupancy,
+        SurchargeRate: roomType[0].Surcharge_Rate,
+        BaseCustomers: roomType[0].Min_Customer_for_Surcharge,
+      });
 
-      setOccupancy(room.Occupancy);
+      setCustomers(
+        Array.from({ length: roomType[0].Min_Customer_for_Surcharge })
+      );
     };
 
-    fetchData();
+    fetchType();
   }, [Number, navigate]);
 
   const handleAddCustomer = () => {
-    if (occupancy >= 10) {
-      alert('Maximum occupancy is 10');
+    if (customers.length >= type.MaxOccupancy) {
+      alert(`Room ${Number} is at maximum occupancy of ${type.MaxOccupancy}`);
       return;
-    } else {
-      setOccupancy(occupancy + 1);
     }
+
+    if (customers.length == type.BaseCustomers) {
+      setCustomers((prev) => [...prev, prev.length + 1]);
+
+      alert(
+        `Room ${Number} has a surcharge rate of ${
+          type.SurchargeRate * 100
+        }% for each additional customer`
+      );
+      return;
+    }
+
+    setCustomers((prev) => [...prev, prev.length + 1]);
   };
 
   const handleDeleteCustomer = () => {
-    if (occupancy > 1) {
-      setOccupancy(occupancy - 1);
-    } else {
-      alert('Minimum occupancy is 1');
+    if (customers.length <= 1) {
+      alert('Customer list cannot be empty');
+      return;
     }
+
+    setCustomers((prev) => prev.slice(0, prev.length - 1));
   };
 
   const handleSubmit = async (e) => {
@@ -122,7 +138,7 @@ const BookingDetails = () => {
         className="flex flex-col items-center justify-evenly gap-4"
         onSubmit={handleSubmit}
       >
-        {[...Array(occupancy)].map((_, index) => (
+        {customers.map((_, index) => (
           <CustomerForm key={index + 1} index={index + 1} />
         ))}
         <Button color="orange" text="CONFIRM" type="submit" />

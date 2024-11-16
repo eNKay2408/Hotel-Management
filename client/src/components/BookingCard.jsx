@@ -1,7 +1,15 @@
 import { Button } from './index';
 
 const BookingCard = ({
-  booking: { Number, Type, MaxOccupancy, Price, ImgUrl, BaseCustomers },
+  booking: {
+    Number,
+    Type,
+    MaxOccupancy,
+    Price,
+    ImgUrl,
+    BaseCustomers,
+    SurchargeRate,
+  },
 }) => {
   const handleBooking = (Number) => {
     window.location.href = `/bookings/${Number}`;
@@ -17,16 +25,18 @@ const BookingCard = ({
         />
       </div>
 
-      <div className="flex flex-col justify-center md:text-lg text-md">
-        <p>Number: {Number}</p>
-        <p>Type: {Type}</p>
+      <div className="flex flex-col justify-center md:text-lg text-sm">
+        <p>
+          Room {Number} - Type {Type}
+        </p>
         <p>Base Customers: {BaseCustomers}</p>
         <p>Max Occupancy: {MaxOccupancy}</p>
+        <p>Surcharge Rate: {SurchargeRate * 100}%</p>
       </div>
 
-      <div className="flex flex-1 flex-col items-center justify-center md:gap-2 gap-1">
+      <div className="flex flex-1 flex-col items-center justify-center md:gap-2 gap-1 text-center">
         <div className="flex flex-col">
-          <p className="font-bold tracking-widest text-orange md:text-xl text-md text-center">
+          <p className="font-bold tracking-widest text-orange md:text-2xl text-lg ">
             ${Price}
           </p>
           <p className="text-zinc-600 text-[12px] mt-[-2px]">per night</p>
