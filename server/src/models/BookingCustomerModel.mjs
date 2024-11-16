@@ -59,4 +59,17 @@ export default class BookingCustomerModel {
       );
     return result.recordset[0];
   }
+
+  static async getCustomersInBooking(BookingId) {
+    try {
+      const result = await connection.request().input('BookingId', BookingId)
+        .query(`select c.*
+              from BOOKING b join BookingCustomers bc on b.BookingID = bc.BookingID
+			                      join CUSTOMER c on bc.CustomerID = c.CustomerID
+              where b.BookingID = @BookingId`);
+      return result.recordset;
+    } catch (error) {
+      throw error;
+    }
+  }
 }

@@ -53,8 +53,17 @@ export const BookingController = {
           CustomerId.CustomerId
         );
       }
-
       return res.status(StatusCodes.CREATED).json(booking);
+    } catch (err) {
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  },
+
+  getAllCustomersInBooking: async (req, res) => {
+    const { id } = req.params;
+    try {
+      const customers = await BookingCustomerModel.getCustomersInBooking(id);
+      return res.status(StatusCodes.OK).json(customers);
     } catch (err) {
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
     }
