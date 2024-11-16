@@ -1,14 +1,14 @@
 import { Button } from './index';
 
 const BookingCard = ({
-  booking: { Number, Type, Occupancy, Price, ImgUrl },
+  booking: { Number, Type, MaxOccupancy, Price, ImgUrl, BaseCustomers },
 }) => {
   const handleBooking = (Number) => {
     window.location.href = `/bookings/${Number}`;
   };
 
   return (
-    <div className="bg-zinc-200 md:p-4 p-1 rounded-md flex font-amethysta">
+    <div className="bg-zinc-200 md:p-4 p-2 rounded-md flex font-amethysta md:gap-6 gap-3">
       <div className="flex items-center">
         <img
           src={ImgUrl}
@@ -17,24 +17,21 @@ const BookingCard = ({
         />
       </div>
 
-      <div className="md:px-4 px-2 flex flex-col justify-center md:text-lg text-sm">
+      <div className="flex flex-col justify-center md:text-lg text-md">
         <p>Number: {Number}</p>
         <p>Type: {Type}</p>
-        <p>Occupancy: {Occupancy}</p>
+        <p>Base Customers: {BaseCustomers}</p>
+        <p>Max Occupancy: {MaxOccupancy}</p>
       </div>
 
       <div className="flex flex-1 flex-col items-center justify-center md:gap-2 gap-1">
         <div className="flex flex-col">
-          <p className="font-bold tracking-widest text-red md:text-xl text-md text-center">
+          <p className="font-bold tracking-widest text-orange md:text-xl text-md text-center">
             ${Price}
           </p>
           <p className="text-zinc-600 text-[12px] mt-[-2px]">per night</p>
         </div>
-        <Button
-          color="orange"
-          text="BOOK"
-          onClick={() => handleBooking(Number)}
-        />
+        <Button color="red" text="BOOK" onClick={() => handleBooking(Number)} />
       </div>
     </div>
   );

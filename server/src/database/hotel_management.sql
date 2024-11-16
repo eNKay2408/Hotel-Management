@@ -109,9 +109,9 @@ CREATE TABLE OCCUPANCY_HAS_ROOM (
 
 
 INSERT INTO [ROOMTYPE] VALUES 
-	('A', 150, 3, 0.25, 3),
-	('B', 170, 3, 0.25, 3),
-	('C', 200, 3, 0.25, 3)
+	('A', 150, 6, 0.25, 3),
+	('B', 170, 4, 0.25, 2),
+	('C', 200, 2, 0.25, 1)
 
 
 INSERT INTO

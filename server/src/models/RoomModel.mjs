@@ -28,7 +28,7 @@ export default class RoomModel {
 
   static async getRoomByStatus(IsAvailable) {
     const result = await connection.request().input('IsAvailable', IsAvailable)
-      .query(`SELECT r.RoomID as Number, t.Type, t.Max_Occupancy as Occupancy, t.Price, r.ImgUrl
+      .query(`SELECT r.RoomID as Number, t.Type, t.Max_Occupancy as MaxOccupancy, t.Min_Customer_for_Surcharge as BaseCustomers, t.Price, r.ImgUrl
               FROM ROOM r join ROOMTYPE t on r.Type = t.Type
               WHERE IsAvailable = @IsAvailable`);
     return result.recordset;
