@@ -11,4 +11,17 @@ export const InvoiceController = {
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
     }
   },
+
+  createInvoice: async (req, res) => {
+    try {
+      const { Bookings, RepresentativeId } = req.body;
+      const invoice = await InvoiceModel.CreateInvoice(
+        Bookings,
+        RepresentativeId
+      );
+      return res.status(StatusCodes.CREATED).json(invoice);
+    } catch (err) {
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  },
 };

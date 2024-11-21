@@ -235,3 +235,63 @@ END;
 
 CLOSE RoomCursor;
 DEALLOCATE RoomCursor;
+
+create function CountNumberOfCustomer(@bookingId int)
+returns int
+as
+begin
+	declare @numberCustomer int
+	select @numberCustomer = count(distinct CustomerID)
+	from BookingCustomers 
+	where BookingID = @bookingId
+
+	return @numberCustomer
+end
+
+create function GetMaxCoefficient(@bookingId int)
+returns float
+as
+begin
+	declare @maxCoeffiecient float
+	select @maxCoeffiecient = MAX(ct.Coefficient)
+	from BookingCustomers bc join CUSTOMER c on bc.CustomerID = c.CustomerID
+							 join CUSTOMERTYPE ct on ct.Type = c.Type
+	where bc.BookingID = @bookingId
+	
+	return @maxCoeffiecient
+end
+
+create function calcCostOfBooking(@bookingId int)
+returns float
+as
+begin
+	declare @numberCustomer int 
+	set @numberCustomer = dbo.CountNumberOfCustomer(@bookingId)
+	declare @maxCoefficient float
+	set @maxCoefficient = dbo.GetMaxCoefficient(@bookingId)
+	
+	declare @nights int
+	select @nights = DATEDIFF(Day, BookingDate, GetDate())
+	from BOOKING
+	where BookingID = @bookingId
+
+	declare @minCustomerForSurCharge int
+	declare @price int
+	declare @surcharge float
+
+	select @minCustomerForSurCharge = rt.Min_Customer_for_Surcharge, @price = rt.Price,
+			@surcharge = rt.Surcharge_Rate
+	from BOOKING b join ROOM r on b.RoomID = r.RoomID
+				   join ROOMTYPE rt on r.Type = rt.Type
+	where b.BookingID = @bookingId
+
+	declare @cost float
+	set @cost = @price * @nights * @maxCoefficient
+
+	if(@numberCustomer >= @minCustomerForSurCharge)
+	begin
+		set @cost = @cost * (1 + @surcharge)
+	end
+
+	return @cost
+end

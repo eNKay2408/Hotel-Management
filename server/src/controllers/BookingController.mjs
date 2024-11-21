@@ -70,4 +70,13 @@ export const BookingController = {
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
     }
   },
+
+  getAllBookingUnpaid: async (req, res) => {
+    try {
+      const bookings = await BookingModel.getAllBookingUnpaid();
+      return res.status(StatusCodes.OK).json(bookings);
+    } catch (err) {
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  }
 };
