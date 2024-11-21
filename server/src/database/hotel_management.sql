@@ -188,13 +188,6 @@ set IsAvailable = 0
 where RoomID = 101 or RoomID = 102 or RoomID = 201 
 		or RoomID = 202 or RoomID = 301
 
-INSERT INTO
-    INVOICE (RepresentativeId, InvoiceDate)
-VALUES (1, '8-3-2024'),
-    (6, '8-9-2024'),
-    (7, '8-10-2024'),
-    (8, '8-20-2024')
-
 UPDATE BOOKING
 SET
     InvoiceId = 1
