@@ -60,9 +60,11 @@ export const BookingController = {
   },
 
   getAllCustomersInBooking: async (req, res) => {
-    const { id } = req.params;
+    const { bookingId } = req.params;
     try {
-      const customers = await BookingCustomerModel.getCustomersInBooking(id);
+      const customers = await BookingCustomerModel.getCustomersInBooking(
+        bookingId
+      );
       return res.status(StatusCodes.OK).json(customers);
     } catch (err) {
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
