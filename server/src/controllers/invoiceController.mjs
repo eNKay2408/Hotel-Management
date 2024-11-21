@@ -24,4 +24,14 @@ export const InvoiceController = {
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
     }
   },
+
+  getInvoiceInfo: async (req, res) => {
+    try {
+      const { InvoiceId } = req.params;
+      const invoice = await InvoiceModel.getInvoiceInfo(InvoiceId);
+      return res.status(StatusCodes.OK).json(invoice);
+    } catch (err) {
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  }
 };

@@ -10,11 +10,42 @@ export default class InvoiceModel {
   }
 
   static async getInvoiceInfo(InvoiceId) {
-    const result = await connection
-      .request()
-      .input('InvoiceId', InvoiceId)
-      .query('SELECT * FROM Invoice WHERE InvoiceId = @InvoiceId');
-    return result.recordset[0];
+    const result = await connection.request().input('InvoiceId', InvoiceId)
+      .query(`select InvoiceDate, Amount
+              from invoice
+              where InvoiceID = @InvoiceId
+
+              select c.Name, c.Address
+              from INVOICE i join CUSTOMER c on i.RepresentativeId = c.CustomerID
+              where InvoiceID = @InvoiceId
+
+              select r.RoomID as RoomNumber, DATEDIFF(DAY, b.BookingDate, i.InvoiceDate) as Nights,
+                  rt.Price, 
+                  rt.Surcharge_Rate as SurchargeRate,
+                  b.Cost as Amount,
+                  dbo.GetMaxCoefficient(b.BookingID) as coefficient,
+                  Greatest((dbo.CountNumberOfCustomer(b.BookingID) - (rt.Min_Customer_for_Surcharge-1)),0) as ExtraCustomers
+              from BOOKING b join ROOM r on b.RoomID = r.RoomID
+                      join ROOMTYPE rt on r.Type = rt.Type
+                      join INVOICE i on b.InvoiceId = i.InvoiceID
+              where b.InvoiceId = @InvoiceId`);
+
+    /*
+        "InvoiceDate":
+        "Representative" : {Name, Address}
+        "Bookings": [{RoomNumber, Nights, Price, SurchargeRate, Amount, coefficient, ExtraCustomers}]
+        "Amount": Total amount of the invoice
+    */
+    const invoice = result.recordsets[0][0];
+    const representative = result.recordsets[1][0];
+    const bookings = result.recordsets[2];
+    const Amount = invoice.Amount;
+    return {
+      InvoiceDate: invoice.InvoiceDate,
+      Representative: representative,
+      Bookings: bookings,
+      Amount: Amount,
+    };
   }
 
   static async CreateInvoice(bookings, representativeId) {
