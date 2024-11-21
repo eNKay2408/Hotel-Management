@@ -85,37 +85,7 @@ export default class InvoiceModel {
     }
     return result.recordset[0].InvoiceId;
   }
-
-  static async UpdateInvoice(
-    InvoiceId,
-    InvoiceDate = null,
-    Amount = null,
-    representative = null
-  ) {
-    try {
-      let query = `UPDATE Invoice SET `;
-      const UpdateInvoice = [];
-      if (InvoiceDate !== null) {
-        UpdateInvoice.push(`InvoiceDate = ${InvoiceDate}`);
-      }
-      if (Amount !== null) {
-        UpdateInvoice.push(`Amount = ${Amount}`);
-      }
-      if (representative !== null) {
-        UpdateInvoice.push(`representative = ${representative}`);
-      }
-      if (UpdateInvoice.length === 0) {
-        throw new Error('No fields to update');
-      }
-      query += UpdateInvoice.join(', ');
-      query += ` WHERE InvoiceId = ${InvoiceId}`;
-      const result = await connection.request().query(query);
-      return result.recordset[0];
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
+  
   static async DeleteInvoice(InvoiceId) {
     const result = await connection
       .request()

@@ -60,8 +60,8 @@ export const BookingController = {
   },
 
   getAllCustomersInBooking: async (req, res) => {
-    const { bookingId } = req.params;
     try {
+      const { bookingId } = req.query;
       const customers = await BookingCustomerModel.getCustomersInBooking(
         bookingId
       );
@@ -78,5 +78,5 @@ export const BookingController = {
     } catch (err) {
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
     }
-  }
+  },
 };
