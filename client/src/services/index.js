@@ -86,6 +86,25 @@ export const getInvoice = async (id) => {
   return response.json();
 };
 
+export const createInvoice = async (data) => {
+  const response = await fetch('http://localhost:3000/api/invoices', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  return response;
+};
+
+// *Booking Customer*
+export const getCustomersByBookingId = async (id) => {
+  const response = await fetch(
+    `http://localhost:3000/api/bookingcustomers?bookingId=${id}`
+  );
+  return response.json();
+};
+
 // * Reports *
 export const getReports = async () => {
   const response = await fetch('http://localhost:3000/api/reports');
