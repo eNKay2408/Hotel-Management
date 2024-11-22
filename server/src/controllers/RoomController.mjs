@@ -120,9 +120,28 @@ export const RoomController = {
   },
 
   getAllRoomsTypes: async (req, res) => {
+    const { roomNumber } = req.query;
+    if (roomNumber) {
+      try {
+        const roomTypes = await RoomModel.getTypeInfoOfRoom(roomNumber);
+        return res.status(StatusCodes.OK).json(roomTypes);
+      } catch (err) {
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+      }
+    }
+
     try {
       const roomTypes = await RoomTypeModel.getAllRoomTypes();
       return res.status(StatusCodes.OK).json(roomTypes);
+    } catch (err) {
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  },
+
+  getAllRoomsAvailable: async (req, res) => {
+    try {
+      const rooms = await RoomModel.getRoomByStatus(1); //1 is the status code for available rooms
+      return res.status(StatusCodes.OK).json(rooms);
     } catch (err) {
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
     }

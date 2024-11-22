@@ -1,6 +1,6 @@
 import connection from '../database/connectSQL.mjs';
 
-// Booking: {BookingId, CheckInDate, RoomId, InvoiceId, Cost}
+// Booking: {BookingId, BookingDate, RoomId, InvoiceId, Cost}
 
 export default class BookingModel {
   static async getAllBookings() {
@@ -16,17 +16,17 @@ export default class BookingModel {
     return result.recordset[0];
   }
 
-  static async CreateBooking(CheckInDate, RoomId) {
+  static async createBooking(BookingDate, RoomId) {
     try {
       const result = await connection
         .request()
-        .input('CheckInDate', CheckInDate)
+        .input('BookingDate', BookingDate)
         .input('RoomId', RoomId)
-        .query1(`INSERT INTO Booking (CheckInDate, RoomId) 
-                  VALUES (@CheckInDate, @RoomId)`);
+        .query(`INSERT INTO Booking (BookingDate, RoomId) 
+                  VALUES (@BookingDate, @RoomId)`);
+
       return {
         message: 'Booking created successfully',
-        rowsAffected: result.rowsAffected,
       };
     } catch (error) {
       console.log(error);
@@ -34,9 +34,9 @@ export default class BookingModel {
     }
   }
 
-  static async UpdateBooking(
+  static async updateBooking(
     BookingId,
-    CheckInDate = null,
+    BookingDate = null,
     RoomId = null,
     InvoiceId = null,
     Cost = null
@@ -44,8 +44,8 @@ export default class BookingModel {
     try {
       let query = `UPDATE Booking SET `;
       const UpdateBooking = [];
-      if (CheckInDate !== null) {
-        UpdateBooking.push('CheckInDate = @CheckInDate');
+      if (BookingDate !== null) {
+        UpdateBooking.push('BookingDate = @BookingDate');
       }
       if (RoomId !== null) {
         UpdateBooking.push('RoomId = @RoomId');
@@ -60,7 +60,7 @@ export default class BookingModel {
       const result = await connection
         .request()
         .input('BookingId', BookingId)
-        .input('CheckInDate', CheckInDate)
+        .input('BookingDate', BookingDate)
         .input('RoomId', RoomId)
         .input('InvoiceId', InvoiceId)
         .input('Cost', Cost)
@@ -83,11 +83,24 @@ export default class BookingModel {
         .query('DELETE FROM Booking WHERE BookingId = @BookingId');
       return {
         message: 'Booking deleted successfully',
-        rowsAffected: result.rowsAffected,
       };
     } catch (error) {
       console.log(error);
       throw error;
     }
+  }
+
+  static async getTheNewestBookingId() {
+    const result = await connection
+      .request()
+      .query('SELECT TOP 1 BookingId FROM Booking ORDER BY BookingId DESC');
+    return result.recordset;
+  }
+
+  static async getAllBookingUnpaid() {
+    const result = await connection
+      .request()
+      .query('SELECT * FROM Booking WHERE InvoiceId IS NULL');
+    return result.recordset;
   }
 }

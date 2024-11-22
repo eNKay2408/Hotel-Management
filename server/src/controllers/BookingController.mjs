@@ -1,142 +1,71 @@
-import MockData from "../database/MockData.mjs";
-import { StatusCodes, getReasonPhrase } from "http-status-codes";
-
-const bookingData = MockData.MockBooking;
-const bookingDetailsData = MockData.MockBookingDetails;
-
-function countCustomer(BookingID) {
-	return bookingDetailsData.filter(
-		(booking) => booking.BookingID === BookingID
-	).length;
-}
-
-export const resolveBookingById = (req, res) => {
-	const { id } = req.params;
-	if (isNaN(id)) {
-		return res
-			.status(StatusCodes.BAD_REQUEST)
-			.send("Invalid ID supplied");
-	}
-	const bookingIndex = bookingData.findIndex(
-		(booking) => booking.BookingID === parseInt(id)
-	);
-	if (bookingIndex === -1) {
-		return res
-			.status(StatusCodes.NOT_FOUND)
-			.send("Booking not found");
-	}
-
-	return bookingIndex;
-};
+import BookingModel from '../models/BookingModel.mjs';
+import customerModel from '../models/CustomerModel.mjs';
+import RoomModel from '../models/RoomModel.mjs';
+import BookingCustomerModel from '../models/BookingCustomerModel.mjs';
+import { StatusCodes } from 'http-status-codes';
 
 export const BookingController = {
-	// get all bookings
-	get: (req, res) => {
-		const { BookingID, RoomID, BookingDate, CheckOutDate, Cost } =
-			req.query;
-		let bookings = bookingData;
+  createNewBooking: async (req, res) => {
+    //req: {RoomID: , Customers: [{Name:, IdentityCard:, address:, Type:, }, {Name:, IdentityCard:, address:, Type:, }]}
+    try {
+      const { RoomId, Customers } = req.body;
+      const getCurrentDate = () => {
+        const now = new Date();
+        const year = now.getUTCFullYear();
+        const month = String(now.getUTCMonth() + 1).padStart(2, '0'); // Months are zero-indexed
+        const day = String(now.getUTCDate()).padStart(2, '0');
 
-		// check valid value
-		if (BookingID && isNaN(BookingID)) {
-			return res
-				.status(StatusCodes.BAD_REQUEST)
-				.send("Invalid BookingID supplied");
-		}
-		if (RoomID && isNaN(RoomID)) {
-			return res
-				.status(StatusCodes.BAD_REQUEST)
-				.send("Invalid RoomID supplied");
-		}
-		if (Cost && isNaN(Cost)) {
-			return res
-				.status(StatusCodes.BAD_REQUEST)
-				.send("Invalid Cost supplied");
-		}
+        return `${year}-${month}-${day}`;
+      };
+      // create new booking
+      const booking = await BookingModel.createBooking(
+        getCurrentDate(),
+        RoomId
+      );
+      //update room status
+      await RoomModel.updateRoom(RoomId, null, 0, null, null);
+      //get bookingId of the new booking
+      const newBookingId = await BookingModel.getTheNewestBookingId();
+      //get all customerIds
+      var CustomerIds = [];
 
-		// filter bookings
-		if (BookingID) {
-			bookings = bookings.filter(
-				(booking) =>
-					booking.BookingID ===
-					parseInt(BookingID)
-			);
-		}
-		if (RoomID) {
-			bookings = bookings.filter(
-				(booking) => booking.RoomID === parseInt(RoomID)
-			);
-		}
-		if (BookingDate) {
-			bookings = bookings.filter(
-				(booking) => booking.BookingDate === BookingDate
-			);
-		}
-		if (CheckOutDate) {
-			bookings = bookings.filter(
-				(booking) =>
-					booking.CheckOutDate === CheckOutDate
-			);
-		}
-		if (Cost) {
-			bookings = bookings.filter(
-				(booking) => booking.Cost === parseInt(Cost)
-			);
-		}
+      //create new customer if not exist
+      for (const Customer of Customers) {
+        const { Name, IdentityCard, Address, Type } = Customer;
+        const CustomerId = await customerModel.getCustomerIdByIdentityCard(
+          IdentityCard
+        );
 
-		// return result
-		if (bookings.length === 0) {
-			return res
-				.status(StatusCodes.NOT_FOUND)
-				.send("booking not found");
-		}
-		return res.status(StatusCodes.OK).send(bookings);
-	},
+        if (CustomerId.length === 0) {
+          await customerModel.CreateCustomer(Name, IdentityCard, Address, Type);
+          CustomerIds.push(
+            (await customerModel.getCustomerIdByIdentityCard(IdentityCard))[0]
+          );
+        } else {
+          CustomerIds.push(CustomerId[0]);
+        }
+      }
 
-	// create a new booking
-	post: (req, res) => {
-		const { RoomID, BookingDate, CheckOutDate, Cost } = req.body;
-		if (!RoomID || !BookingDate || !CheckOutDate || !Cost) {
-			return res
-				.status(StatusCodes.BAD_REQUEST)
-				.send("Invalid data supplied");
-		}
+      //create new bookingCustomer for each customer
+      for (const CustomerId of CustomerIds) {
+        await BookingCustomerModel.CreateBookingCustomer(
+          newBookingId[0].BookingId,
+          CustomerId.CustomerId
+        );
+      }
+      return res.status(StatusCodes.CREATED).json(booking);
+    } catch (err) {
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  },
 
-		const BookingID = bookingData.length + 1;
-		bookingData.push({
-			BookingID: BookingID,
-			RoomID: RoomID,
-			BookingDate: BookingDate,
-			CheckOutDate: CheckOutDate,
-			Cost: Cost,
-		});
-
-		return res.status(StatusCodes.CREATED).send(bookingData);
-	},
-
-	// update a booking
-	patch: (req, res) => {
-		const { body, bookingIndex } = req;
-		roomData[bookingIndex] = {
-			...bookingData[bookingIndex],
-			...body,
-		};
-		return res
-			.status(StatusCodes.OK)
-			.send(bookingData[bookingIndex]);
-	},
-
-	// get number of customers in a room by booking ID
-	getNumberOfCustomer: (req, res) => {
-		const { id } = req.params;
-		const booking = bookingData.find(
-			(booking) => booking.BookingID === parseInt(id)
-		);
-		if (!booking) {
-			return res
-				.status(StatusCodes.NOT_FOUND)
-				.send("booking not found");
-		}
-		const numberOfCustomer = countCustomer(parseInt(id));
-		return res.status(StatusCodes.OK).send({ numberOfCustomer });
-	},
+  getAllCustomersInBooking: async (req, res) => {
+    const { id } = req.params;
+    try {
+      const customers = await BookingCustomerModel.getCustomersInBooking(id);
+      return res.status(StatusCodes.OK).json(customers);
+    } catch (err) {
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  },
 };

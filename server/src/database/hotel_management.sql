@@ -16,9 +16,9 @@ CREATE TABLE ROOMTYPE (
 CREATE TABLE ROOM (
     RoomID int PRIMARY KEY CHECK (RoomID > 100),
     Type char(1),
-    Status bit DEFAULT 0,
+    IsAvailable bit DEFAULT 1,
     Description ntext,
-    ImgUrl varchar(100),
+    ImgUrl varchar(150),
     FOREIGN KEY (Type) REFERENCES ROOMTYPE (Type),
 )
 
@@ -30,7 +30,7 @@ CREATE TABLE CUSTOMERTYPE (
 
 CREATE TABLE CUSTOMER (
     CustomerID int IDENTITY (1, 1) PRIMARY KEY,
-    CustomerName nvarchar (40),
+    Name nvarchar (40),
     Address nvarchar (100),
     IdentityCard varchar(12),
     Type int NOT NULL DEFAULT 1,
@@ -109,9 +109,9 @@ CREATE TABLE OCCUPANCY_HAS_ROOM (
 
 
 INSERT INTO [ROOMTYPE] VALUES 
-	('A', 150, 3, 0.25, 3),
-	('B', 170, 3, 0.25, 3),
-	('C', 200, 3, 0.25, 3)
+	('A', 150, 6, 0.25, 3),
+	('B', 170, 4, 0.25, 2),
+	('C', 200, 2, 0.25, 1)
 
 
 INSERT INTO
@@ -129,11 +129,7 @@ VALUES (101, 'A'),
 INSERT INTO CUSTOMERTYPE VALUES ('domestic', 1), ('foreign', 1.5)
 
 INSERT INTO
-    CUSTOMER (
-        CustomerName,
-        Address,
-        IdentityCard
-    )
+    CUSTOMER (Name, Address, IdentityCard)
 VALUES (
         N'Hoàng Tiến Huy',
         N'Dĩ An, Bình Dương',
@@ -161,7 +157,7 @@ VALUES (
     )
 
 INSERT INTO
-    CUSTOMER (CustomerName, Type)
+    CUSTOMER (Name, Type)
 VALUES (N'Lebrons James', 2),
     (N'Ishow Speed', 2),
     (N'Leo Messi', 2),
@@ -187,6 +183,11 @@ VALUES (1, 1),
     (5, 8),
     (5, 9)
 
+update ROOM
+set IsAvailable = 0
+where RoomID = 101 or RoomID = 102 or RoomID = 201 
+		or RoomID = 202 or RoomID = 301
+
 INSERT INTO
     INVOICE (RepresentativeId, InvoiceDate)
 VALUES (1, '8-3-2024'),
@@ -207,10 +208,30 @@ UPDATE BOOKING SET InvoiceId = 3 WHERE BookingID = 4
 
 UPDATE BOOKING SET InvoiceId = 4 WHERE BookingID = 5
 
-UPDATE ROOM
-SET
-    ImgUrl = 'https://placehold.co/400'
+UPDATE ROOM SET Description = 'This is a room'
 
-UPDATE ROOM
-SET
-    Description = 'This is a room'
+--Set imgurl for each room
+DECLARE @RoomId INT;
+DECLARE @i INT = 1;
+DECLARE RoomCursor CURSOR FOR
+SELECT RoomId FROM Room;
+
+OPEN RoomCursor;
+FETCH NEXT FROM RoomCursor INTO @RoomId;
+
+WHILE @@FETCH_STATUS = 0
+BEGIN
+    UPDATE Room
+    SET ImgUrl = CONCAT('https://res.cloudinary.com/dvzhmi7a9/image/upload/t_scale_10/HotelManagement/', @i)
+    WHERE RoomId = @RoomId;
+
+    SET @i = @i + 1;
+    IF(@I > 20)
+    BEGIN
+        SET @i = 1;
+    END
+    FETCH NEXT FROM RoomCursor INTO @RoomId;
+END;
+
+CLOSE RoomCursor;
+DEALLOCATE RoomCursor;
