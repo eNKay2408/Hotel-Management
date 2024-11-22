@@ -188,22 +188,7 @@ set IsAvailable = 0
 where RoomID = 101 or RoomID = 102 or RoomID = 201 
 		or RoomID = 202 or RoomID = 301
 
-UPDATE BOOKING
-SET
-    InvoiceId = 1
-WHERE
-    BookingID = 1
-    OR BookingID = 2
-
-UPDATE BOOKING SET InvoiceId = 2 WHERE BookingID = 3
-
-UPDATE BOOKING SET InvoiceId = 3 WHERE BookingID = 4
-
-UPDATE BOOKING SET InvoiceId = 4 WHERE BookingID = 5
-
-UPDATE ROOM SET Description = 'This is a room'
-
---Set imgurl for each room
+-- Cập nhật Room
 DECLARE @RoomId INT;
 DECLARE @i INT = 1;
 DECLARE RoomCursor CURSOR FOR
@@ -219,7 +204,7 @@ BEGIN
     WHERE RoomId = @RoomId;
 
     SET @i = @i + 1;
-    IF(@I > 20)
+    IF(@i > 20)
     BEGIN
         SET @i = 1;
     END
@@ -229,62 +214,82 @@ END;
 CLOSE RoomCursor;
 DEALLOCATE RoomCursor;
 
-create function CountNumberOfCustomer(@bookingId int)
-returns int
-as
-begin
-	declare @numberCustomer int
-	select @numberCustomer = count(distinct CustomerID)
-	from BookingCustomers 
-	where BookingID = @bookingId
+GO
 
-	return @numberCustomer
-end
+-- Hàm đếm số lượng khách hàng
+CREATE FUNCTION CountNumberOfCustomer(@bookingId INT)
+RETURNS INT
+AS
+BEGIN
+    DECLARE @numberCustomer INT;
+    SELECT @numberCustomer = COUNT(DISTINCT CustomerID)
+    FROM BookingCustomers
+    WHERE BookingID = @bookingId;
 
-create function GetMaxCoefficient(@bookingId int)
-returns float
-as
-begin
-	declare @maxCoeffiecient float
-	select @maxCoeffiecient = MAX(ct.Coefficient)
-	from BookingCustomers bc join CUSTOMER c on bc.CustomerID = c.CustomerID
-							 join CUSTOMERTYPE ct on ct.Type = c.Type
-	where bc.BookingID = @bookingId
-	
-	return @maxCoeffiecient
-end
+    RETURN @numberCustomer;
+END;
 
-create function calcCostOfBooking(@bookingId int)
-returns float
-as
-begin
-	declare @numberCustomer int 
-	set @numberCustomer = dbo.CountNumberOfCustomer(@bookingId)
-	declare @maxCoefficient float
-	set @maxCoefficient = dbo.GetMaxCoefficient(@bookingId)
-	
-	declare @nights int
-	select @nights = DATEDIFF(Day, BookingDate, GetDate())
-	from BOOKING
-	where BookingID = @bookingId
+GO
 
-	declare @minCustomerForSurCharge int
-	declare @price int
-	declare @surcharge float
+-- Hàm lấy hệ số lớn nhất
+CREATE FUNCTION GetMaxCoefficient(@bookingId INT)
+RETURNS FLOAT
+AS
+BEGIN
+    DECLARE @maxCoefficient FLOAT;
+    SELECT @maxCoefficient = MAX(ct.Coefficient)
+    FROM BookingCustomers bc
+    JOIN CUSTOMER c ON bc.CustomerID = c.CustomerID
+    JOIN CUSTOMERTYPE ct ON ct.Type = c.Type
+    WHERE bc.BookingID = @bookingId;
 
-	select @minCustomerForSurCharge = rt.Min_Customer_for_Surcharge, @price = rt.Price,
-			@surcharge = rt.Surcharge_Rate
-	from BOOKING b join ROOM r on b.RoomID = r.RoomID
-				   join ROOMTYPE rt on r.Type = rt.Type
-	where b.BookingID = @bookingId
+    RETURN @maxCoefficient;
+END;
 
-	declare @cost float
-	set @cost = @price * @nights * @maxCoefficient
+GO
 
-	if(@numberCustomer >= @minCustomerForSurCharge)
-	begin
-		set @cost = @cost * (1 + @surcharge)
-	end
+-- Hàm tính chi phí đặt phòng
+CREATE FUNCTION calcCostOfBooking(@bookingId INT)
+RETURNS FLOAT
+AS
+BEGIN
+    DECLARE @numberCustomer INT;
+    DECLARE @maxCoefficient FLOAT;
+    DECLARE @nights INT;
+    DECLARE @minCustomerForSurCharge INT;
+    DECLARE @price INT;
+    DECLARE @surcharge FLOAT;
+    DECLARE @cost FLOAT;
 
-	return @cost
-end
+    -- Lấy số khách hàng
+    SET @numberCustomer = dbo.CountNumberOfCustomer(@bookingId);
+
+    -- Lấy hệ số lớn nhất
+    SET @maxCoefficient = dbo.GetMaxCoefficient(@bookingId);
+
+    -- Tính số đêm
+    SELECT @nights = DATEDIFF(DAY, BookingDate, GETDATE())
+    FROM BOOKING
+    WHERE BookingID = @bookingId;
+
+    -- Lấy thông tin giá, phụ phí
+    SELECT 
+        @minCustomerForSurCharge = rt.Min_Customer_for_Surcharge,
+        @price = rt.Price,
+        @surcharge = rt.Surcharge_Rate
+    FROM BOOKING b
+    JOIN ROOM r ON b.RoomID = r.RoomID
+    JOIN ROOMTYPE rt ON r.Type = rt.Type
+    WHERE b.BookingID = @bookingId;
+
+    -- Tính chi phí
+    SET @cost = ISNULL(@price, 0) * ISNULL(@nights, 1) * ISNULL(@maxCoefficient, 1);
+
+    IF (@numberCustomer >= @minCustomerForSurCharge)
+    BEGIN
+        SET @cost = @cost * (1 + @surcharge);
+    END
+
+    RETURN @cost;
+END;
+GO
