@@ -1,189 +1,188 @@
-import { useParams } from "react-router-dom";
-import { useState, useEffect, useRef } from "react";
+import { useParams } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
 
-import { Title, Button } from "../../components";
-import { logoBackground } from "../../assets";
-import { getInvoice } from "../../services";
+import { Title, Button } from '../../components';
+import { logoBackground } from '../../assets';
+import { getInvoice } from '../../services';
+import { hotelInformation } from '../../constants';
 
-import html2pdf from "html2pdf.js";
+import html2pdf from 'html2pdf.js';
 
 const InvoiceDetails = () => {
-	/*
-	* Get invoice data from API
-	* API: GET /api/invoice/:id
-	const { id } = useParams();
-	
-	const [invoice, setInvoice] = useState({});
+  const { id } = useParams();
 
-	useEffect(() => {
-		const loadInvoice = async () => {
-			const data = await getInvoice(id);
-			setInvoice(data);
-		};
-		loadInvoice();
-	*/
+  const [invoice, setInvoice] = useState({
+    InvoiceDate: '',
+    Representative: {
+      Name: '',
+      Address: '',
+    },
+    Bookings: [
+      {
+        RoomNumber: '',
+        Nights: '',
+        Price: '',
+        SurchargeRate: '',
+        Amount: '',
+        Coefficient: '',
+        ExtraCustomers: '',
+      },
+    ],
+    Amount: '',
+  });
 
-	const invoiceRef = useRef();
+  useEffect(() => {
+    const loadInvoice = async () => {
+      const data = await getInvoice(id);
+      setInvoice(data);
 
-	const [invoice, setInvoice] = useState({
-		id: "123456",
-		date: "2024-10-24",
-		customer: {
-			id: "123456",
-			name: "Nguyen Van A",
-			address: "Dormitory B - VNUHCM",
-		},
-		rooms: [
-			{
-				number: 101,
-				rentalDays: 3,
-				rate: 1500.0,
-				amount: 4500.0,
-			},
-			{
-				number: 102,
-				rentalDays: 2,
-				rate: 2000.0,
-				amount: 4000.0,
-			},
-		],
-		surcharge: 500.0,
-	});
+      console.log(data);
+    };
+    loadInvoice();
+  }, []);
 
-	const calculateSubtotal = (rooms) => {
-		const total = rooms.reduce(
-			(acc, room) => acc + room.rate * room.rentalDays,
-			0
-		);
-		return total;
-	};
+  const invoiceRef = useRef();
 
-	const formatMoney = (number) => {
-		return "$" + new Intl.NumberFormat("en-US").format(number);
-	};
+  const formatMoney = (number) => {
+    return '$' + new Intl.NumberFormat('en-US').format(number);
+  };
 
-	const handlePrint = () => {
-		window.print();
-	};
+  const handlePrint = () => {
+    window.print();
+  };
 
-	const handleDownload = () => {
-		const opt = {
-			filename: `invoice_${invoice.id}.pdf`,
-		};
+  const handleDownload = () => {
+    const opt = {
+      filename: `invoice_${id}.pdf`,
+    };
 
-		html2pdf().from(invoiceRef.current).set(opt).save();
-	};
+    html2pdf().from(invoiceRef.current).set(opt).save();
+  };
 
-	return (
-		<div className="flex flex-col w-full py-4 px-2">
-			<Title title="Invoice Details" />
+  return (
+    <div className="flex flex-col w-full py-4 px-2">
+      <Title title="Invoice Details" />
 
-			<div
-				className="flex flex-col mx-auto font-play md:w-[70%] w-full"
-				ref={invoiceRef}
-			>
-				<div className="flex gap-4 p-4 bg-zinc-600 text-gray rounded-t-lg">
-					<img
-						src={logoBackground}
-						alt="logo"
-						className="w-40 lg:block hidden object-contain"
-					/>
-					<div className="flex flex-col md:items-center items-start flex-1">
-						<h1 className="text-2xl font-bold text-yellow font-amethysta">
-							GOLDEN HOTEL
-						</h1>
-						<p>0123456789</p>
-						<p>contact@golden-hotel.com</p>
-					</div>
-					<div className="flex md:text-center text-right items-center">
-						1234, Golden Street
-						<br />
-						Thu Duc District,
-						<br />
-						Ho Chi Minh
-					</div>
-				</div>
+      <div
+        className="flex flex-col mx-auto font-play md:w-[80%] w-full"
+        ref={invoiceRef}
+      >
+        <div className="flex gap-4 p-4 bg-neutral-900 text-gray rounded-t-lg font-amethysta">
+          <img
+            src={logoBackground}
+            alt="logo"
+            className="w-40 lg:block hidden object-contain"
+          />
+          <div className="flex flex-col md:items-center items-start flex-1">
+            <h1 className="text-2xl font-bold text-yellow font-amethysta uppercase">
+              {hotelInformation.name}
+            </h1>
+            <p>{hotelInformation.phone}</p>
+            <p>{hotelInformation.email}</p>
+          </div>
+          <div className="flex md:text-center text-right items-center">
+            {hotelInformation.address.split(',')[0] +
+              ', ' +
+              hotelInformation.address.split(',')[1]}
+            <br />
+            {hotelInformation.address.split(',')[2]}
+            <br />
+            {hotelInformation.address.split(',')[3]}
+          </div>
+        </div>
 
-				<div className="flex flex-col gap-4 bg-zinc-200 p-4">
-					<div className="grid grid-cols-2 gap-x-4 gap-y-2">
-						<div>
-							<p>Billed to</p>
-							<p className="font-bold text-lg">{invoice.customer.name}</p>
-						</div>
-						<div>
-							<p>Date</p>
-							<p className="font-bold text-lg">
-								{new Date(invoice.date).toLocaleDateString("en-BS")}
-							</p>
-						</div>
-						<div>
-							<p>Address</p>
-							<p className="font-bold text-lg">{invoice.customer.address}</p>
-						</div>
-						<div>
-							<p>Invoice number</p>
-							<p className="font-bold text-lg">#{invoice.id}</p>
-						</div>
-					</div>
+        <div className="flex flex-col gap-4 bg-zinc-200 p-4">
+          <div className="flex gap-4 justify-between md:text-xl text-lg flex-wrap">
+            <div>
+              <p>Representative</p>
+              <p className="font-bold">{invoice.Representative.Name}</p>
+            </div>
+            <div>
+              <p>Address</p>
+              <p className="font-bold">
+                {invoice.Representative.Address &&
+                invoice.Representative.Address.length > 20
+                  ? invoice.Representative.Address.substring(0, 20) + '...'
+                  : invoice.Representative.Address}
+              </p>
+            </div>
+            <div>
+              <p>Invoice Date</p>
+              <p className="font-bold">
+                {new Date(invoice.InvoiceDate).toLocaleDateString('en-BS')}
+              </p>
+            </div>
+            <div>
+              <p>Invoice No</p>
+              <p className="font-bold">#{id}</p>
+            </div>
+          </div>
 
-					<table className="table-auto text-center md:text-lg text-md">
-						<thead className="table-header-group ">
-							<tr className="table-row">
-								<th className="border bg-gray">No</th>
-								<th className="border bg-gray">Room Number</th>
-								<th className="border bg-gray">Rental Days</th>
-								<th className="border bg-gray">Rate</th>
-								<th className="border bg-gray">Amount</th>
-							</tr>
-						</thead>
-						<tbody>
-							{invoice.rooms.map((room, index) => (
-								<tr key={index}>
-									<td className="border">{index + 1}</td>
-									<td className="border">{room.number}</td>
-									<td className="border">{room.rentalDays}</td>
-									<td className="border">{formatMoney(room.rate)}</td>
-									<td className="border"> {formatMoney(room.amount)}</td>
-								</tr>
-							))}
-						</tbody>
-					</table>
+          <div className="overflow-x-auto mt-2">
+            <table className="w-full table-auto text-center md:text-lg text-base">
+              <thead className="table-header-group text-lg">
+                <tr className="table-row">
+                  <th className="bg-gray p-2">No</th>
+                  <th className="bg-gray p-2">Room</th>
+                  <th className="bg-gray p-2">Nights</th>
+                  <th className="bg-gray p-2">Price</th>
+                  <th className="bg-gray w-2/12 text-base p-2">
+                    Extra Customers
+                  </th>
+                  <th className="bg-gray w-2/12 text-base p-2">
+                    Surcharge Rate
+                  </th>
+                  <th className="bg-gray p-2">Coefficient</th>
+                  <th className="bg-gray p-2">Amount</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y">
+                {invoice.Bookings.map((room, index) => (
+                  <tr
+                    key={index}
+                    className={index % 2 === 0 ? 'bg-zinc-200' : 'bg-white'}
+                  >
+                    <td className="py-2 px-1">{index + 1}</td>
+                    <td className="py-2 px-1">{room.RoomNumber}</td>
+                    <td className="py-2 px-1">{room.Nights}</td>
+                    <td className="py-2 px-1">{formatMoney(room.Price)}</td>
+                    <td className="py-2 px-1">
+                      {room.ExtraCustomers +
+                        ' ' +
+                        (room.ExtraCustomers > 1 ? 'customers' : 'customer')}
+                    </td>
+                    <td className="py-2 px-1">
+                      {room.SurchargeRate * 100 + '%'}
+                    </td>
+                    <td className="py-2 px-1">{room.Coefficient}</td>
+                    <td className="py-2 px-1">{formatMoney(room.Amount)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
-					<div className="flex justify-end text-lg gap-4 relative">
-						<div className="flex flex-col items-end ">
-							<p>Sub Total</p>
-							<p>Surcharge</p>
-							<p className="mt-1 text-2xl">Total</p>
-						</div>
-						<div className="mr-4">
-							<p className="font-bold">
-								{formatMoney(calculateSubtotal(invoice.rooms))}
-							</p>
-							<p className="font-bold">{formatMoney(invoice.surcharge)}</p>
-							<p className="font-bold text-red border-t-2 mt-1 text-2xl">
-								{formatMoney(
-									calculateSubtotal(invoice.rooms) + invoice.surcharge
-								)}
-							</p>
-						</div>
-					</div>
-				</div>
-			</div>
+          <div className="flex justify-end items-end gap-2 font-bold tracking-widest">
+            <p className="text-2xl">Total:</p>
+            <p className="text-3xl text-red">{formatMoney(invoice.Amount)}</p>
+          </div>
+        </div>
+      </div>
 
-			<div className="flex justify-center gap-4 mt-4">
-				<Button
-					color="green"
-					text="Export PDF"
-					onClick={() => handleDownload()}
-				/>
-				<Button
-					color="orange"
-					text="Print Invoice"
-					onClick={() => handlePrint()}
-				/>
-			</div>
-		</div>
-	);
+      <div className="flex justify-center gap-4 mt-4">
+        <Button
+          color="green"
+          text="Export PDF"
+          onClick={() => handleDownload()}
+        />
+        <Button
+          color="orange"
+          text="Print Invoice"
+          onClick={() => handlePrint()}
+        />
+      </div>
+    </div>
+  );
 };
 
 export default InvoiceDetails;
