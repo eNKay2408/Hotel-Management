@@ -98,9 +98,27 @@ export default class BookingModel {
   }
 
   static async getAllBookingUnpaid() {
-    const result = await connection
-      .request()
-      .query('SELECT * FROM Booking WHERE InvoiceId IS NULL');
+    const result = await connection.request()
+      .query(`SELECT b.BookingID, b.RoomID as RoomNumber, b.BookingDate, 
+                      DATEDIFF(Day, b.BookingDate, GetDate()) as Nights, rt.Price
+              FROM Booking b join ROOM r on b.RoomID = r.RoomID
+                      join ROOMTYPE rt on r.Type = rt.Type
+              WHERE b.Cost is NULL`);
     return result.recordset;
+  }
+
+  static async CalcCost(bookingId) {
+    const result = await connection.request().input('BookingId', bookingId)
+      .query(`update BOOKING
+              set cost = dbo.calcCostOfBooking(@BookingId)
+              where BookingID = @BookingId
+
+              update room
+              set isAvailable = 1
+              where RoomID = (select RoomID from Booking where BookingID = @BookingId)
+              
+              Select dbo.calcCostOfBooking(@BookingId) as cost`);
+    // return cost
+    return result.recordset[0].cost;
   }
 }

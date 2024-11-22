@@ -3,6 +3,6 @@ import { Router } from 'express';
 
 const router = Router();
 
-router.post('/:id', BookingController.getAllCustomersInBooking);
+router.get('/', BookingController.getAllCustomersInBooking);
 
 export default router;
