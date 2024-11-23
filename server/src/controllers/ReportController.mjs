@@ -13,9 +13,12 @@ export const ReportController = {
 
   getRevenueReport: async (req, res) => {
     try {
-      const { month, year } = req.params;
-      const report = await ReportModel.getRevenueReport(month, year);
-      return res.status(StatusCodes.OK).json(report);
+        const { month, year } = req.query;
+        if (!month || !year) {
+            return res.status(StatusCodes.BAD_REQUEST).send('Month and year are required');
+        }
+        const report = await ReportModel.getRevenueReport(month, year);
+        return res.status(StatusCodes.OK).json(report);
     } catch (err) {
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
     }
@@ -23,7 +26,10 @@ export const ReportController = {
 
   getOccupancyReport: async (req, res) => {
     try {
-      const { month, year } = req.params;
+        const { month, year } = req.query;
+        if (!month || !year) {
+            return res.status(StatusCodes.BAD_REQUEST).send('Month and year are required');
+        }
       const report = await ReportModel.getOccupancyReport(month, year);
       return res.status(StatusCodes.OK).json(report);
     } catch (err) {

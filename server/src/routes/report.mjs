@@ -4,7 +4,7 @@ import { ReportController } from "../controllers/ReportController.mjs";
 const router = Router();
 
 router.get('/', ReportController.getAllReportOverview);
-router.get('/revenue/:month/:year', ReportController.getRevenueReport);
-router.get('/occupancy/:month/:year', ReportController.getOccupancyReport);
+router.get('/revenue', ReportController.getRevenueReport);
+router.get('/occupancy', ReportController.getOccupancyReport);
 
 export default router;

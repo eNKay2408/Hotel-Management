@@ -1,35 +1,66 @@
 import connection from "../database/connectSQL.mjs";
 
 export default class ReportModel {
-    static async getAllReportOverview() {
-        const result = await connection.request().query('Select a.Month, a.Year, TotalRevenue, TotalRentalDay from RevenueReport a join Occupancy b on a.Month = b.Month and a.Year = b.Year');
-        return result.recordset;
-    }
+  static async getAllReportOverview() {
+    const result = await connection.request().query(
+      `SELECT a.Month, a.Year, TotalRevenue, TotalRentalDay 
+         FROM RevenueReport a 
+         JOIN Occupancy b ON a.Month = b.Month AND a.Year = b.Year`
+    );
+    return result.recordset;
+  }
 
-    static async getRevenueReport(month, year) {
-        const totalRevenue = await connection
-          .request()
-          .input('month', 'year')
-          .query(
-            `Select TotalRevenue from RevenueReport where Month = @month and Year = @year`
-        );
-        
-        const Details = await connection.request().input('month', 'year').query(`Select Type, Revenue from RevenueReport_has_RoomType where Month = @month and Year = @year`);
+  static async getRevenueReport(month, year) {
+    const totalRevenueQuery = await connection
+      .request()
+      .input('month', month)
+      .input('year', year)
+      .query(
+        `SELECT TotalRevenue 
+         FROM RevenueReport 
+         WHERE Month = @month AND Year = @year`
+      );
 
-        return {
-            TotalRevenue: totalRevenue,
-            Details: Details
-        };
-    }
+    const detailsQuery = await connection
+      .request()
+      .input('month', month)
+      .input('year', year)
+      .query(
+        `SELECT Type, Revenue 
+         FROM RevenueReport_has_RoomType 
+         WHERE Month = @month AND Year = @year`
+      );
 
-    static async getOccupancyReport(month, year) {
-        const TotalRentalDay = await connection.request().input('month', 'year').query(`Select TotalRentalDay from OccupancyReport where Month = @month and Year = @year`);
+    return {
+      TotalRevenue: totalRevenueQuery.recordset[0]?.TotalRevenue || 0,
+      Details: detailsQuery.recordset,
+    };
+  }
 
-        const Details = await connection.request().input('month', 'year').query(`Select Type, RentalDay from OccupancyReport_has_Room where Month = @month and Year = @year`);
+  static async getOccupancyReport(month, year) {
+    const totalRentalDayQuery = await connection
+      .request()
+      .input('month', month)
+      .input('year', year)
+      .query(
+        `SELECT TotalRentalDay 
+         FROM Occupancy 
+         WHERE Month = @month AND Year = @year`
+      );
 
-        return {
-            TotalRentalDay: TotalRentalDay,
-            Details: Details
-        };
-    }
+    const detailsQuery = await connection
+      .request()
+      .input('month', month)
+      .input('year', year)
+      .query(
+        `SELECT RoomID, Rate 
+         FROM Occupancy_has_Room 
+         WHERE Month = @month AND Year = @year`
+      );
+
+    return {
+      TotalRentalDay: totalRentalDayQuery.recordset[0]?.TotalRentalDay || 0,
+      Details: detailsQuery.recordset,
+    };
+  }
 }
