@@ -163,7 +163,10 @@ const RoomDetails = () => {
                 ref={imageRef}
                 onChange={() => handleImageUpload()}
               />
-              <img src={room.ImgUrl} className="py-2 w-36 h-36 object-cover" />
+              <img
+                src={room.ImgUrl}
+                className="w-44 h-[132px] object-cover rounded-lg mt-2 shadow-lg"
+              />
             </div>
           </div>
 
