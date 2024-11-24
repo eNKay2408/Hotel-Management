@@ -13,6 +13,7 @@ const BookingDetails = () => {
 
   const [customers, setCustomers] = useState([]);
   const [type, setType] = useState();
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     const fetchType = async () => {
@@ -75,6 +76,11 @@ const BookingDetails = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (Object.values(errors).some((error) => error)) {
+      alert('Please fill in all fields correctly');
+      return;
+    }
+
     const formData = new FormData(e.target);
 
     const customerMap = {};
@@ -110,6 +116,13 @@ const BookingDetails = () => {
     }
   };
 
+  const handleErrors = (index, field, error) => {
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [`${index}-${field}`]: error,
+    }));
+  };
+
   return (
     <div className="flex flex-col w-full py-4 px-2">
       <Title title={`Booking Details - Room ${Number}`} />
@@ -139,7 +152,11 @@ const BookingDetails = () => {
         onSubmit={handleSubmit}
       >
         {customers.map((_, index) => (
-          <CustomerForm key={index + 1} index={index + 1} />
+          <CustomerForm
+            key={index + 1}
+            index={index + 1}
+            handleErrors={handleErrors}
+          />
         ))}
         <Button color="orange" text="CONFIRM" type="submit" />
       </form>
