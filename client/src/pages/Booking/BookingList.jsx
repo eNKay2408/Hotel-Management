@@ -15,7 +15,7 @@ const BookingList = () => {
   }, []);
 
   return (
-    <div className="flex flex-col w-full py-4 px-2">
+    <div className="flex flex-col w-full py-4 px-2 min-h-80">
       <Title title="Booking List" />
 
       <div className="flex flex-wrap items-center justify-evenly gap-4">
