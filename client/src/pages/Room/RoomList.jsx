@@ -39,7 +39,7 @@ const RoomList = () => {
 
     if (filterStatus !== 'all') {
       filteredRooms = filteredRooms.filter(
-        (room) => room.Status === (filterStatus === 'available' ? false : true)
+        (room) => room.IsAvailable === (filterStatus === 'available')
       );
     }
 
@@ -135,13 +135,12 @@ const RoomList = () => {
         <table className="table-auto text-center w-full">
           <thead className="table-header-group lg:text-xl text-lg font-play">
             <tr className="table-row">
-              <th className="border bg-zinc-200 md:h-12 h-10 px-2">No</th>
+              <th className="border bg-zinc-200 lg:h-12 h-10 px-2">No</th>
               <th className="border bg-zinc-200 px-2">Number</th>
               <th className="border bg-zinc-200 px-2">Type</th>
-              <th className="border bg-zinc-200 px-2">Occupancy</th>
-              <th className="border bg-zinc-200 px-2">Price</th>
-              <th className="border bg-zinc-200 px-2">Status</th>
               <th className="border bg-zinc-200 px-2">Image</th>
+              <th className="border bg-zinc-200 px-2">Description</th>
+              <th className="border bg-zinc-200 px-2">Status</th>
               <th className="border bg-zinc-200 px-2">Actions</th>
             </tr>
           </thead>
@@ -152,18 +151,19 @@ const RoomList = () => {
                 <td className="border px-2">{room.Number}</td>
                 <td className="border px-2">{room.Type}</td>
                 <td className="border px-2">
-                  {room.Occupancy} {room.Occupancy > 1 ? 'guests' : 'guest'}
-                </td>
-                <td className="border px-2">${room.Price}</td>
-                <td className="border px-2">
-                  {room.Status === false ? 'Available' : 'Unavailable'}
-                </td>
-                <td className="border px-2">
                   <img
                     src={room.ImgUrl}
                     alt={room.Number}
                     className="lg:w-20 lg:h-14 w-12 h-10 object-cover p-1 mx-auto rounded-lg"
                   />
+                </td>
+                <td className="border px-2 lg:w-60 w-48">
+                  {room.Description.length > 50
+                    ? room.Description.slice(0, 50) + '...'
+                    : room.Description}
+                </td>
+                <td className="border px-2">
+                  {room.IsAvailable ? 'Available' : 'Unavailable'}
                 </td>
                 <td className="border p-1">
                   <div className="flex justify-center gap-2">
@@ -171,7 +171,7 @@ const RoomList = () => {
                       color="orange"
                       text="✏️"
                       onClick={() => handleEditRoom(room.Number)}
-                      disabled={room.Status}
+                      disabled={room.IsAvailable ? false : true}
                     />
                     <Button
                       color="red"

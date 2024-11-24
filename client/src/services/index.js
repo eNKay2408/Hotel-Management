@@ -4,6 +4,17 @@ export const getBookings = async () => {
   return response.json();
 };
 
+export const createBooking = async (data) => {
+  const response = await fetch('http://localhost:3000/api/bookings', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  return response;
+};
+
 // *Rooms*
 export const getRooms = async () => {
   const response = await fetch('http://localhost:3000/api/rooms');
@@ -45,9 +56,22 @@ export const deleteRoom = async (id) => {
   return response;
 };
 
-// *Room Types*
+// *Room Type*
 export const getRoomTypes = async () => {
   const response = await fetch('http://localhost:3000/api/roomtypes');
+  return response.json();
+};
+
+export const getRoomTypeByRoomNumber = async (id) => {
+  const response = await fetch(
+    `http://localhost:3000/api/roomtypes?roomNumber=${id}`
+  );
+  return response.json();
+};
+
+// *Customer Type*
+export const getCustomerTypes = async () => {
+  const response = await fetch('http://localhost:3000/api/customertypes');
   return response.json();
 };
 

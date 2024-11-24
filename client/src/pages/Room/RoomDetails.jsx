@@ -35,6 +35,12 @@ const RoomDetails = () => {
 
   const handleImageUpload = () => {
     const file = imageRef.current.files[0];
+
+    if (file.size > 1 * 1024 * 1024) {
+      alert('Image size is too large. Only images up to 1MB are allowed');
+      return;
+    }
+
     try {
       const reader = new FileReader();
 
@@ -44,7 +50,7 @@ const RoomDetails = () => {
 
       reader.readAsDataURL(file);
     } catch (error) {
-      alert('Image size is too large. Only images up to 2MB are allowed');
+      alert('An error occurred while uploading the image');
       console.error(error);
     }
   };
@@ -108,6 +114,7 @@ const RoomDetails = () => {
             <div className="flex flex-col">
               <label className="font-bold text-xl">Number</label>
               <input
+                required
                 type="number"
                 value={room.Number}
                 className="border rounded-md px-2 py-1 text-lg"
@@ -132,6 +139,7 @@ const RoomDetails = () => {
             <div className="flex flex-col">
               <label className="font-bold text-xl">Type</label>
               <select
+                required
                 className="border rounded-md px-2 py-[7px] text-lg"
                 value={room.Type}
                 onChange={(e) => setRoom({ ...room, Type: e.target.value })}

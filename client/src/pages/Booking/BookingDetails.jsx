@@ -1,105 +1,150 @@
-import { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useState, useEffect, useRef } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 
-import { GuestForm, Title, Button } from "../../components";
+import { CustomerForm, Title, Button } from '../../components';
+
+import { createBooking, getRoomTypeByRoomNumber } from '../../services';
 
 const BookingDetails = () => {
-	const { id } = useParams();
+  const { id: Number } = useParams();
 
-	const [guests, setGuests] = useState([1]);
+  const navigate = useNavigate();
+  const isExecuted = useRef(false);
 
-	const handleAddGuest = () => {
-		setGuests([...guests, guests.length + 1]);
-	};
+  const [customers, setCustomers] = useState([]);
+  const [type, setType] = useState();
 
-	const handleDeleteGuest = () => {
-		if (guests.length > 1) {
-			setGuests(guests.slice(0, guests.length - 1));
-		}
-	};
+  useEffect(() => {
+    const fetchType = async () => {
+      if (isExecuted.current) return;
+      isExecuted.current = true;
 
-	const navigate = useNavigate();
+      const roomType = await getRoomTypeByRoomNumber(Number);
 
-	const handleSubmit = async (e) => {
-		e.preventDefault();
+      if (roomType.length === 0) {
+        alert(`Room ${Number} not found`);
+        navigate('/bookings');
+        return;
+      }
 
-		const formData = new FormData(e.target);
+      setType({
+        Type: roomType[0].Type,
+        Price: roomType[0].Price,
+        MaxOccupancy: roomType[0].Max_Occupancy,
+        SurchargeRate: roomType[0].Surcharge_Rate,
+        BaseCustomers: roomType[0].Min_Customer_for_Surcharge,
+      });
 
-		const guestsData = [];
-		const guestMap = {};
+      setCustomers(
+        Array.from({ length: roomType[0].Min_Customer_for_Surcharge })
+      );
+    };
 
-		formData.forEach((value, key) => {
-			const [index, field] = key.split("-");
+    fetchType();
+  }, [Number, navigate]);
 
-			if (!guestMap[index]) {
-				guestMap[index] = {};
-			}
+  const handleAddCustomer = () => {
+    if (customers.length >= type.MaxOccupancy) {
+      alert(`Room ${Number} is at maximum occupancy of ${type.MaxOccupancy}`);
+      return;
+    }
 
-			guestMap[index][field] = value;
-		});
+    if (customers.length == type.BaseCustomers) {
+      setCustomers((prev) => [...prev, prev.length + 1]);
 
-		for (const index in guestMap) {
-			guestsData.push(guestMap[index]);
-		}
+      alert(
+        `Room ${Number} has a surcharge rate of ${
+          type.SurchargeRate * 100
+        }% for each additional customer`
+      );
+      return;
+    }
 
-		const response = await fetch(`/api/bookings/${id}`, {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify(guestsData),
-		});
+    setCustomers((prev) => [...prev, prev.length + 1]);
+  };
 
-		navigate(`/bookings`);
+  const handleDeleteCustomer = () => {
+    if (customers.length <= 1) {
+      alert('Customer list cannot be empty');
+      return;
+    }
 
-		/*
-		* API: Create booking
+    setCustomers((prev) => prev.slice(0, prev.length - 1));
+  };
 
-		if (response.ok) {
-			alert("Booking created successfully");
-			navigate(`/bookings/${id}`);
-		} else {
-			alert("Failed to create booking");
-			console.error(response);
-		}
-		*/
-	};
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-	return (
-		<div className="flex flex-col w-full py-4 px-2">
-			<Title title={`Booking Details`} />
+    const formData = new FormData(e.target);
 
-			<div className="text-center font-play mt-[-16px] text-2xl opacity-60">
-				Start date:{" "}
-				<span className="font-bold">
-					{new Date().toLocaleDateString("en-GB")}
-				</span>
-			</div>
+    const customerMap = {};
+    const customersData = [];
 
-			<div className="flex justify-center gap-2 mt-4 py-4">
-				<Button
-					color="green"
-					text="Add Guest"
-					onClick={() => handleAddGuest()}
-				/>
-				<Button
-					color="red"
-					text="Delete Guest"
-					onClick={() => handleDeleteGuest()}
-				/>
-			</div>
+    formData.forEach((value, key) => {
+      const [index, field] = key.split('-');
 
-			<form
-				className="flex flex-col items-center justify-evenly gap-4"
-				onSubmit={handleSubmit}
-			>
-				{guests.map((id) => (
-					<GuestForm key={id} id={id} />
-				))}
-				<Button color="orange" text="CONFIRM" type="submit" />
-			</form>
-		</div>
-	);
+      if (!customerMap[index]) {
+        customerMap[index] = {};
+      }
+
+      customerMap[index][field] = value;
+    });
+
+    for (const index in customerMap) {
+      customersData.push(customerMap[index]);
+    }
+
+    const bookingData = {
+      RoomId: Number,
+      Customers: customersData,
+    };
+
+    const response = await createBooking(bookingData);
+
+    if (response.status === 201) {
+      alert('Booking created successfully');
+      navigate('/bookings');
+    } else {
+      alert(response.text);
+      console.error(response.text);
+    }
+  };
+
+  return (
+    <div className="flex flex-col w-full py-4 px-2">
+      <Title title={`Booking Details - Room ${Number}`} />
+
+      <div className="text-center font-play mt-[-16px] text-2xl opacity-60">
+        Start date:{' '}
+        <span className="font-bold">
+          {new Date().toLocaleDateString('en-GB')}
+        </span>
+      </div>
+
+      <div className="flex justify-center gap-2 mt-4 py-4">
+        <Button
+          color="green"
+          text="Add Customer"
+          onClick={() => handleAddCustomer()}
+        />
+        <Button
+          color="red"
+          text="Delete Customer"
+          onClick={() => handleDeleteCustomer()}
+        />
+      </div>
+
+      <form
+        className="flex flex-col items-center justify-evenly gap-4"
+        onSubmit={handleSubmit}
+      >
+        {customers.map((_, index) => (
+          <CustomerForm key={index + 1} index={index + 1} />
+        ))}
+        <Button color="orange" text="CONFIRM" type="submit" />
+      </form>
+    </div>
+  );
 };
 
 export default BookingDetails;
