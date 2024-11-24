@@ -12,6 +12,7 @@ const RoomDetails = () => {
     Type: 'A',
     Description: '',
     ImgUrl: 'https://placehold.co/400',
+    IsAvailable: true,
   });
 
   const [roomTypes, setRoomTypes] = useState([]);
@@ -77,6 +78,22 @@ const RoomDetails = () => {
 
   const handleCreateRoom = async (e) => {
     e.preventDefault();
+
+    if (room.Number.length !== 3) {
+      alert('Room number must be 3 digits');
+      return;
+    }
+
+    try {
+      const existedRoom = await getRoom(room.Number);
+
+      if (existedRoom) {
+        alert(`Room ${room.Number} already exists`);
+        return;
+      }
+    } catch (error) {
+      // do nothing
+    }
 
     setLoading(true);
 
