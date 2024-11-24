@@ -158,7 +158,7 @@ const RoomList = () => {
                   />
                 </td>
                 <td className="border px-2 lg:w-60 w-48">
-                  {room.Description.length > 50
+                  {room.Description && room.Description.length > 50
                     ? room.Description.slice(0, 50) + '...'
                     : room.Description}
                 </td>
@@ -171,12 +171,13 @@ const RoomList = () => {
                       color="orange"
                       text="✏️"
                       onClick={() => handleEditRoom(room.Number)}
-                      disabled={room.IsAvailable ? false : true}
+                      disabled={!room.IsAvailable}
                     />
                     <Button
                       color="red"
                       text="❌"
                       onClick={() => handleDeleteRoom(room.Number)}
+                      disabled={!room.IsAvailable}
                     />
                   </div>
                 </td>
