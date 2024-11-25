@@ -6,7 +6,7 @@ const Table = ({ header, body, color }) => {
           <th
             key="No"
             className={`table-cell border h-12 ${
-              color === 'red' ? 'bg-red' : `bg-${color}`
+              color === 'red' ? 'bg-red' : 'bg-green'
             } px-2`}
           >
             No
