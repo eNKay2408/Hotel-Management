@@ -85,7 +85,7 @@ const RoomList = () => {
   };
 
   return (
-    <div className="flex flex-col w-full py-4 px-2">
+    <div className="flex flex-col w-full py-4 px-2 min-h-80">
       <Title title="Room List" />
 
       <div className="w-full max-w-[900px] mx-auto overflow-x-auto">
@@ -97,11 +97,11 @@ const RoomList = () => {
               onClick={() => navigate('/rooms/create')}
             />
           </div>
-          <div className="flex gap-2 lg:text-xl text-md font-play ">
+          <div className="flex gap-2 lg:text-xl text-base font-play">
             <input
               type="number"
               placeholder="🔍 Room Number"
-              className="border rounded-md px-2 font-bold lg:w-52 w-[116px]"
+              className="border rounded-md px-2 font-bold lg:w-52 w-[125px]"
               value={searchNumber}
               onChange={(e) => setSearchNumber(e.target.value)}
             />
@@ -133,7 +133,7 @@ const RoomList = () => {
         </div>
 
         <table className="table-auto text-center w-full">
-          <thead className="table-header-group lg:text-lg text-md">
+          <thead className="table-header-group lg:text-xl text-lg font-play">
             <tr className="table-row">
               <th className="border bg-zinc-200 lg:h-12 h-10 px-2">No</th>
               <th className="border bg-zinc-200 px-2">Number</th>
@@ -144,7 +144,7 @@ const RoomList = () => {
               <th className="border bg-zinc-200 px-2">Actions</th>
             </tr>
           </thead>
-          <tbody className="lg:text-lg text-md">
+          <tbody className="lg:text-lg text-base font-amethysta">
             {rooms.map((room, index) => (
               <tr key={index}>
                 <td className="border px-2">{index + 1}</td>
@@ -154,11 +154,11 @@ const RoomList = () => {
                   <img
                     src={room.ImgUrl}
                     alt={room.Number}
-                    className="lg:w-20 lg:h-20 w-12 h-12 object-cover p-1 mx-auto rounded-lg"
+                    className="lg:w-20 lg:h-14 w-12 h-10 object-cover p-1 mx-auto rounded-lg"
                   />
                 </td>
                 <td className="border px-2 lg:w-60 w-48">
-                  {room.Description.length > 50
+                  {room.Description && room.Description.length > 50
                     ? room.Description.slice(0, 50) + '...'
                     : room.Description}
                 </td>
@@ -171,12 +171,13 @@ const RoomList = () => {
                       color="orange"
                       text="✏️"
                       onClick={() => handleEditRoom(room.Number)}
-                      disabled={room.IsAvailable ? false : true}
+                      disabled={!room.IsAvailable}
                     />
                     <Button
                       color="red"
                       text="❌"
                       onClick={() => handleDeleteRoom(room.Number)}
+                      disabled={!room.IsAvailable}
                     />
                   </div>
                 </td>

@@ -1,11 +1,12 @@
 ﻿--Create database
-  
+
 CREATE DATABASE HOTEL_MANAGEMENT
 --DROP DATABASE HOTEL_MANAGEMENT
 USE [HOTEL_MANAGEMENT]
 
 
-CREATE TABLE ROOMTYPE (
+CREATE TABLE ROOMTYPE
+(
     Type char(1) PRIMARY KEY,
     Price int,
     Max_Occupancy int,
@@ -13,7 +14,8 @@ CREATE TABLE ROOMTYPE (
     Min_Customer_for_Surcharge int,
 )
 
-CREATE TABLE ROOM (
+CREATE TABLE ROOM
+(
     RoomID int PRIMARY KEY CHECK (RoomID > 100),
     Type char(1),
     IsAvailable bit DEFAULT 1,
@@ -22,13 +24,15 @@ CREATE TABLE ROOM (
     FOREIGN KEY (Type) REFERENCES ROOMTYPE (Type),
 )
 
-CREATE TABLE CUSTOMERTYPE (
+CREATE TABLE CUSTOMERTYPE
+(
     Type int IDENTITY (1, 1) PRIMARY KEY,
     Name varchar(10),
     Coefficient float,
 )
 
-CREATE TABLE CUSTOMER (
+CREATE TABLE CUSTOMER
+(
     CustomerID int IDENTITY (1, 1) PRIMARY KEY,
     Name nvarchar (40),
     Address nvarchar (100),
@@ -42,7 +46,8 @@ ADD CONSTRAINT CK_CitizenCard_OnlyNumbers CHECK (
     IdentityCard LIKE '[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]'
 )
 
-CREATE TABLE INVOICE (
+CREATE TABLE INVOICE
+(
     InvoiceID int IDENTITY (1, 1) PRIMARY KEY,
     RepresentativeId int,
     InvoiceDate date,
@@ -50,7 +55,8 @@ CREATE TABLE INVOICE (
     FOREIGN KEY (RepresentativeId) REFERENCES CUSTOMER (CustomerID),
 )
 
-CREATE TABLE BOOKING (
+CREATE TABLE BOOKING
+(
     BookingID int IDENTITY (1, 1) PRIMARY KEY,
     RoomID int,
     BookingDate date,
@@ -60,7 +66,8 @@ CREATE TABLE BOOKING (
     FOREIGN KEY (InvoiceId) REFERENCES INVOICE (InvoiceID),
 )
 
-CREATE TABLE BookingCustomers (
+CREATE TABLE BookingCustomers
+(
     BookingID int,
     CustomerID int,
     PRIMARY KEY (BookingID, CustomerID),
@@ -68,55 +75,62 @@ CREATE TABLE BookingCustomers (
     FOREIGN KEY (CustomerID) REFERENCES CUSTOMER (CustomerID),
 )
 
-CREATE TABLE REVENUEREPORT (
+CREATE TABLE REVENUEREPORT
+(
     Month int,
     Year int,
     PRIMARY KEY (Month, year),
     TotalRevenue Float
 )
 
-CREATE TABLE REVENUEREPORT_HAS_ROOMTYPE (
-	Month int,
-	Year int,
-	Type char,
-	Revenue float,
+CREATE TABLE REVENUEREPORT_HAS_ROOMTYPE
+(
+    Month int,
+    Year int,
+    Type char,
+    Revenue float,
 
 
-	primary key (Month, Year, Type),
-	Foreign key (Month, Year) references REVENUEREPORT(Month, year),
-	Foreign key (Type) references ROOMTYPE(Type),
+    primary key (Month, Year, Type),
+    Foreign key (Month, Year) references REVENUEREPORT(Month, year),
+    Foreign key (Type) references ROOMTYPE(Type),
 )
 
 
-CREATE TABLE OCCUPANCY (
+CREATE TABLE OCCUPANCY
+(
     Month int,
     Year int,
     PRIMARY KEY (Month, year),
     TotalRentalDay float
 )
 
-CREATE TABLE OCCUPANCY_HAS_ROOM (
-	Month int,
-	Year int,
-	RoomId int,
-	Rate float,
+CREATE TABLE OCCUPANCY_HAS_ROOM
+(
+    Month int,
+    Year int,
+    RoomId int,
+    Rate float,
 
 
-	primary key (Month, Year, RoomId),
-	Foreign key (Month, Year) references OCCUPANCY(Month, year),
-	Foreign key (RoomId) references ROOM(RoomId),
+    primary key (Month, Year, RoomId),
+    Foreign key (Month, Year) references OCCUPANCY(Month, year),
+    Foreign key (RoomId) references ROOM(RoomId),
 )
 
 
-INSERT INTO [ROOMTYPE] VALUES 
-	('A', 150, 6, 0.25, 3),
-	('B', 170, 4, 0.25, 2),
-	('C', 200, 2, 0.25, 1)
+INSERT INTO [ROOMTYPE]
+VALUES
+    ('A', 150, 6, 0.25, 3),
+    ('B', 170, 4, 0.25, 2),
+    ('C', 200, 2, 0.25, 1)
 
 
 INSERT INTO
-    ROOM (RoomID, Type)
-VALUES (101, 'A'),
+    ROOM
+    (RoomID, Type)
+VALUES
+    (101, 'A'),
     (102, 'B'),
     (103, 'C'),
     (201, 'A'),
@@ -126,11 +140,16 @@ VALUES (101, 'A'),
     (302, 'B'),
     (303, 'C')
 
-INSERT INTO CUSTOMERTYPE VALUES ('domestic', 1), ('foreign', 1.5)
+INSERT INTO CUSTOMERTYPE
+VALUES
+    ('domestic', 1),
+    ('foreign', 1.5)
 
 INSERT INTO
-    CUSTOMER (Name, Address, IdentityCard)
-VALUES (
+    CUSTOMER
+    (Name, Address, IdentityCard)
+VALUES
+    (
         N'Hoàng Tiến Huy',
         N'Dĩ An, Bình Dương',
         '066204006779'
@@ -157,23 +176,34 @@ VALUES (
     )
 
 INSERT INTO
-    CUSTOMER (Name, Type)
-VALUES (N'Lebrons James', 2),
+    CUSTOMER
+    (Name, Type)
+VALUES
+    (N'Lebrons James', 2),
     (N'Ishow Speed', 2),
     (N'Leo Messi', 2),
     (N'Cristiano Ronaldo', 2)
 
 INSERT INTO
-    BOOKING (RoomID, BookingDate)
-VALUES (101, '08-01-2024'), --3 (INVOICE 1)
-    (102, '08-01-2024'), --2 (INVOICE 1)
-    (201, '08-02-2024'), --1 (INVOICE 2)
-    (202, '08-01-2024'), --1 (INVOICE 3)
-    (301, '08-17-2024') --2  (INVOICE 4)
+    BOOKING
+    (RoomID, BookingDate)
+VALUES
+    (101, '08-01-2024'),
+    --3 (INVOICE 1)
+    (102, '08-01-2024'),
+    --2 (INVOICE 1)
+    (201, '08-02-2024'),
+    --1 (INVOICE 2)
+    (202, '08-01-2024'),
+    --1 (INVOICE 3)
+    (301, '08-17-2024')
+--2  (INVOICE 4)
 
 INSERT INTO
-    BookingCustomers (BookingID, CustomerID)
-VALUES (1, 1),
+    BookingCustomers
+    (BookingID, CustomerID)
+VALUES
+    (1, 1),
     (1, 2),
     (1, 3),
     (2, 4),
@@ -185,14 +215,15 @@ VALUES (1, 1),
 
 update ROOM
 set IsAvailable = 0
-where RoomID = 101 or RoomID = 102 or RoomID = 201 
-		or RoomID = 202 or RoomID = 301
+where RoomID = 101 or RoomID = 102 or RoomID = 201
+    or RoomID = 202 or RoomID = 301
 
 -- Cập nhật Room
 DECLARE @RoomId INT;
 DECLARE @i INT = 1;
 DECLARE RoomCursor CURSOR FOR
-SELECT RoomId FROM Room;
+SELECT RoomId
+FROM Room;
 
 OPEN RoomCursor;
 FETCH NEXT FROM RoomCursor INTO @RoomId;
@@ -239,8 +270,8 @@ BEGIN
     DECLARE @maxCoefficient FLOAT;
     SELECT @maxCoefficient = MAX(ct.Coefficient)
     FROM BookingCustomers bc
-    JOIN CUSTOMER c ON bc.CustomerID = c.CustomerID
-    JOIN CUSTOMERTYPE ct ON ct.Type = c.Type
+        JOIN CUSTOMER c ON bc.CustomerID = c.CustomerID
+        JOIN CUSTOMERTYPE ct ON ct.Type = c.Type
     WHERE bc.BookingID = @bookingId;
 
     RETURN @maxCoefficient;
@@ -273,13 +304,13 @@ BEGIN
     WHERE BookingID = @bookingId;
 
     -- Lấy thông tin giá, phụ phí
-    SELECT 
+    SELECT
         @minCustomerForSurCharge = rt.Min_Customer_for_Surcharge,
         @price = rt.Price,
         @surcharge = rt.Surcharge_Rate
     FROM BOOKING b
-    JOIN ROOM r ON b.RoomID = r.RoomID
-    JOIN ROOMTYPE rt ON r.Type = rt.Type
+        JOIN ROOM r ON b.RoomID = r.RoomID
+        JOIN ROOMTYPE rt ON r.Type = rt.Type
     WHERE b.BookingID = @bookingId;
 
     -- Tính chi phí
@@ -293,3 +324,177 @@ BEGIN
     RETURN @cost;
 END;
 GO
+
+
+
+-- UPDATE REVENUE REPORT
+CREATE PROCEDURE UpdateRevenueReport
+    @InvoiceID INT
+AS
+BEGIN
+    DECLARE @InvoiceDate DATE;
+    DECLARE @Amount FLOAT;
+    DECLARE @Month INT;
+    DECLARE @Year INT;
+
+    -- Lấy thông tin hóa đơn
+    SELECT @InvoiceDate = InvoiceDate, @Amount = Amount
+    FROM INVOICE
+    WHERE InvoiceID = @InvoiceID;
+
+    -- Lấy tháng và năm từ ngày hóa đơn
+    SET @Month = MONTH(@InvoiceDate);
+    SET @Year = YEAR(@InvoiceDate);
+
+    -- Kiểm tra và cập nhật tổng doanh thu
+    IF EXISTS (
+        SELECT 1
+    FROM REVENUEREPORT
+    WHERE Month = @Month AND Year = @Year
+    )
+    BEGIN
+        UPDATE REVENUEREPORT
+        SET TotalRevenue = TotalRevenue + @Amount
+        WHERE Month = @Month AND Year = @Year;
+    END
+    ELSE
+    BEGIN
+        INSERT INTO REVENUEREPORT
+            (Month, Year, TotalRevenue)
+        VALUES
+            (@Month, @Year, @Amount);
+    END
+END;
+GO
+
+-- UPDATE REVENUE REPORT HAS ROOMTYPE
+CREATE PROCEDURE UpdateRevenueReportHasRoomType
+    @InvoiceID INT
+AS
+BEGIN
+    DECLARE @InvoiceDate DATE;
+    DECLARE @Month INT;
+    DECLARE @Year INT;
+
+    -- Lấy thông tin hóa đơn
+    SELECT @InvoiceDate = InvoiceDate
+    FROM INVOICE
+    WHERE InvoiceID = @InvoiceID;
+
+    -- Lấy tháng và năm từ ngày hóa đơn
+    SET @Month = MONTH(@InvoiceDate);
+    SET @Year = YEAR(@InvoiceDate);
+
+    -- Cập nhật doanh thu theo từng loại phòng
+    INSERT INTO REVENUEREPORT_HAS_ROOMTYPE
+        (Month, Year, Type, Revenue)
+    SELECT
+        @Month,
+        @Year,
+        rt.Type,
+        SUM(b.Cost)
+    FROM BOOKING b
+        JOIN ROOM r ON b.RoomID = r.RoomID
+        JOIN ROOMTYPE rt ON r.Type = rt.Type
+    WHERE b.InvoiceId = @InvoiceID
+    GROUP BY rt.Type;
+
+END;
+GO
+
+-- UPDATE OCCUPANCY REPORT
+CREATE PROCEDURE UpdateOccupancy
+    @InvoiceID INT
+AS
+BEGIN
+    DECLARE @InvoiceDate DATE;
+    DECLARE @Month INT;
+    DECLARE @Year INT;
+    DECLARE @RentalDays INT;
+
+    -- Lấy thông tin hóa đơn
+    SELECT @InvoiceDate = InvoiceDate
+    FROM INVOICE
+    WHERE InvoiceID = @InvoiceID;
+
+    -- Lấy tháng và năm từ ngày hóa đơn
+    SET @Month = MONTH(@InvoiceDate);
+    SET @Year = YEAR(@InvoiceDate);
+
+    -- Tính tổng số ngày thuê
+    SELECT @RentalDays = SUM(DATEDIFF(DAY, BookingDate, GETDATE()))
+    FROM BOOKING
+    WHERE InvoiceId = @InvoiceID;
+
+    -- Cập nhật hoặc thêm dữ liệu vào OCCUPANCY
+    IF EXISTS (
+        SELECT 1
+    FROM OCCUPANCY
+    WHERE Month = @Month AND Year = @Year
+    )
+    BEGIN
+        UPDATE OCCUPANCY
+        SET TotalRentalDay = TotalRentalDay + @RentalDays
+        WHERE Month = @Month AND Year = @Year;
+    END
+    ELSE
+    BEGIN
+        INSERT INTO OCCUPANCY
+            (Month, Year, TotalRentalDay)
+        VALUES
+            (@Month, @Year, @RentalDays);
+    END
+END;
+GO
+
+-- UPDATE OCCUPANCY HAS ROOM
+CREATE PROCEDURE UpdateOccupancyHasRoom
+    @InvoiceID INT
+AS
+BEGIN
+    DECLARE @InvoiceDate DATE;
+    DECLARE @Month INT;
+    DECLARE @Year INT;
+
+    -- Lấy thông tin hóa đơn
+    SELECT @InvoiceDate = InvoiceDate
+    FROM INVOICE
+    WHERE InvoiceID = @InvoiceID;
+
+    -- Lấy tháng và năm từ ngày hóa đơn
+    SET @Month = MONTH(@InvoiceDate);
+    SET @Year = YEAR(@InvoiceDate);
+
+    -- Cập nhật thông tin tỷ lệ thuê theo từng phòng
+    INSERT INTO OCCUPANCY_HAS_ROOM
+        (Month, Year, RoomId, Rate)
+    SELECT
+        @Month,
+        @Year,
+        b.RoomID,
+        ROUND(
+		COUNT(b.BookingID) * 1.0 / SUM(COUNT(b.BookingID)) OVER (PARTITION BY @Month, @Year), 
+		2)
+    FROM BOOKING b
+    WHERE b.InvoiceId = @InvoiceID
+    GROUP BY b.RoomID;
+
+END;
+GO
+
+-- EXEC ALL THE PROCEDURE TO UPDATE ALL REPORT
+CREATE PROCEDURE UpdateAllReports
+    @InvoiceID INT
+AS
+BEGIN
+    -- Gọi các Stored Procedure lần lượt
+    EXEC UpdateRevenueReport @InvoiceID;
+    EXEC UpdateRevenueReportHasRoomType @InvoiceID;
+    EXEC UpdateOccupancy @InvoiceID;
+    EXEC UpdateOccupancyHasRoom @InvoiceID;
+END;
+GO
+
+EXEC UPDATEALLREPORTS 1
+
+SELECT * FROM REVENUEREPORT
