@@ -12,6 +12,7 @@ const RoomDetails = () => {
     Type: 'A',
     Description: '',
     ImgUrl: 'https://placehold.co/400',
+    IsAvailable: true,
   });
 
   const [roomTypes, setRoomTypes] = useState([]);
@@ -78,6 +79,22 @@ const RoomDetails = () => {
   const handleCreateRoom = async (e) => {
     e.preventDefault();
 
+    if (room.Number.length !== 3) {
+      alert('Room number must be 3 digits');
+      return;
+    }
+
+    try {
+      const existedRoom = await getRoom(room.Number);
+
+      if (existedRoom) {
+        alert(`Room ${room.Number} already exists`);
+        return;
+      }
+    } catch (error) {
+      // do nothing
+    }
+
     setLoading(true);
 
     room.RoomId = room.Number;
@@ -122,6 +139,17 @@ const RoomDetails = () => {
                   if (e.target.value.length > 3) return;
                   setRoom({ ...room, Number: e.target.value });
                 }}
+                onKeyDown={(e) => {
+                  if (
+                    e.key === 'e' ||
+                    e.key === '.' ||
+                    e.key === '-' ||
+                    e.key === '+' ||
+                    e.key === 'E'
+                  ) {
+                    e.preventDefault();
+                  }
+                }}
                 disabled={number ? true : false}
               />
             </div>
@@ -160,7 +188,10 @@ const RoomDetails = () => {
                 ref={imageRef}
                 onChange={() => handleImageUpload()}
               />
-              <img src={room.ImgUrl} className="py-2 w-36 h-36 object-cover" />
+              <img
+                src={room.ImgUrl}
+                className="w-44 h-[132px] object-cover rounded-lg mt-2 shadow-lg"
+              />
             </div>
           </div>
 

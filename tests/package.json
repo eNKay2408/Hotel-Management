@@ -1,0 +1,19 @@
+{
+  "type": "module",
+  "devDependencies": {
+    "@babel/core": "^7.26.0",
+    "@babel/plugin-transform-runtime": "^7.25.9",
+    "@babel/preset-env": "^7.26.0",
+    "@types/jest": "^29.5.14",
+    "babel-jest": "^29.7.0",
+    "dotenv": "^16.4.5",
+    "jest": "^29.7.0"
+  },
+  "scripts": {
+    "dev:start": "cd ../server && npm run dev",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
+  },
+  "dependencies": {
+    "http-status-codes": "^2.3.0"
+  }
+}

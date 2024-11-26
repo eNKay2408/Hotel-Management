@@ -23,7 +23,7 @@ export default class InvoiceModel {
                   rt.Price, 
                   rt.Surcharge_Rate as SurchargeRate,
                   b.Cost as Amount,
-                  dbo.GetMaxCoefficient(b.BookingID) as coefficient,
+                  dbo.GetMaxCoefficient(b.BookingID) as Coefficient,
                   Greatest((dbo.CountNumberOfCustomer(b.BookingID) - (rt.Min_Customer_for_Surcharge-1)),0) as ExtraCustomers
               from BOOKING b join ROOM r on b.RoomID = r.RoomID
                       join ROOMTYPE rt on r.Type = rt.Type
@@ -85,7 +85,7 @@ export default class InvoiceModel {
     }
     return result.recordset[0].InvoiceId;
   }
-  
+
   static async DeleteInvoice(InvoiceId) {
     const result = await connection
       .request()
