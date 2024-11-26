@@ -1,8 +1,10 @@
 ﻿--Create database
   
 CREATE DATABASE HOTEL_MANAGEMENT
+GO
 --DROP DATABASE HOTEL_MANAGEMENT
 USE [HOTEL_MANAGEMENT]
+GO
 
 
 CREATE TABLE ROOMTYPE (
@@ -124,7 +126,8 @@ VALUES (101, 'A'),
     (203, 'C'),
     (301, 'A'),
     (302, 'B'),
-    (303, 'C')
+    (303, 'C'),
+    (104, 'A')
 
 INSERT INTO CUSTOMERTYPE VALUES ('domestic', 1), ('foreign', 1.5)
 

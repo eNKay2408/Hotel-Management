@@ -4,6 +4,11 @@ const Button = ({
   disabled = false,
   onClick = () => {},
   type = 'button',
+  color,
+  text,
+  disabled = false,
+  onClick = () => {},
+  type = 'button',
 }) => {
   return (
     <button

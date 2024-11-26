@@ -60,12 +60,12 @@ export const footerLinks = [
     title: 'Terms of Use',
   },
   {
-    id: 'privacy',
-    title: 'Privacy Policy',
-  },
-  {
     id: 'services',
     title: 'Services & Facilities',
+  },
+  {
+    id: 'privacy',
+    title: 'Privacy Policy',
   },
   {
     id: 'careers',
