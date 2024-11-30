@@ -23,9 +23,11 @@ export default class CustomerTypeModel {
       .request()
       .input('Name', Name)
       .input('Coefficient', Coefficient)
-      .query1(`INSERT INTO CustomerType (Name, Coefficient) 
+      .query(`INSERT INTO CustomerType (Name, Coefficient) 
                 VALUES (@Name, @Coefficient)`);
-    return result.recordset[0];
+    return {
+      message: 'CustomerType created successfully',
+    };
   }
 
   static async UpdateCustomerType(Type, Name = null, Coefficient = null) {
@@ -44,7 +46,9 @@ export default class CustomerTypeModel {
       query += UpdateCustomerType.join(', ');
       query += ` WHERE Type = ${Type}`;
       const result = await connection.request().query(query);
-      return result.recordset[0];
+      return {
+        message: 'CustomerType updated successfully',
+      };
     } catch (error) {
       console.log(error);
     }
@@ -55,6 +59,8 @@ export default class CustomerTypeModel {
       .request()
       .input('Type', Type)
       .query('DELETE FROM CustomerType WHERE Type = @Type');
-    return result.recordset[0];
+    return {
+      message: 'CustomerType deleted successfully',
+    };
   }
 }
