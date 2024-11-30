@@ -502,3 +502,32 @@ EXEC UPDATEALLREPORTS 1
 
 SELECT *
 FROM REVENUEREPORT
+
+INSERT INTO RevenueReport
+    (Month, Year, TotalRevenue)
+VALUES
+    (11, 2023, 456000),
+    (10, 2023, 65400),
+    (9, 2023, 12000);
+
+-- Insert data into Occupancy
+INSERT INTO Occupancy
+    (Month, Year, TotalRentalDay)
+VALUES
+    (11, 2023, 234),
+    (10, 2023, 123),
+    (9, 2023, 304);
+
+-- Insert data into Occupancy_has_Room
+INSERT INTO Occupancy_has_Room
+    (Month, Year, RoomID, Rate)
+VALUES
+    (11, 2023, 101, 0.5),
+    (11, 2023, 102, 0.5);
+
+-- Insert data into RevenueReport_Has_Room
+INSERT INTO RevenueReport_Has_RoomType
+    (Month, Year, Type, Revenue)
+VALUES
+    (11, 2023, 'A', 21375),
+    (11, 2023, 'B', 24225);
