@@ -25,11 +25,11 @@ export const CustomerController = {
   },
 
   updateCustomerType: async (req, res) => {
-    const { Type } = req.params;
+    const { id } = req.params;
     const { Name, Coefficient } = req.body;
     try {
       const customerType = await CustomerTypeModel.UpdateCustomerType(
-        Type,
+        id,
         Name,
         Coefficient
       );
@@ -40,9 +40,9 @@ export const CustomerController = {
   },
 
   deleteCustomerType: async (req, res) => {
-    const { Type } = req.params;
+    const { id } = req.params;
     try {
-      const customerType = await CustomerTypeModel.DeleteCustomerType(Type);
+      const customerType = await CustomerTypeModel.DeleteCustomerType(id);
       return res.status(StatusCodes.OK).json(customerType);
     } catch (err) {
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);

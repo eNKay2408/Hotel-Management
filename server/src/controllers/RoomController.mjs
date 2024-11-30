@@ -164,12 +164,12 @@ export const RoomController = {
   },
 
   updateRoomType: async (req, res) => {
-    const { Type } = req.params;
+    const { type } = req.params;
     const { Price, MinCustomerForSurcharge, MaxOccupancy, SurchargeRate } =
       req.body;
     try {
       const roomType = await RoomTypeModel.UpdateRoomType(
-        Type,
+        type,
         Price,
         MinCustomerForSurcharge,
         MaxOccupancy,
@@ -182,9 +182,9 @@ export const RoomController = {
   },
 
   deleteRoomType: async (req, res) => {
-    const { Type } = req.params;
+    const { type } = req.params;
     try {
-      const roomType = await RoomTypeModel.DeleteRoomType(Type);
+      const roomType = await RoomTypeModel.DeleteRoomType(type);
       return res.status(StatusCodes.OK).json(roomType);
     } catch (err) {
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
