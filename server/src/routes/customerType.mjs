@@ -6,7 +6,7 @@ const router = Router();
 // get all room types
 router.get('/', CustomerController.getAllCustomerTypes);
 router.post('/', CustomerController.createNewCustomerType);
-router.put('/:Type', CustomerController.updateCustomerType);
-router.delete('/:Type', CustomerController.deleteCustomerType);
+router.put('/:id', CustomerController.updateCustomerType);
+router.delete('/:id', CustomerController.deleteCustomerType);
 
 export default router;
