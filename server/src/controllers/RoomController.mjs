@@ -146,4 +146,48 @@ export const RoomController = {
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
     }
   },
+
+  createNewRoomType: async (req, res) => {
+    const { Price, MinCustomerForSurcharge, MaxOccupancy, SurchargeRate } =
+      req.body;
+    try {
+      const roomType = await RoomTypeModel.CreateRoomType(
+        Price,
+        MinCustomerForSurcharge,
+        MaxOccupancy,
+        SurchargeRate
+      );
+      return res.status(StatusCodes.CREATED).json(roomType);
+    } catch (err) {
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  },
+
+  updateRoomType: async (req, res) => {
+    const { Type } = req.params;
+    const { Price, MinCustomerForSurcharge, MaxOccupancy, SurchargeRate } =
+      req.body;
+    try {
+      const roomType = await RoomTypeModel.UpdateRoomType(
+        Type,
+        Price,
+        MinCustomerForSurcharge,
+        MaxOccupancy,
+        SurchargeRate
+      );
+      return res.status(StatusCodes.OK).json(roomType);
+    } catch (err) {
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  },
+
+  deleteRoomType: async (req, res) => {
+    const { Type } = req.params;
+    try {
+      const roomType = await RoomTypeModel.DeleteRoomType(Type);
+      return res.status(StatusCodes.OK).json(roomType);
+    } catch (err) {
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  },
 };

@@ -35,7 +35,7 @@ export default class RoomTypeModel {
         .input('Max_Customer', Max_Customer)
         .input('Min_Customer_for_Surcharge', Min_Customer_for_Surcharge)
         .input('Surcharge', Surcharge)
-        .query1(`INSERT INTO RoomType (Type, Price, Max_Customer, Min_Customer_for_Surcharge, Surcharge) 
+        .query(`INSERT INTO RoomType (Type, Price, Max_Customer, Min_Customer_for_Surcharge, Surcharge) 
                   VALUES (@Type, @Price, @Max_Customer, @Min_Customer_for_Surcharge, @Surcharge)`);
       return {
         message: 'RoomType created successfully',
@@ -91,7 +91,6 @@ export default class RoomTypeModel {
 
       return {
         message: 'Update success',
-        rowsAffected: result.rowsAffected,
       };
     } catch (err) {
       console.log(err);
@@ -107,7 +106,6 @@ export default class RoomTypeModel {
         .query('DELETE FROM RoomType WHERE Type = @Type');
       return {
         message: 'Delete success',
-        rowsAffected: result.rowsAffected,
       };
     } catch (err) {
       console.log(err);
