@@ -9,6 +9,16 @@ import {
   x,
   instagram,
   linkedin,
+  avatar1,
+  avatar2,
+  avatar3,
+  avatar4,
+  avatar5,
+  avatar6,
+  avatar7,
+  avatar8,
+  avatar9,
+  avatar10,
 } from '../assets';
 
 export const navLinks = [
@@ -103,3 +113,23 @@ export const bookingInformation = [
     name: 'Address',
   },
 ];
+
+export const imageUrlList = [
+  avatar1,
+  avatar2,
+  avatar3,
+  avatar4,
+  avatar5,
+  avatar6,
+  avatar7,
+  avatar8,
+  avatar9,
+  avatar10,
+];
+
+export const hotelInformation = {
+  name: 'Golden Hotel',
+  phone: '0123456789',
+  email: 'contact@golden-hotel.com',
+  address: '1234, Golden Street, Thu Duc District, Ho Chi Minh',
+};

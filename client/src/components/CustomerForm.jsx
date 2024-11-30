@@ -1,35 +1,10 @@
-import { bookingInformation } from '../constants';
-import {
-  avatar1,
-  avatar2,
-  avatar3,
-  avatar4,
-  avatar5,
-  avatar6,
-  avatar7,
-  avatar8,
-  avatar9,
-  avatar10,
-} from '../assets';
-
+import { bookingInformation, imageUrlList } from '../constants';
 import { getCustomerTypes } from '../services';
 import { useState, useEffect } from 'react';
 
-const CustomerForm = ({ index }) => {
-  const imageUrlList = [
-    avatar1,
-    avatar2,
-    avatar3,
-    avatar4,
-    avatar5,
-    avatar6,
-    avatar7,
-    avatar8,
-    avatar9,
-    avatar10,
-  ];
-
+const CustomerForm = ({ index, handleErrors }) => {
   const [customerTypes, setCustomerTypes] = useState();
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     const fetchCustomerTypes = async () => {
@@ -42,6 +17,51 @@ const CustomerForm = ({ index }) => {
 
   const disallowNonNumericInput = (e) => {
     e.target.value = e.target.value.replace(/[^0-9]/, '');
+  };
+
+  const disallowNonAlphabeticInput = (e) => {
+    e.target.value = e.target.value.replace(/[^a-zA-Z\s]/, '');
+  };
+
+  const validateName = (name) => {
+    if (name.length < 3) {
+      return 'Name must be at least 3 characters long.';
+    }
+    return '';
+  };
+
+  const validateIdentityCard = (cccd) => {
+    if (!/^\d{12}$/.test(cccd)) {
+      return 'Identity card must contain exactly 12 digits.';
+    }
+    return '';
+  };
+
+  const validateAddress = (address) => {
+    if (address.length < 6) {
+      return 'Address must be at least 6 characters long.';
+    }
+    return '';
+  };
+
+  const handleInputChange = (e, info) => {
+    const { name, value } = e.target;
+    let error;
+
+    if (info.name === 'Name') {
+      error = validateName(value);
+    } else if (info.name === 'IdentityCard') {
+      error = validateIdentityCard(value);
+    } else if (info.name === 'Address') {
+      error = validateAddress(value);
+    }
+
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [name]: error,
+    }));
+
+    handleErrors(index, info.name, error);
   };
 
   return (
@@ -61,7 +81,7 @@ const CustomerForm = ({ index }) => {
         <div className="grid md:grid-cols-2 grid-cols-1 gap-4 font-amethysta p-2">
           {bookingInformation.map((info) => (
             <div key={info.name}>
-              <label className="text-md">{info.label}</label>
+              <label className="text-base">{info.label}</label>
               <br />
               <input
                 required
@@ -69,13 +89,25 @@ const CustomerForm = ({ index }) => {
                 className="rounded-md p-2 border-gray border-2 lg:w-64 md:w-48 w-64"
                 name={`${index}-${info.name}`}
                 onInput={
-                  info.name === 'IdentityCard' ? disallowNonNumericInput : null
+                  info.name === 'IdentityCard'
+                    ? disallowNonNumericInput
+                    : info.name === 'Name'
+                    ? disallowNonAlphabeticInput
+                    : null
                 }
+                onChange={(e) => handleInputChange(e, info)}
               />
+              {errors[`${index}-${info.name}`] && (
+                <div className="lg:w-64 md:w-48 w-64">
+                  <span className="text-red text-xs">
+                    {errors[`${index}-${info.name}`]}
+                  </span>
+                </div>
+              )}
             </div>
           ))}
           <div>
-            <label className="text-md">Customer Type</label>
+            <label className="text-base">Customer Type</label>
             <br />
             <select
               required
