@@ -35,11 +35,10 @@ export default class RoomTypeModel {
         .input('Max_Customer', Max_Customer)
         .input('Min_Customer_for_Surcharge', Min_Customer_for_Surcharge)
         .input('Surcharge', Surcharge)
-        .query(`INSERT INTO RoomType (Type, Price, Max_Customer, Min_Customer_for_Surcharge, Surcharge) 
+        .query(`INSERT INTO RoomType (Type, Price, Max_Occupancy, Min_Customer_for_Surcharge, Surcharge_Rate) 
                   VALUES (@Type, @Price, @Max_Customer, @Min_Customer_for_Surcharge, @Surcharge)`);
       return {
         message: 'RoomType created successfully',
-        rowsAffected: result.rowsAffected,
       };
     } catch (err) {
       console.log(err);
@@ -58,37 +57,23 @@ export default class RoomTypeModel {
       let query = `UPDATE RoomType SET `;
       const UpdateRoomType = [];
       if (Price !== null) {
-        UpdateRoomType.push(`Price = @Price`);
+        UpdateRoomType.push(`Price = ${Price}`);
       }
       if (Max_Customer !== null) {
-        UpdateRoomType.push(`Max_Customer = @Max_Customer`);
+        UpdateRoomType.push(`Max_Occupancy = ${Max_Customer}`);
       }
       if (Min_Customer_for_Surcharge !== null) {
-        UpdateRoomType.push(
-          `Min_Customer_for_Surcharge = @Min_Customer_for_Surcharge`
-        );
+        UpdateRoomType.push(`Min_Customer_for_Surcharge = ${Min_Customer_for_Surcharge}`);
       }
       if (Surcharge !== null) {
-        UpdateRoomType.push(`Surcharge = @Surcharge`);
+        UpdateRoomType.push(`Surcharge_Rate = ${Surcharge}`);
       }
       if (UpdateRoomType.length === 0) {
         throw new Error('No fields to update');
       }
-      query += UpdateRoomType.join(', ') + ` WHERE Type = @Type`;
-
-      const result = await connection
-        .request()
-        .input('Type', sql.Char, Type)
-        .input('Price', sql.Decimal, Price)
-        .input('Max_Customer', sql.Int, Max_Customer)
-        .input(
-          'Min_Customer_for_Surcharge',
-          sql.Int,
-          Min_Customer_for_Surcharge
-        )
-        .input('Surcharge', sql.Decimal, Surcharge)
-        .query(query);
-
+      query += UpdateRoomType.join(', ');
+      query += ` WHERE Type = '${Type}'`;
+      const result = await connection.request().query(query);
       return {
         message: 'Update success',
       };

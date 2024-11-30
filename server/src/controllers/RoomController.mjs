@@ -148,13 +148,14 @@ export const RoomController = {
   },
 
   createNewRoomType: async (req, res) => {
-    const { Price, MinCustomerForSurcharge, MaxOccupancy, SurchargeRate } =
+    const { Type, Price, MinCustomerForSurcharge, MaxOccupancy, SurchargeRate } =
       req.body;
     try {
       const roomType = await RoomTypeModel.CreateRoomType(
+        Type,
         Price,
-        MinCustomerForSurcharge,
         MaxOccupancy,
+        MinCustomerForSurcharge,
         SurchargeRate
       );
       return res.status(StatusCodes.CREATED).json(roomType);
@@ -171,8 +172,8 @@ export const RoomController = {
       const roomType = await RoomTypeModel.UpdateRoomType(
         type,
         Price,
-        MinCustomerForSurcharge,
         MaxOccupancy,
+        MinCustomerForSurcharge,
         SurchargeRate
       );
       return res.status(StatusCodes.OK).json(roomType);
