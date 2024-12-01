@@ -35,8 +35,6 @@ const InvoiceDetails = () => {
     const loadInvoice = async () => {
       const data = await getInvoice(id);
       setInvoice(data);
-
-      console.log(data);
     };
     loadInvoice();
   }, []);
