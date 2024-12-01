@@ -1,9 +1,12 @@
---Create database and tables for testing
+--Create database
+  
+CREATE DATABASE HOTEL_MANAGEMENT_TEST
+GO
+USE [HOTEL_MANAGEMENT_TEST]
+GO
 
 --DROP DATABASE HOTEL_MANAGEMENT_TEST
 
-CREATE DATABASE HOTEL_MANAGEMENT_TEST
-USE [HOTEL_MANAGEMENT_TEST]
 
 CREATE TABLE ROOMTYPE (
     Type char(1) PRIMARY KEY,
@@ -16,9 +19,9 @@ CREATE TABLE ROOMTYPE (
 CREATE TABLE ROOM (
     RoomID int PRIMARY KEY CHECK (RoomID > 100),
     Type char(1),
-    Status bit DEFAULT 0,
+    IsAvailable bit DEFAULT 1,
     Description ntext,
-    ImgUrl varchar(100),
+    ImgUrl varchar(150),
     FOREIGN KEY (Type) REFERENCES ROOMTYPE (Type),
 )
 
@@ -30,7 +33,7 @@ CREATE TABLE CUSTOMERTYPE (
 
 CREATE TABLE CUSTOMER (
     CustomerID int IDENTITY (1, 1) PRIMARY KEY,
-    CustomerName nvarchar (40),
+    Name nvarchar (40),
     Address nvarchar (100),
     IdentityCard varchar(12),
     Type int NOT NULL DEFAULT 1,
@@ -100,7 +103,6 @@ CREATE TABLE OCCUPANCY_HAS_ROOM (
 	Year int,
 	RoomId int,
 	Rate float,
-
 
 	primary key (Month, Year, RoomId),
 	Foreign key (Month, Year) references OCCUPANCY(Month, year),
