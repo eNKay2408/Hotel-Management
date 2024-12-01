@@ -91,7 +91,6 @@ const InvoiceList = () => {
     e.preventDefault();
 
     const representativeId = getCustomerIdByName(e.target.representative.value);
-    console.log(representativeId);
     const bookings = selectedBookingList.map((booking) => booking.bookingId);
 
     if (bookings.length === 0) {
