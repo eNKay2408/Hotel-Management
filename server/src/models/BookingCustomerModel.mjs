@@ -63,10 +63,9 @@ export default class BookingCustomerModel {
   static async getCustomersInBooking(BookingId) {
     try {
       const result = await connection.request().input('BookingId', BookingId)
-        .query(`select c.*
-              from BOOKING b join BookingCustomers bc on b.BookingID = bc.BookingID
-			                      join CUSTOMER c on bc.CustomerID = c.CustomerID
-              where b.BookingID = @BookingId`);
+        .query(`SELECT c.* 
+                FROM BookingCustomers bc join Customer c on bc.CustomerId = c.CustomerId
+                WHERE BookingId = @BookingId`);
       return result.recordset;
     } catch (error) {
       throw error;

@@ -60,10 +60,26 @@ export const BookingController = {
   },
 
   getAllCustomersInBooking: async (req, res) => {
-    const { id } = req.params;
     try {
-      const customers = await BookingCustomerModel.getCustomersInBooking(id);
+      const { bookingId } = req.query;
+      const customers = await BookingCustomerModel.getCustomersInBooking(
+        bookingId
+      );
+      if (customers.length === 0) {
+        return res.status(StatusCodes.NOT_FOUND).send({
+          message: 'Booking not found',
+        });
+      }
       return res.status(StatusCodes.OK).json(customers);
+    } catch (err) {
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  },
+
+  getAllBookingUnpaid: async (req, res) => {
+    try {
+      const bookings = await BookingModel.getAllBookingUnpaid();
+      return res.status(StatusCodes.OK).json(bookings);
     } catch (err) {
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
     }

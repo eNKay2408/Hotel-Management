@@ -191,29 +191,7 @@ set IsAvailable = 0
 where RoomID = 101 or RoomID = 102 or RoomID = 201 
 		or RoomID = 202 or RoomID = 301
 
-INSERT INTO
-    INVOICE (RepresentativeId, InvoiceDate)
-VALUES (1, '8-3-2024'),
-    (6, '8-9-2024'),
-    (7, '8-10-2024'),
-    (8, '8-20-2024')
-
-UPDATE BOOKING
-SET
-    InvoiceId = 1
-WHERE
-    BookingID = 1
-    OR BookingID = 2
-
-UPDATE BOOKING SET InvoiceId = 2 WHERE BookingID = 3
-
-UPDATE BOOKING SET InvoiceId = 3 WHERE BookingID = 4
-
-UPDATE BOOKING SET InvoiceId = 4 WHERE BookingID = 5
-
-UPDATE ROOM SET Description = 'This is a room'
-
---Set imgurl for each room
+-- Cập nhật Room
 DECLARE @RoomId INT;
 DECLARE @i INT = 1;
 DECLARE RoomCursor CURSOR FOR
@@ -229,7 +207,7 @@ BEGIN
     WHERE RoomId = @RoomId;
 
     SET @i = @i + 1;
-    IF(@I > 20)
+    IF(@i > 20)
     BEGIN
         SET @i = 1;
     END
@@ -238,3 +216,83 @@ END;
 
 CLOSE RoomCursor;
 DEALLOCATE RoomCursor;
+
+GO
+
+-- Hàm đếm số lượng khách hàng
+CREATE FUNCTION CountNumberOfCustomer(@bookingId INT)
+RETURNS INT
+AS
+BEGIN
+    DECLARE @numberCustomer INT;
+    SELECT @numberCustomer = COUNT(DISTINCT CustomerID)
+    FROM BookingCustomers
+    WHERE BookingID = @bookingId;
+
+    RETURN @numberCustomer;
+END;
+
+GO
+
+-- Hàm lấy hệ số lớn nhất
+CREATE FUNCTION GetMaxCoefficient(@bookingId INT)
+RETURNS FLOAT
+AS
+BEGIN
+    DECLARE @maxCoefficient FLOAT;
+    SELECT @maxCoefficient = MAX(ct.Coefficient)
+    FROM BookingCustomers bc
+    JOIN CUSTOMER c ON bc.CustomerID = c.CustomerID
+    JOIN CUSTOMERTYPE ct ON ct.Type = c.Type
+    WHERE bc.BookingID = @bookingId;
+
+    RETURN @maxCoefficient;
+END;
+
+GO
+
+-- Hàm tính chi phí đặt phòng
+CREATE FUNCTION calcCostOfBooking(@bookingId INT)
+RETURNS FLOAT
+AS
+BEGIN
+    DECLARE @numberCustomer INT;
+    DECLARE @maxCoefficient FLOAT;
+    DECLARE @nights INT;
+    DECLARE @minCustomerForSurCharge INT;
+    DECLARE @price INT;
+    DECLARE @surcharge FLOAT;
+    DECLARE @cost FLOAT;
+
+    -- Lấy số khách hàng
+    SET @numberCustomer = dbo.CountNumberOfCustomer(@bookingId);
+
+    -- Lấy hệ số lớn nhất
+    SET @maxCoefficient = dbo.GetMaxCoefficient(@bookingId);
+
+    -- Tính số đêm
+    SELECT @nights = DATEDIFF(DAY, BookingDate, GETDATE())
+    FROM BOOKING
+    WHERE BookingID = @bookingId;
+
+    -- Lấy thông tin giá, phụ phí
+    SELECT 
+        @minCustomerForSurCharge = rt.Min_Customer_for_Surcharge,
+        @price = rt.Price,
+        @surcharge = rt.Surcharge_Rate
+    FROM BOOKING b
+    JOIN ROOM r ON b.RoomID = r.RoomID
+    JOIN ROOMTYPE rt ON r.Type = rt.Type
+    WHERE b.BookingID = @bookingId;
+
+    -- Tính chi phí
+    SET @cost = ISNULL(@price, 0) * ISNULL(@nights, 1) * ISNULL(@maxCoefficient, 1);
+
+    IF (@numberCustomer >= @minCustomerForSurCharge)
+    BEGIN
+        SET @cost = @cost * (1 + @surcharge);
+    END
+
+    RETURN @cost;
+END;
+GO

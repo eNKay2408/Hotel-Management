@@ -12,8 +12,14 @@ const Button = ({
           ? 'text-green'
           : color === 'red'
           ? 'text-red'
+          : color === 'orange'
+          ? 'text-orange'
+          : color === 'yellow'
+          ? 'text-yellow'
+          : color === 'gray'
+          ? 'text-gray'
           : `text-${color}`
-      } bg-zinc-200 border-2 px-2 py-1 md:text-xl text-base hover:bg-white font-bold rounded-lg font-play ${
+      } bg-zinc-200 border-2 px-2 py-1 md:text-xl text-base hover:bg-white font-bold rounded-lg font-play whitespace-nowrap ${
         disabled ? 'opacity-40 cursor-not-allowed' : ''
       } `}
       disabled={disabled}
