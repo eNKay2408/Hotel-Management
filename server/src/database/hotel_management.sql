@@ -388,20 +388,60 @@ BEGIN
     SET @Month = MONTH(@InvoiceDate);
     SET @Year = YEAR(@InvoiceDate);
 
-    -- Cập nhật doanh thu theo từng loại phòng
-    INSERT INTO REVENUEREPORT_HAS_ROOMTYPE
-        (Month, Year, Type, Revenue)
-    SELECT
-        @Month,
-        @Year,
-        rt.Type,
-        SUM(b.Cost)
-    FROM BOOKING b
-        JOIN ROOM r ON b.RoomID = r.RoomID
-        JOIN ROOMTYPE rt ON r.Type = rt.Type
-    WHERE b.InvoiceId = @InvoiceID
-    GROUP BY rt.Type;
+    -- Lưu thông tin loại phòng liên quan đến hóa đơn vào biến bảng
+    DECLARE @RoomTypes TABLE (Type NVARCHAR(50),
+        Revenue DECIMAL(18, 2));
 
+    INSERT INTO @RoomTypes
+        (Type, Revenue)
+    SELECT
+        R.Type,
+        SUM(B.Cost) AS Revenue
+    FROM BOOKING B
+        JOIN ROOM R ON B.RoomID = R.RoomID
+    WHERE B.InvoiceId = @InvoiceID
+    GROUP BY R.Type;
+
+    -- Duyệt qua từng loại phòng để cập nhật hoặc thêm mới
+    DECLARE @Type NVARCHAR(50);
+    DECLARE @Revenue DECIMAL(18, 2);
+
+    DECLARE RoomTypeCursor CURSOR FOR
+    SELECT Type, Revenue
+    FROM @RoomTypes;
+
+    OPEN RoomTypeCursor;
+
+    FETCH NEXT FROM RoomTypeCursor INTO @Type, @Revenue;
+
+    WHILE @@FETCH_STATUS = 0
+    BEGIN
+        -- Kiểm tra nếu bản ghi đã tồn tại
+        IF EXISTS (
+            SELECT 1
+        FROM REVENUEREPORT_HAS_ROOMTYPE
+        WHERE Month = @Month AND Year = @Year AND Type = @Type
+        )
+        BEGIN
+            -- Cập nhật doanh thu
+            UPDATE REVENUEREPORT_HAS_ROOMTYPE
+            SET Revenue = Revenue + @Revenue
+            WHERE Month = @Month AND Year = @Year AND Type = @Type;
+        END
+        ELSE
+        BEGIN
+            -- Thêm mới bản ghi
+            INSERT INTO REVENUEREPORT_HAS_ROOMTYPE
+                (Month, Year, Type, Revenue)
+            VALUES
+                (@Month, @Year, @Type, @Revenue);
+        END;
+
+        FETCH NEXT FROM RoomTypeCursor INTO @Type, @Revenue;
+    END;
+
+    CLOSE RoomTypeCursor;
+    DEALLOCATE RoomTypeCursor;
 END;
 GO
 
@@ -424,16 +464,17 @@ BEGIN
     SET @Month = MONTH(@InvoiceDate);
     SET @Year = YEAR(@InvoiceDate);
 
-    -- Tính tổng số ngày thuê
-    SELECT @RentalDays = SUM(DATEDIFF(DAY, BookingDate, GETDATE()))
-    FROM BOOKING
-    WHERE InvoiceId = @InvoiceID;
+    -- Tính tổng số ngày thuê (bao gồm cả ngày bắt đầu)
+    SELECT @RentalDays = ISNULL(SUM(DATEDIFF(DAY, BookingDate, InvoiceDate)), 0)
+    FROM BOOKING b
+        JOIN INVOICE i ON b.InvoiceId = i.InvoiceID
+    WHERE i.InvoiceID = @InvoiceID;
 
     -- Cập nhật hoặc thêm dữ liệu vào OCCUPANCY
     IF EXISTS (
         SELECT 1
-    FROM OCCUPANCY
-    WHERE Month = @Month AND Year = @Year
+        FROM OCCUPANCY
+        WHERE Month = @Month AND Year = @Year
     )
     BEGIN
         UPDATE OCCUPANCY
@@ -449,6 +490,7 @@ BEGIN
     END
 END;
 GO
+
 
 -- UPDATE OCCUPANCY HAS ROOM
 CREATE PROCEDURE UpdateOccupancyHasRoom
@@ -498,36 +540,105 @@ BEGIN
 END;
 GO
 
-EXEC UPDATEALLREPORTS 1
+-- drop procedure UpdateOccupancy
+-- drop procedure UpdateRevenueReport
+-- drop procedure UpdateRevenueReportHasRoomType
+-- drop procedure UpdateOccupancyHasRoom
+-- drop procedure UpdateAllReports
 
-SELECT *
-FROM REVENUEREPORT
-
-INSERT INTO RevenueReport
-    (Month, Year, TotalRevenue)
+SET IDENTITY_INSERT Invoice ON;
+INSERT INTO INVOICE
+    (invoiceId, RepresentativeId, InvoiceDate, Amount)
 VALUES
-    (11, 2023, 456000),
-    (10, 2023, 65400),
-    (9, 2023, 12000);
+    (1, 1, '2023-10-03', 640),
+    (2, 2, '2023-10-08', 960),
+    (3, 3, '2023-10-14', 1480);
+SET IDENTITY_INSERT Invoice ON;
 
--- Insert data into Occupancy
-INSERT INTO Occupancy
-    (Month, Year, TotalRentalDay)
+SET IDENTITY_INSERT BOOKING ON;
+-- Insert Bookings for October 2023
+INSERT INTO BOOKING
+    (BookingId, BookingDate, RoomID, cost, InvoiceId)
 VALUES
-    (11, 2023, 234),
-    (10, 2023, 123),
-    (9, 2023, 304);
+    (6, '2023-10-01', 101, 300, 1),
+    (7, '2023-10-01', 102, 340, 1),
+    (8, '2023-10-05', 201, 450, 2),
+    (9, '2023-10-05', 202, 510, 2),
+    (10, '2023-10-10', 302, 680, 3),
+    (11, '2023-10-10', 303, 800, 3);
 
--- Insert data into Occupancy_has_Room
-INSERT INTO Occupancy_has_Room
-    (Month, Year, RoomID, Rate)
+SET IDENTITY_INSERT BOOKING OFF;
+-- Insert BookingCustomers for October 2023
+INSERT INTO BookingCustomers
+    (BookingID, CustomerID)
 VALUES
-    (11, 2023, 101, 0.5),
-    (11, 2023, 102, 0.5);
+    (6, 1),
+    (6, 2),
+    (6, 3),
+    -- Booking 1
+    (7, 4),
+    (7, 5),
+    -- Booking 2
+    (8, 1),
+    (8, 2),
+    -- Booking 3
+    (9, 3),
+    (9, 4),
+    -- Booking 4
+    (10, 5),
+    (10, 1),
+    -- Booking 5
+    (11, 3);
+-- Booking 6
 
--- Insert data into RevenueReport_Has_Room
-INSERT INTO RevenueReport_Has_RoomType
-    (Month, Year, Type, Revenue)
+
+-- Inserting bookings for November 2023
+
+-- Insert Invoice
+SET IDENTITY_INSERT Invoice ON;
+INSERT INTO INVOICE
+    (invoiceid, RepresentativeId, InvoiceDate, Amount)
 VALUES
-    (11, 2023, 'A', 21375),
-    (11, 2023, 'B', 24225);
+    (4, 1, '2023-11-03', 740),
+    (5, 4, '2023-11-08', 1110),
+    (6, 3, '2023-11-12', 740);
+SET IDENTITY_INSERT Invoice OFF;
+
+-- Insert Bookings for November 2023
+SET IDENTITY_INSERT BOOKING ON;
+INSERT INTO BOOKING
+    (BookingId, BookingDate, RoomID, cost, InvoiceId)
+VALUES
+    (12, '2023-11-01', 103, 400, 4),
+    (13, '2023-11-01', 102, 340, 4),
+    (14, '2023-11-05', 203, 600, 5),
+    (15, '2023-11-05', 201, 510, 5),
+    (16, '2023-11-10', 302, 340, 6),
+    (17, '2023-11-10', 303, 400, 6);
+SET IDENTITY_INSERT BOOKING OFF;
+-- Insert BookingCustomers for November 2023
+INSERT INTO BookingCustomers
+    (BookingID, CustomerID)
+VALUES
+    (12, 1),
+    -- Booking 1
+    (13, 2),
+    (13, 3),
+    -- Booking 2
+    (14, 4),
+    -- Booking 3
+    (15, 1),
+    (15, 2),
+    -- Booking 4
+    (16, 3),
+    (16, 4),
+    -- Booking 5
+    (17, 1);          
+    -- Booking 6
+
+exec UpdateAllReports @InvoiceID = 1;
+exec UpdateAllReports @InvoiceID = 2;
+exec UpdateAllReports @invoiceID = 3;
+exec UpdateAllReports @invoiceID = 4;
+exec UpdateAllReports @invoiceID = 5;
+exec UpdateAllReports @invoiceID = 6;
