@@ -195,7 +195,7 @@ const RoomDetails = () => {
             </div>
           </div>
 
-          <Button color="green" text="Save Room" type="submit" />
+          <Button color="red" text="Save Room" type="submit" />
         </form>
       </div>
     </div>
