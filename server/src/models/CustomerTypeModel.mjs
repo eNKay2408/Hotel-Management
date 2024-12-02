@@ -35,7 +35,7 @@ export default class CustomerTypeModel {
       let query = `UPDATE CustomerType SET `;
       const UpdateCustomerType = [];
       if (Name !== null) {
-        UpdateCustomerType.push(`Name = ${Name}`);
+        UpdateCustomerType.push(`Name = '${Name}'`);
       }
       if (Coefficient !== null) {
         UpdateCustomerType.push(`Coefficient = ${Coefficient}`);

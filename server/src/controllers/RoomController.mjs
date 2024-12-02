@@ -109,15 +109,6 @@ export const RoomController = {
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
     }
   },
-  deleteRoom: async (req, res) => {
-    try {
-      const { id } = req.params;
-      const room = await RoomModel.deleteRoom(id);
-      return res.status(StatusCodes.OK).json(room);
-    } catch (err) {
-      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
-    }
-  },
 
   getAllRoomsTypes: async (req, res) => {
     const { roomNumber } = req.query;
@@ -148,8 +139,13 @@ export const RoomController = {
   },
 
   createNewRoomType: async (req, res) => {
-    const { Type, Price, MinCustomerForSurcharge, MaxOccupancy, SurchargeRate } =
-      req.body;
+    const {
+      Type,
+      Price,
+      MinCustomerForSurcharge,
+      MaxOccupancy,
+      SurchargeRate,
+    } = req.body;
     try {
       const roomType = await RoomTypeModel.CreateRoomType(
         Type,
