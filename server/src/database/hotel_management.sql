@@ -553,7 +553,7 @@ VALUES
     (1, 1, '2023-10-03', 640),
     (2, 2, '2023-10-08', 960),
     (3, 3, '2023-10-14', 1480);
-SET IDENTITY_INSERT Invoice ON;
+SET IDENTITY_INSERT Invoice OFF;
 
 SET IDENTITY_INSERT BOOKING ON;
 -- Insert Bookings for October 2023
