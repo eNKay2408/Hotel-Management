@@ -225,7 +225,6 @@ const CustomerTypes = () => {
                     color="orange"
                     text="✏️"
                     onClick={() => handleEditCustomerType(customerType.Type)}
-                    disabled={customerType.IsInUse}
                   />
                 </div>
               </td>

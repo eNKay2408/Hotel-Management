@@ -48,6 +48,13 @@ export const updateRoom = async (id, data) => {
   return response;
 };
 
+export const deleteRoom = async (id) => {
+  const response = await fetch(`http://localhost:3000/api/rooms/${id}`, {
+    method: 'DELETE',
+  });
+  return response;
+};
+
 // *Room Type*
 export const getRoomTypes = async () => {
   const response = await fetch('http://localhost:3000/api/roomtypes');
