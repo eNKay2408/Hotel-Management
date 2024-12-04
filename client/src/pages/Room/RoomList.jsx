@@ -67,7 +67,7 @@ const RoomList = () => {
   };
 
   return (
-    <div className="flex flex-col w-full py-4 px-2 min-h-80">
+    <div className="flex flex-col w-full py-4 px-2 min-h-[351px]">
       <Title title="Room List" />
 
       <div className="w-full max-w-[900px] mx-auto overflow-x-auto">
