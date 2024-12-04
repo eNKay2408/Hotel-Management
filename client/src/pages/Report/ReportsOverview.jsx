@@ -33,7 +33,7 @@ const ReportOverview = () => {
   };
 
   return (
-    <div className="flex flex-col w-full py-4 px-2 min-h-80">
+    <div className="flex flex-col w-full py-4 px-2 min-h-[352px]">
       <Title title="Reports Overview " />
 
       <div className="lg:w-[70%] w-full mx-auto overflow-x-auto">
@@ -43,16 +43,16 @@ const ReportOverview = () => {
               <th className="border bg-red md:h-12 h-10 px-2">No</th>
               <th className="border bg-red px-2 w-2/12">Month</th>
               <th className="border bg-red px-2">Total Revenue</th>
-              <th className="border bg-red px-2">Total Rental Day</th>
+              <th className="border bg-red px-2">Total Rental Days</th>
               <th className="border bg-red px-2">Actions</th>
             </tr>
           </thead>
-          <tbody className="md:text-lg text-base font-amethysta">
+          <tbody className="md:text-lg text-base font-amethysta tracking-wider">
             {reports.map((invoice, index) => (
               <tr key={index}>
                 <td className="border py-2 border-gray">{index + 1}</td>
                 <td className="border py-2 border-gray">
-                  {invoice.Month} / {invoice.Year}
+                  {invoice.Month}/{invoice.Year}
                 </td>
                 <td className="border py-2 border-gray">
                   {formatMoney(invoice.TotalRevenue)}
@@ -63,12 +63,12 @@ const ReportOverview = () => {
                 <td className="border p-2 border-gray">
                   <div className="flex justify-center gap-2">
                     <Button
-                      color="green"
+                      color="black"
                       text="Revenue"
                       onClick={() => handleRevenue(index)}
                     />
                     <Button
-                      color="orange"
+                      color="black"
                       text="Occupancy"
                       onClick={() => handleOccupancy(index)}
                     />
