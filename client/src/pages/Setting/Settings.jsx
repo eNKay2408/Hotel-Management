@@ -1,13 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
-import { Title, Button } from '../../components';
-import { getRoomTypes, getCustomerTypes } from '../../services';
+import { Title } from '../../components';
 
 import RoomTypes from './RoomTypes';
 import CustomerTypes from './CustomerTypes';
 
 const Settings = () => {
-  const [isRoomTypes, setIsRoomTypes] = useState(false);
+  const [isRoomTypes, setIsRoomTypes] = useState(true);
 
   return (
     <div className="flex flex-col w-full py-4 px-2 min-h-80">
