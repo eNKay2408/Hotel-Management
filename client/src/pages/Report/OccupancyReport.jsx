@@ -29,14 +29,13 @@ const OccupancyReport = () => {
       const data = await getOccupancy(month, year);
       setOccupancy(data);
     };
-
     fetchOccupancy();
   }, []);
 
   const data = occupancy.Details.map((detail) => ({
     roomNumber: detail.RoomID,
     rentalDays: detail.RentalDays,
-    percent: ((detail.RentalDays / occupancy.TotalRentalDays) * 100).toFixed(1),
+    percent: ((detail.RentalDays / occupancy.TotalRentalDay) * 100).toFixed(1),
   }));
 
   const header = ['Number', 'Rental Days', 'Percent'];
@@ -44,7 +43,7 @@ const OccupancyReport = () => {
   const body = occupancy.Details.map((detail) => [
     detail.RoomID,
     detail.RentalDays,
-    `${((detail.RentalDays / occupancy.TotalRentalDays) * 100).toFixed(1)}%`,
+    `${((detail.RentalDays / occupancy.TotalRentalDay) * 100).toFixed(1)}%`,
   ]);
 
   const reportRef = useRef();

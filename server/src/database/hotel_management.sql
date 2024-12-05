@@ -104,7 +104,7 @@ CREATE TABLE OCCUPANCY
     Month int,
     Year int,
     PRIMARY KEY (Month, year),
-    TotalRentalDay int
+    TotalRentalDay float
 )
 
 CREATE TABLE OCCUPANCY_HAS_ROOM
@@ -112,7 +112,7 @@ CREATE TABLE OCCUPANCY_HAS_ROOM
     Month int,
     Year int,
     RoomId int,
-    RentalDays int,
+    RentalDays float,
 
 
     primary key (Month, Year, RoomId),
