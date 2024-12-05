@@ -104,7 +104,7 @@ CREATE TABLE OCCUPANCY
     Month int,
     Year int,
     PRIMARY KEY (Month, year),
-    TotalRentalDay float
+    TotalRentalDay int
 )
 
 CREATE TABLE OCCUPANCY_HAS_ROOM
@@ -112,7 +112,7 @@ CREATE TABLE OCCUPANCY_HAS_ROOM
     Month int,
     Year int,
     RoomId int,
-    Rate float,
+    RentalDays int,
 
 
     primary key (Month, Year, RoomId),
@@ -510,22 +510,40 @@ BEGIN
     SET @Month = MONTH(@InvoiceDate);
     SET @Year = YEAR(@InvoiceDate);
 
-    -- Cập nhật thông tin tỷ lệ thuê theo từng phòng
-    INSERT INTO OCCUPANCY_HAS_ROOM
-        (Month, Year, RoomId, Rate)
-    SELECT
-        @Month,
-        @Year,
-        b.RoomID,
-        ROUND(
-		COUNT(b.BookingID) * 1.0 / SUM(COUNT(b.BookingID)) OVER (PARTITION BY @Month, @Year), 
-		2)
-    FROM BOOKING b
-    WHERE b.InvoiceId = @InvoiceID
-    GROUP BY b.RoomID;
-
+    -- Kiểm tra nếu đã tồn tại bản ghi trong OCCUPANCY_HAS_ROOM
+    IF EXISTS (
+        SELECT 1 
+        FROM OCCUPANCY_HAS_ROOM o
+        JOIN BOOKING b ON b.RoomID = o.RoomID
+        JOIN INVOICE i ON b.InvoiceID = i.InvoiceID
+        WHERE o.Month = @Month AND o.Year = @Year AND i.InvoiceID = @InvoiceID
+    )
+    BEGIN
+        -- Nếu tồn tại, cập nhật RentalDays
+        UPDATE o
+        SET RentalDays = RentalDays + ISNULL(DATEDIFF(DAY, b.BookingDate, @InvoiceDate), 0)
+        FROM OCCUPANCY_HAS_ROOM o
+        JOIN BOOKING b ON b.RoomID = o.RoomID
+        JOIN INVOICE i ON b.InvoiceID = i.InvoiceID
+        WHERE o.Month = @Month AND o.Year = @Year AND i.InvoiceID = @InvoiceID;
+    END
+    ELSE
+    BEGIN
+        -- Nếu chưa tồn tại, thêm mới
+        INSERT INTO OCCUPANCY_HAS_ROOM
+            (Month, Year, RoomId, RentalDays)
+        SELECT
+            @Month,
+            @Year,
+            b.RoomID,
+            ISNULL(DATEDIFF(DAY, b.BookingDate, @InvoiceDate), 0) AS RentalDays
+        FROM BOOKING b
+        WHERE b.InvoiceId = @InvoiceID;
+    END
 END;
 GO
+
+
 
 -- EXEC ALL THE PROCEDURE TO UPDATE ALL REPORT
 CREATE PROCEDURE UpdateAllReports

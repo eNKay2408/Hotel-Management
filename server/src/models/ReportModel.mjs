@@ -53,7 +53,7 @@ export default class ReportModel {
       .input('month', month)
       .input('year', year)
       .query(
-        `SELECT RoomID, Rate 
+        `SELECT RoomID, RentalDays 
          FROM Occupancy_has_Room 
          WHERE Month = @month AND Year = @year`
       );
