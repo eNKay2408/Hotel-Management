@@ -42,7 +42,7 @@ const OccupancyReport = () => {
 
   const body = occupancy.Details.map((detail) => [
     detail.RoomID,
-    detail.RentalDays,
+    detail.RentalDays + ' days',
     `${((detail.RentalDays / occupancy.TotalRentalDay) * 100).toFixed(1)}%`,
   ]);
 
@@ -89,13 +89,13 @@ const OccupancyReport = () => {
         </ResponsiveContainer>
       </div>
 
-      <div className="mx-auto md:w-[70%] w-[100%] bg-white mt-10">
-        <Table header={header} body={body} color="green" />
+      <div className="mx-auto md:w-[60%] w-[100%] bg-white mt-10">
+        <Table header={header} body={body} color="black" />
       </div>
 
       <div className="flex justify-center gap-4 mt-4">
         <Button
-          color="orange"
+          color="green"
           text="Export PDF"
           onClick={() => handleDownload()}
         />
