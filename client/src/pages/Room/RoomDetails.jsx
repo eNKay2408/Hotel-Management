@@ -113,7 +113,7 @@ const RoomDetails = () => {
   };
 
   return (
-    <div className="flex flex-col w-full py-4 px-2">
+    <div className="flex flex-col w-full py-4 px-2 min-h-[351px]">
       <Title title="Room Details" />
 
       {loading && (
@@ -195,7 +195,7 @@ const RoomDetails = () => {
             </div>
           </div>
 
-          <Button color="green" text="Save Room" type="submit" />
+          <Button color="red" text="Save Room" type="submit" />
         </form>
       </div>
     </div>

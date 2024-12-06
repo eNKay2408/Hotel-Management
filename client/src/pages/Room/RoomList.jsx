@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { Title, Button } from '../../components';
 
-import { getRooms, deleteRoom, getRoomTypes } from '../../services';
+import { getRooms, getRoomTypes } from '../../services';
 
 const RoomList = () => {
   const [rooms, setRooms] = useState([]);
@@ -66,26 +66,8 @@ const RoomList = () => {
     navigate(`/rooms/${number}`);
   };
 
-  const handleDeleteRoom = async (number) => {
-    if (!window.confirm(`Are you sure you want to delete Room ${number}?`)) {
-      return;
-    }
-
-    const response = await deleteRoom(number);
-
-    if (response.ok) {
-      const updatedRooms = rooms.filter((room) => room.Number !== number);
-      setRooms(updatedRooms);
-      setAllRooms(updatedRooms);
-    } else {
-      alert('Room has currently booking');
-      const message = await response.text();
-      console.error(message);
-    }
-  };
-
   return (
-    <div className="flex flex-col w-full py-4 px-2 min-h-80">
+    <div className="flex flex-col w-full py-4 px-2 min-h-[351px]">
       <Title title="Room List" />
 
       <div className="w-full max-w-[900px] mx-auto overflow-x-auto">
@@ -141,7 +123,7 @@ const RoomList = () => {
               <th className="border bg-zinc-200 px-2">Image</th>
               <th className="border bg-zinc-200 px-2">Description</th>
               <th className="border bg-zinc-200 px-2">Status</th>
-              <th className="border bg-zinc-200 px-2">Actions</th>
+              <th className="border bg-zinc-200 px-2">Edit</th>
             </tr>
           </thead>
           <tbody className="lg:text-lg text-base font-amethysta">
@@ -163,7 +145,7 @@ const RoomList = () => {
                     : room.Description}
                 </td>
                 <td className="border px-2">
-                  {room.IsAvailable ? 'Available' : 'Unavailable'}
+                  {room.IsAvailable ? 'Available' : 'Booked'}
                 </td>
                 <td className="border p-1">
                   <div className="flex justify-center gap-2">
@@ -171,12 +153,6 @@ const RoomList = () => {
                       color="orange"
                       text="✏️"
                       onClick={() => handleEditRoom(room.Number)}
-                      disabled={!room.IsAvailable}
-                    />
-                    <Button
-                      color="red"
-                      text="❌"
-                      onClick={() => handleDeleteRoom(room.Number)}
                       disabled={!room.IsAvailable}
                     />
                   </div>
