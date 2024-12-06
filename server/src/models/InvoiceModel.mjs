@@ -74,16 +74,23 @@ export default class InvoiceModel {
                 VALUES (@InvoiceDate, @Amount, @representative)
               select top 1 InvoiceId from Invoice order by InvoiceId desc`);
 
+    const invoiceId = result.recordset[0].InvoiceId;
+
     for (const booking of bookings) {
       await BookingModel.updateBooking(
         booking,
         null,
         null,
-        result.recordset[0].InvoiceId,
+        invoiceId,
         null
       );
     }
-    return result.recordset[0].InvoiceId;
+
+    await connection
+      .request()
+      .input('InvoiceID', invoiceId)
+      .query(`EXEC UpdateAllReports @InvoiceID = @InvoiceID`);
+    return invoiceId;
   }
 
   static async DeleteInvoice(InvoiceId) {
