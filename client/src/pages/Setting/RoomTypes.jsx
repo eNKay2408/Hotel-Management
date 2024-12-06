@@ -151,9 +151,10 @@ const RoomTypes = () => {
       MaxOccupancy: roomType.Max_Occupancy,
       BaseCustomer: roomType.Min_Customer_for_Surcharge,
       SurchargeRate: roomType.Surcharge_Rate,
-      IsInUse: roomTypes.find((room) => room.Type === roomType.Type)
-        ? true
-        : false,
+      IsInUse:
+        roomTypes.find((room) => room.Type === roomType.Type)?.IsInUse === true
+          ? true
+          : false,
     }));
     setRoomTypes(updatedRoomTypes);
   };
