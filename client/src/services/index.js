@@ -111,16 +111,16 @@ export const getReports = async () => {
   return response.json();
 };
 
-export const getRevenue = async (id) => {
+export const getRevenue = async (month, year) => {
   const response = await fetch(
-    `http://localhost:3000/api/reports/revenue/${id}`
+    `http://localhost:3000/api/reports/revenue?month=${month}&year=${year}`
   );
   return response.json();
 };
 
-export const getOccupancy = async (id) => {
+export const getOccupancy = async (month, year) => {
   const response = await fetch(
-    `http://localhost:3000/api/reports/occupancy/${id}`
+    `http://localhost:3000/api/reports/occupancy?month=${month}&year=${year}`
   );
   return response.json();
 };

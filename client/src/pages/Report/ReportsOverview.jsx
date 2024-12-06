@@ -1,43 +1,84 @@
+import { useState, useEffect } from 'react';
+
 import { Title, Button } from '../../components';
 import { getReports } from '../../services';
 
 const ReportOverview = () => {
-  /*
-	* Get the reports data from the API
-	* API: GET /api/reports
-	const [reports, setReports] = useState();
+  const [reports, setReports] = useState([]);
 
-	useEffect(() => {
-		const fetchReports = async () => {
-			const data = await getReports();
-			setReports(data);
-		};
-		fetchReports();
-	}, []);
-	*/
+  useEffect(() => {
+    const fetchReports = async () => {
+      const data = await getReports();
+      setReports(data);
+    };
+    fetchReports();
+  }, []);
 
-  const handleRevenue = () => {
-    window.location.href = '/reports/revenue/10';
+  const formatMoney = (number) => {
+    return '$' + new Intl.NumberFormat('en-US').format(number);
   };
 
-  const handleOccupancy = () => {
-    window.location.href = '/reports/occupancy/10';
+  const handleRevenue = (index) => {
+    const query = new URLSearchParams();
+    query.set('month', reports[index].Month);
+    query.set('year', reports[index].Year);
+    window.location.href = `/reports/revenue?${query.toString()}`;
+  };
+
+  const handleOccupancy = (index) => {
+    const query = new URLSearchParams();
+    query.set('month', reports[index].Month);
+    query.set('year', reports[index].Year);
+    window.location.href = `/reports/occupancy?${query.toString()}`;
   };
 
   return (
-    <div className="flex flex-col w-full py-4 px-2 min-h-[351px]">
+    <div className="flex flex-col w-full py-4 px-2 min-h-[352px]">
       <Title title="Reports Overview " />
-      <Button
-        color="green"
-        text="Revenue Report"
-        onClick={() => handleRevenue()}
-      />
-      <br />
-      <Button
-        color="red"
-        text="Occupancy Report"
-        onClick={() => handleOccupancy()}
-      />
+
+      <div className="lg:w-[70%] w-full mx-auto overflow-x-auto">
+        <table className="table-auto text-center w-full">
+          <thead className="table-header-group md:text-xl text-lg font-play text-zinc-100">
+            <tr className="table-row">
+              <th className="border bg-red md:h-12 h-10 px-2">No</th>
+              <th className="border bg-red px-2 w-2/12">Month</th>
+              <th className="border bg-red px-2">Total Revenue</th>
+              <th className="border bg-red px-2">Total Rental Days</th>
+              <th className="border bg-red px-2">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="md:text-lg text-base font-amethysta tracking-wider">
+            {reports.map((invoice, index) => (
+              <tr key={index}>
+                <td className="border py-2 border-gray">{index + 1}</td>
+                <td className="border py-2 border-gray">
+                  {invoice.Month}/{invoice.Year}
+                </td>
+                <td className="border py-2 border-gray">
+                  {formatMoney(invoice.TotalRevenue)}
+                </td>
+                <td className="border py-2 border-gray">
+                  {invoice.TotalRentalDay + ' days'}
+                </td>
+                <td className="border p-2 border-gray">
+                  <div className="flex justify-center gap-2">
+                    <Button
+                      color="black"
+                      text="Revenue"
+                      onClick={() => handleRevenue(index)}
+                    />
+                    <Button
+                      color="black"
+                      text="Occupancy"
+                      onClick={() => handleOccupancy(index)}
+                    />
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

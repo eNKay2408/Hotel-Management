@@ -19,6 +19,7 @@ export const InvoiceController = {
         Bookings,
         RepresentativeId
       );
+      
       return res.status(StatusCodes.CREATED).json(invoice);
     } catch (err) {
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
