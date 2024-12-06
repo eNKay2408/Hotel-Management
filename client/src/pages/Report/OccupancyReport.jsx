@@ -15,71 +15,35 @@ import { Title, Button, Table } from '../../components';
 import { getOccupancy } from '../../services';
 
 const OccupancyReport = () => {
-  const { id } = useParams();
-
-  /*
-	* Get occupancy report data from API
-	* API: GET /reports/occupancy/:id
-	const [occupancy, setOccupancy] = useState({});
-
-	useEffect(() => {
-		const fetchOccupancy = async () => {
-			const data = await getOccupancy(id);
-			setOccupancy(data);
-		};
-
-		fetchOccupancy();
-	}, []);
-	*/
+  const query = new URLSearchParams(window.location.search);
+  const month = query.get('month');
+  const year = query.get('year');
 
   const [occupancy, setOccupancy] = useState({
-    month: 10,
-    year: 2024,
-    rooms: [
-      {
-        number: 100,
-        rentalDays: 20,
-        rate: 0.2,
-      },
-      {
-        number: 101,
-        rentalDays: 10,
-        rate: 0.1,
-      },
-      {
-        number: 201,
-        rentalDays: 20,
-        rate: 0.2,
-      },
-      {
-        number: 202,
-        rentalDays: 30,
-        rate: 0.3,
-      },
-      {
-        number: 301,
-        rentalDays: 10,
-        rate: 0.1,
-      },
-      {
-        number: 302,
-        rentalDays: 10,
-        rate: 0.1,
-      },
-    ],
+    TotalRentalDay: 0,
+    Details: [],
   });
 
-  const data = occupancy.rooms.map((room) => ({
-    roomNumber: room.number,
-    rentalDays: room.rentalDays,
+  useEffect(() => {
+    const fetchOccupancy = async () => {
+      const data = await getOccupancy(month, year);
+      setOccupancy(data);
+    };
+    fetchOccupancy();
+  }, []);
+
+  const data = occupancy.Details.map((detail) => ({
+    roomNumber: detail.RoomID,
+    rentalDays: detail.RentalDays,
+    percent: ((detail.RentalDays / occupancy.TotalRentalDay) * 100).toFixed(1),
   }));
 
   const header = ['Number', 'Rental Days', 'Percent'];
 
-  const body = occupancy.rooms.map((room) => [
-    room.number,
-    room.rentalDays,
-    `${(room.rate * 100).toFixed(0)}%`,
+  const body = occupancy.Details.map((detail) => [
+    detail.RoomID,
+    detail.RentalDays,
+    `${((detail.RentalDays / occupancy.TotalRentalDay) * 100).toFixed(1)}%`,
   ]);
 
   const reportRef = useRef();
@@ -90,18 +54,15 @@ const OccupancyReport = () => {
 
   const handleDownload = () => {
     const opt = {
-      filename: `occupancy_${occupancy.month}_${occupancy.year}.pdf`,
+      filename: `occupancy_${month}_${year}.pdf`,
     };
 
     html2pdf().from(reportRef.current).set(opt).save();
   };
 
   return (
-    <div
-      className="flex flex-col w-full py-4 px-2 min-h-[351px]"
-      ref={reportRef}
-    >
-      <Title title={`Occupancy - ${occupancy.month}/${occupancy.year}`} />
+    <div className="flex flex-col w-full py-4 px-2" ref={reportRef}>
+      <Title title={`Occupancy Report - ${month}/${year}`} />
 
       <div className="flex justify-center font-play md:text-lg text-md md:w-[80%] w-full mx-auto">
         <ResponsiveContainer height={400}>
@@ -128,21 +89,17 @@ const OccupancyReport = () => {
         </ResponsiveContainer>
       </div>
 
-      <div className="mx-auto md:w-[80%] w-[100%] bg-white mt-10">
-        <Table header={header} body={body} color="yellow" />
+      <div className="mx-auto md:w-[70%] w-[100%] bg-white mt-10">
+        <Table header={header} body={body} color="green" />
       </div>
 
       <div className="flex justify-center gap-4 mt-4">
         <Button
-          color="green"
+          color="orange"
           text="Export PDF"
           onClick={() => handleDownload()}
         />
-        <Button
-          color="orange"
-          text="Print Report"
-          onClick={() => handlePrint()}
-        />
+        <Button color="red" text="Print Report" onClick={() => handlePrint()} />
       </div>
     </div>
   );

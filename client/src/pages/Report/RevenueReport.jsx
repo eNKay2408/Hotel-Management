@@ -1,5 +1,4 @@
 import { useEffect, useState, useRef } from 'react';
-import { useParams } from 'react-router-dom';
 import {
   PieChart,
   Pie,
@@ -14,82 +13,69 @@ import { Title, Table, Button } from '../../components';
 import { getRevenue } from '../../services';
 
 const RevenueReport = () => {
-  const { id } = useParams();
-
-  /*
-	* Get revenue report data from API
-	* API: GET /reports/revenue/:id
-	const [revenue, setRevenue] = useState({});
-
-	useEffect(() => {
-		const fetchRevenue = async () => {
-			const data = await getRevenue(id);
-			setRevenue(data);
-		};
-
-		fetchRevenue();
-	}, []);
-	*/
+  const query = new URLSearchParams(window.location.search);
+  const month = query.get('month');
+  const year = query.get('year');
 
   const [revenue, setRevenue] = useState({
-    month: 10,
-    year: 2024,
-    roomTypes: [
-      {
-        type: 'A',
-        revenue: 20000,
-        rate: 0.2,
-      },
-      {
-        type: 'B',
-        revenue: 30000,
-        rate: 0.3,
-      },
-      {
-        type: 'C',
-        revenue: 50000,
-        rate: 0.5,
-      },
-    ],
+    TotalRevenue: 0,
+    Details: [],
   });
 
-  const totalRevenue = revenue.roomTypes.reduce(
-    (sum, room) => sum + room.revenue,
-    0
-  );
+  useEffect(() => {
+    const fetchRevenue = async () => {
+      const data = await getRevenue(month, year);
+
+      setRevenue(data);
+    };
+
+    fetchRevenue();
+  }, []);
 
   const formatMoney = (number) => {
     return '$' + new Intl.NumberFormat('en-US').format(number);
   };
 
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#00FF00'];
+  const COLORS = [
+    '#0088FE',
+    '#00C49F',
+    '#FF8042',
+    '#e3b41b',
+    '#15cf15',
+    '#FF00FF',
+  ];
 
-  const renderLabel = (entry) => `${(entry.rate * 100).toFixed(0)}%`;
+  const renderLabel = (entry) =>
+    ((entry.Revenue / revenue.TotalRevenue) * 100).toFixed(1) + '%';
 
   const pieProps = {
-    data: revenue.roomTypes,
+    data: revenue.Details,
     innerRadius: 80,
     paddingAngle: 2,
-    dataKey: 'revenue',
+    dataKey: 'Revenue',
   };
 
   const tooltipFormatter = (value, name, props) => {
-    const type = 'Type ' + props.payload.type;
+    const type = 'Type ' + props.payload.Type;
     return [formatMoney(value), type];
   };
 
   const legendFormatter = (value, entry) => {
-    const type = 'Type ' + entry.payload.type;
+    const type = 'Type ' + entry.payload.Type;
     return [type];
   };
 
   const header = ['Type', 'Revenue', 'Percent'];
 
-  const body = revenue.roomTypes.map((room) => [
-    room.type,
-    formatMoney(room.revenue),
-    (room.rate * 100).toFixed(0) + '%',
-  ]);
+  const body = revenue.Details.map((detail) => {
+    const percent = (detail.Revenue / revenue.TotalRevenue) * 100;
+
+    return [
+      `Type ${detail.Type}`,
+      formatMoney(detail.Revenue),
+      `${percent.toFixed(1)}%`,
+    ];
+  });
 
   const reportRef = useRef();
 
@@ -99,28 +85,25 @@ const RevenueReport = () => {
 
   const handleDownload = () => {
     const opt = {
-      filename: `revenue_${revenue.month}_${revenue.year}.pdf`,
+      filename: `revenue_${month}_${year}.pdf`,
     };
 
     html2pdf().from(reportRef.current).set(opt).save();
   };
 
   return (
-    <div
-      className="flex flex-col w-full py-4 px-2 min-h-[351px]"
-      ref={reportRef}
-    >
+    <div className="flex flex-col w-full py-4 px-2" ref={reportRef}>
       <div className="flex flex-col">
-        <Title title={`Revenue - ${revenue.month}/${revenue.year}`} />
+        <Title title={`Revenue Report - ${month}/${year}`} />
 
-        <div className="flex md:flex-row flex-col gap-2 items-center justify-center bg-zinc-200 rounded-lg p-2 lg:w-[80%] w-full mx-auto font-play">
+        <div className="flex md:flex-row flex-col gap-2 items-center justify-center bg-zinc-200 rounded-lg p-2 lg:w-[80%] w-full mx-auto font-play py-5">
           <div className="flex-[2] w-full">
             <ResponsiveContainer height={300}>
               <PieChart>
                 <Legend formatter={legendFormatter} />
 
                 <Pie {...pieProps} label={renderLabel}>
-                  {revenue.roomTypes.map((entry, index) => (
+                  {revenue.Details.map((entry, index) => (
                     <Cell
                       key={`cell-${index}`}
                       fill={COLORS[index % COLORS.length]}
@@ -130,17 +113,12 @@ const RevenueReport = () => {
 
                 <Tooltip formatter={tooltipFormatter} />
 
-                <text
-                  x="50%"
-                  y="50%"
-                  textAnchor="middle"
-                  className="text-xl fill-red"
-                >
+                <text x="50%" y="50%" textAnchor="middle" className="text-xl">
                   <tspan x="50%" dy="-20px">
                     Total Revenue:
                   </tspan>
                   <tspan x="50%" dy="1.2em" className="font-bold">
-                    {formatMoney(totalRevenue)}
+                    {formatMoney(revenue.TotalRevenue)}
                   </tspan>
                 </text>
               </PieChart>
