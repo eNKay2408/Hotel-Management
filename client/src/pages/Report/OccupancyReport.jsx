@@ -61,10 +61,10 @@ const OccupancyReport = () => {
   };
 
   return (
-    <div className="flex flex-col w-full py-4 px-2" ref={reportRef}>
-      <Title title={`Occupancy Report - ${month}/${year}`} />
+    <div className="flex flex-col w-full py-4 px-2 min-h-[351px]" ref={reportRef}>
+      <Title title={`Occupancy - ${occupancy.month}/${occupancy.year}`} />
 
-      <div className="flex justify-center font-play md:text-lg text-md md:w-[80%] w-full mx-auto">
+      <div className="flex justify-center font-play md:text-lg text-base md:w-[80%] w-full mx-auto">
         <ResponsiveContainer height={400}>
           <BarChart data={data} barCategoryGap="30%">
             <CartesianGrid />

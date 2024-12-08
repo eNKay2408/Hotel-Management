@@ -109,15 +109,6 @@ export const RoomController = {
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
     }
   },
-  deleteRoom: async (req, res) => {
-    try {
-      const { id } = req.params;
-      const room = await RoomModel.deleteRoom(id);
-      return res.status(StatusCodes.OK).json(room);
-    } catch (err) {
-      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
-    }
-  },
 
   getAllRoomsTypes: async (req, res) => {
     const { roomNumber } = req.query;
@@ -142,6 +133,56 @@ export const RoomController = {
     try {
       const rooms = await RoomModel.getRoomByStatus(1); //1 is the status code for available rooms
       return res.status(StatusCodes.OK).json(rooms);
+    } catch (err) {
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  },
+
+  createNewRoomType: async (req, res) => {
+    const {
+      Type,
+      Price,
+      MinCustomerForSurcharge,
+      MaxOccupancy,
+      SurchargeRate,
+    } = req.body;
+    try {
+      const roomType = await RoomTypeModel.CreateRoomType(
+        Type,
+        Price,
+        MaxOccupancy,
+        MinCustomerForSurcharge,
+        SurchargeRate
+      );
+      return res.status(StatusCodes.CREATED).json(roomType);
+    } catch (err) {
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  },
+
+  updateRoomType: async (req, res) => {
+    const { type } = req.params;
+    const { Price, MinCustomerForSurcharge, MaxOccupancy, SurchargeRate } =
+      req.body;
+    try {
+      const roomType = await RoomTypeModel.UpdateRoomType(
+        type,
+        Price,
+        MaxOccupancy,
+        MinCustomerForSurcharge,
+        SurchargeRate
+      );
+      return res.status(StatusCodes.OK).json(roomType);
+    } catch (err) {
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  },
+
+  deleteRoomType: async (req, res) => {
+    const { type } = req.params;
+    try {
+      const roomType = await RoomTypeModel.DeleteRoomType(type);
+      return res.status(StatusCodes.OK).json(roomType);
     } catch (err) {
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
     }

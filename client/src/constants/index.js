@@ -4,7 +4,7 @@ import {
   roomIcon,
   homeIcon,
   invoiceIcon,
-  regulationIcon,
+  settingIcon,
   facebook,
   x,
   instagram,
@@ -48,9 +48,9 @@ export const navLinks = [
     icon: reportIcon,
   },
   {
-    id: 'regulations',
-    title: 'Regulations',
-    icon: regulationIcon,
+    id: 'settings',
+    title: 'Settings',
+    icon: settingIcon,
   },
 ];
 

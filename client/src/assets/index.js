@@ -3,7 +3,7 @@ import roomIcon from './icon/room.png';
 import reportIcon from './icon/report.png';
 import homeIcon from './icon/home.png';
 import invoiceIcon from './icon/invoice.png';
-import regulationIcon from './icon/regulation.png';
+import settingIcon from './icon/setting.png';
 
 import logo from './logo.png';
 import logoBackground from './logo-background.png';
@@ -30,7 +30,7 @@ export {
   reportIcon,
   homeIcon,
   invoiceIcon,
-  regulationIcon,
+  settingIcon,
   logo,
   logoBackground,
   facebook,
