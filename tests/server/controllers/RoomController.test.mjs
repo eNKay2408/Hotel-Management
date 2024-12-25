@@ -41,7 +41,7 @@ describe('RoomController Integration Tests', () => {
       console.log('Database connection established successfully');
 
       connection.request().query(`
-      INSERT INTO [ROOMTYPE] VALUES 
+      INSERT INTO ROOMTYPE VALUES 
       ('A', 150, 6, 0.25, 3),
       ('B', 170, 4, 0.25, 2),
       ('C', 200, 2, 0.25, 1)`);
@@ -49,9 +49,6 @@ describe('RoomController Integration Tests', () => {
     } catch (error) {
       console.error('Failed to establish database connection:', error);
     }
-
-    // Delete all data from Room table, prepare for testing
-    await connection.request().query('DELETE FROM Room');
   });
 
   afterAll(async () => {
@@ -76,6 +73,7 @@ describe('RoomController Integration Tests', () => {
   afterEach(async () => {
     // Clean up the database after each test
     await connection.request().query('DELETE FROM Room');
+    jest.restoreAllMocks();
   });
 
   describe('getAllRooms', () => {
