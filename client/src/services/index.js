@@ -52,7 +52,6 @@ export const deleteRoom = async (id) => {
   const response = await fetch(`http://localhost:3000/api/rooms/${id}`, {
     method: 'DELETE',
   });
-
   return response;
 };
 
@@ -69,10 +68,57 @@ export const getRoomTypeByRoomNumber = async (id) => {
   return response.json();
 };
 
+export const createRoomType = async (data) => {
+  const response = await fetch('http://localhost:3000/api/roomtypes', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  return response;
+};
+
+export const updateRoomType = async (id, data) => {
+  const response = await fetch(`http://localhost:3000/api/roomtypes/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  return response;
+};
+
 // *Customer Type*
 export const getCustomerTypes = async () => {
   const response = await fetch('http://localhost:3000/api/customertypes');
   return response.json();
+};
+
+export const createCustomerType = async (data) => {
+  const response = await fetch('http://localhost:3000/api/customertypes', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  return response;
+};
+
+export const updateCustomerType = async (id, data) => {
+  const response = await fetch(
+    `http://localhost:3000/api/customertypes/${id}`,
+    {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    }
+  );
+  return response;
 };
 
 // *Invoices*
@@ -111,22 +157,16 @@ export const getReports = async () => {
   return response.json();
 };
 
-export const getRevenue = async (id) => {
+export const getRevenue = async (month, year) => {
   const response = await fetch(
-    `http://localhost:3000/api/reports/revenue/${id}`
+    `http://localhost:3000/api/reports/revenue?month=${month}&year=${year}`
   );
   return response.json();
 };
 
-export const getOccupancy = async (id) => {
+export const getOccupancy = async (month, year) => {
   const response = await fetch(
-    `http://localhost:3000/api/reports/occupancy/${id}`
+    `http://localhost:3000/api/reports/occupancy?month=${month}&year=${year}`
   );
-  return response.json();
-};
-
-// * Regulations*
-export const getRegulations = async () => {
-  const response = await fetch('http://localhost:3000/api/regulations');
   return response.json();
 };

@@ -11,7 +11,7 @@ import {
   RevenueReport,
   OccupancyReport,
   Home,
-  Regulations,
+  Settings,
   NotFound,
 } from './pages';
 
@@ -34,12 +34,9 @@ const App = () => {
             <Route path="/rooms/:id" element={<RoomDetails />} />
             <Route path="/rooms/create" element={<RoomDetails />} />
             <Route path="/reports" element={<ReportsOverview />} />
-            <Route path="/reports/revenue/:id" element={<RevenueReport />} />
-            <Route
-              path="/reports/occupancy/:id"
-              element={<OccupancyReport />}
-            />
-            <Route path="/regulations" element={<Regulations />} />
+            <Route path="/reports/revenue" element={<RevenueReport />} />
+            <Route path="/reports/occupancy" element={<OccupancyReport />} />
+            <Route path="/settings" element={<Settings />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </div>

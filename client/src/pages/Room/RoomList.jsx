@@ -106,7 +106,7 @@ const RoomList = () => {
             >
               <option value="all">Status</option>
               <option value="available">Available</option>
-              <option value="unavailable">Unavailable</option>
+              <option value="booked">Booked</option>
             </select>
             <div className="min-w-24">
               <Button text="🔄 Reset" onClick={handleReset} />
