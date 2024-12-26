@@ -319,9 +319,11 @@ BEGIN
     -- Tính chi phí
     SET @cost = ISNULL(@price, 0) * ISNULL(@nights, 1) * ISNULL(@maxCoefficient, 1);
 
-    IF (@numberCustomer >= @minCustomerForSurCharge)
+    DECLARE @ExtraCustomer INT;
+    SET @ExtraCustomer = @numberCustomer - @minCustomerForSurCharge;
+    IF (@ExtraCustomer > 0)
     BEGIN
-        SET @cost = @cost * (1 + @surcharge);
+        SET @cost = @cost * (1 + @surcharge * @ExtraCustomer);
     END
 
     RETURN @cost;

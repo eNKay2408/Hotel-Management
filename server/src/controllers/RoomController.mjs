@@ -76,8 +76,7 @@ export const RoomController = {
   updateRoom: async (req, res) => {
     try {
       const { id } = req.params;
-      const { Type, Status, Description } = req.body;
-      let { ImgUrl } = req.body;
+      const { Type, Status, Description, ImgUrl } = req.body;
 
       if (ImgUrl.startsWith('data:image')) {
         const result = await cloudinary.uploader.upload(ImgUrl, {
@@ -94,6 +93,10 @@ export const RoomController = {
         ImgUrl
       );
 
+      if(room.code !== 200) 
+        {
+          return res.status(room.code).send(room.message);
+        }
       return res.status(StatusCodes.OK).json(room);
     } catch (err) {
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
