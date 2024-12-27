@@ -65,6 +65,11 @@ export const BookingController = {
       const customers = await BookingCustomerModel.getCustomersInBooking(
         bookingId
       );
+      if (customers.length === 0) {
+        return res.status(StatusCodes.NOT_FOUND).send({
+          message: 'Booking not found',
+        });
+      }
       return res.status(StatusCodes.OK).json(customers);
     } catch (err) {
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);

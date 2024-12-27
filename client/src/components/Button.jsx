@@ -19,7 +19,7 @@ const Button = ({
           : color === 'gray'
           ? 'text-gray'
           : `text-${color}`
-      } bg-zinc-200 border-2 px-2 py-1 md:text-xl text-base hover:bg-white font-bold rounded-lg font-play whitespace-nowrap ${
+      } bg-zinc-200 border-2 px-2 py-1 md:text-xl text-base hover:bg-white font-bold rounded-lg font-play whitespace-nowrap transition-all duration-300 ${
         disabled ? 'opacity-40 cursor-not-allowed' : ''
       } `}
       disabled={disabled}

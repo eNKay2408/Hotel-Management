@@ -137,7 +137,7 @@ const RevenueReport = () => {
             onClick={() => handleDownload()}
           />
           <Button
-            color="orange"
+            color="red"
             text="Print Report"
             onClick={() => handlePrint()}
           />
