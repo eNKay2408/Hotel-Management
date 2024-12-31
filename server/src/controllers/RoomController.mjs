@@ -76,15 +76,7 @@ export const RoomController = {
   updateRoom: async (req, res) => {
     try {
       const { id } = req.params;
-      const { Type, Status, Description } = req.body;
-      let { ImgUrl } = req.body;
-
-      // Check for missing fields
-      if (id == null || Type == null) {
-        return res
-          .status(StatusCodes.BAD_REQUEST)
-          .send('RoomId and Type are required');
-      }
+      const { Type, Status, Description, ImgUrl } = req.body;
 
       if (ImgUrl.startsWith('data:image')) {
         const result = await cloudinary.uploader.upload(ImgUrl, {
@@ -101,11 +93,10 @@ export const RoomController = {
         ImgUrl
       );
 
-      if (result.rowsAffected == null || result.rowsAffected == 0) {
-        return res.status(StatusCodes.NOT_FOUND).send('Room not found');
+      if (room.code !== 200) {
+        return res.status(room.code).send(room.message);
       }
-
-      return res.status(StatusCodes.OK).json(result);
+      return res.status(StatusCodes.OK).json(room);
     } catch (err) {
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
     }
