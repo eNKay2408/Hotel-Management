@@ -11,24 +11,23 @@ export default class InvoiceModel {
 
   static async getInvoiceInfo(InvoiceId) {
     const result = await connection.request().input('InvoiceId', InvoiceId)
-      .query(`select InvoiceDate, Amount
-              from invoice
-              where InvoiceID = @InvoiceId
-
-              select c.Name, c.Address
-              from INVOICE i join CUSTOMER c on i.RepresentativeId = c.CustomerID
-              where InvoiceID = @InvoiceId
-
-              select r.RoomID as RoomNumber, DATEDIFF(DAY, b.BookingDate, i.InvoiceDate) as Nights,
-                  rt.Price, 
-                  rt.Surcharge_Rate as SurchargeRate,
-                  b.Cost as Amount,
-                  dbo.GetMaxCoefficient(b.BookingID) as Coefficient,
-                  Greatest((dbo.CountNumberOfCustomer(b.BookingID) - (rt.Min_Customer_for_Surcharge-1)),0) as ExtraCustomers
-              from BOOKING b join ROOM r on b.RoomID = r.RoomID
-                      join ROOMTYPE rt on r.Type = rt.Type
-                      join INVOICE i on b.InvoiceId = i.InvoiceID
-              where b.InvoiceId = @InvoiceId`);
+      .query(`
+      select InvoiceDate, Amount
+      from invoice
+      where InvoiceID = @InvoiceId
+      
+      select c.Name, c.Address
+      from INVOICE i join CUSTOMER c on i.RepresentativeId = c.CustomerID
+      where InvoiceID = @InvoiceId
+      
+      select r.RoomID as RoomNumber, DATEDIFF(DAY, b.BookingDate, i.InvoiceDate) as Nights,
+          rt.Price, rt.Surcharge_Rate as SurchargeRate, b.Cost as Amount,
+          dbo.GetMaxCoefficient(b.BookingID) as Coefficient,
+          Greatest((dbo.CountNumberOfCustomer(b.BookingID) - (rt.Min_Customer_for_Surcharge-1)),0) as ExtraCustomers
+      from BOOKING b join ROOM r on b.RoomID = r.RoomID
+              join ROOMTYPE rt on r.Type = rt.Type
+              join INVOICE i on b.InvoiceId = i.InvoiceID
+      where b.InvoiceId = @InvoiceId`);
 
     /*
         "InvoiceDate":
@@ -64,7 +63,6 @@ export default class InvoiceModel {
       return `${year}-${month}-${day}`;
     };
     const InvoiceDate = getCheckOutDate();
-
     const result = await connection
       .request()
       .input('InvoiceDate', InvoiceDate)
@@ -75,17 +73,9 @@ export default class InvoiceModel {
               select top 1 InvoiceId from Invoice order by InvoiceId desc`);
 
     const invoiceId = result.recordset[0].InvoiceId;
-
     for (const booking of bookings) {
-      await BookingModel.updateBooking(
-        booking,
-        null,
-        null,
-        invoiceId,
-        null
-      );
+      await BookingModel.updateBooking(booking, null, null, invoiceId, null);
     }
-
     await connection
       .request()
       .input('InvoiceID', invoiceId)

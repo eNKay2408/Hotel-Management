@@ -43,7 +43,6 @@ describe('CustomerController Integration Tests', () => {
     } catch (error) {
       console.error('Failed to establish database connection:', error);
     }
-    await connection.request().query('DELETE FROM Customer');
   });
 
   afterAll(async () => {

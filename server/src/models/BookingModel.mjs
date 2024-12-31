@@ -104,6 +104,7 @@ export default class BookingModel {
               FROM Booking b join ROOM r on b.RoomID = r.RoomID
                       join ROOMTYPE rt on r.Type = rt.Type
               WHERE b.Cost is NULL`);
+
     return result.recordset;
   }
 

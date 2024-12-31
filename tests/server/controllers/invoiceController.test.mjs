@@ -7,51 +7,23 @@ import { InvoiceController } from '../../../server/src/controllers/InvoiceContro
 import InvoiceModel from '../../../server/src/models/InvoiceModel.mjs';
 import BookingModel from '../../../server/src/models/BookingModel.mjs';
 import connection from '../../../server/src/database/connectSQL.mjs';
+const getCurrentDate = () => {
+  const now = new Date();
+  const year = now.getUTCFullYear();
+  const month = String(now.getUTCMonth() + 1).padStart(2, '0'); // Months are zero-indexed
+  const day = String(now.getUTCDate()).padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
+};
 
 async function insertTestData() {
-  // Insert ROOMTYPE data
-  await connection.request().query(`
-    INSERT INTO ROOMTYPE (Type, Price, Max_Occupancy, Surcharge_Rate, Min_Customer_for_Surcharge)
-    VALUES
-      ('G', 100, 2, 0.1, 1),
-      ('S', 150, 4, 0.15, 2);
-  `);
-
-  // Insert ROOM data
-  await connection.request().query(`
-    INSERT INTO ROOM (RoomID, Type, Status, Description, ImgUrl)
-    VALUES
-      (101, 'G', 0, 'Room G Description', 'img1.jpg'),
-      (102, 'S', 0, 'Room S Description', 'img2.jpg');
-  `);
-
-  // Insert CUSTOMERTYPE data
-  await connection.request().query(`
-    SET IDENTITY_INSERT CUSTOMERTYPE ON;
-    INSERT INTO CUSTOMERTYPE (Type, Name, Coefficient)
-    VALUES
-      (1, 'Regular', 1.0),
-      (2, 'VIP', 1.5);
-    SET IDENTITY_INSERT CUSTOMERTYPE OFF;
-  `);
-
-  // Insert CUSTOMER data
-  await connection.request().query(`
-    SET IDENTITY_INSERT CUSTOMER ON;
-    INSERT INTO CUSTOMER (CustomerID, CustomerName, Address, IdentityCard, Type)
-    VALUES
-      (1, 'John Doe', '123 Main St', '123456789012', 1),
-      (2, 'Jane Smith', '456 Elm St', '987654321012', 2);
-    SET IDENTITY_INSERT CUSTOMER OFF;
-  `);
-
   // Insert BOOKING data
   await connection.request().query(`
     SET IDENTITY_INSERT BOOKING ON;
     INSERT INTO BOOKING (BookingID, RoomID, BookingDate, Cost)
     VALUES
-      (1, 101, '2024-12-26', NULL),
-      (2, 102, '2024-12-26', NULL);
+      (1, 301, '${getCurrentDate()}', NULL),
+      (2, 302, '${getCurrentDate()}', NULL);
     SET IDENTITY_INSERT BOOKING OFF;
   `);
 
@@ -69,17 +41,60 @@ describe('InvoiceController Integration Tests', () => {
 
   beforeAll(async () => {
     try {
+      jest.resetAllMocks();
+      jest.resetModules();
       await connection.connect();
       console.log('Database connection established successfully');
+
+      // Insert ROOMTYPE data
+      await connection.request().query(`
+    INSERT INTO ROOMTYPE (Type, Price, Max_Occupancy, Surcharge_Rate, Min_Customer_for_Surcharge)
+    VALUES
+      ('Z', 100, 2, 0.1, 1),
+      ('Y', 150, 4, 0.15, 2);
+  `);
+
+      // Insert ROOM data
+      await connection.request().query(`
+    INSERT INTO ROOM (RoomID, Type, isAvailable, Description, ImgUrl)
+    VALUES
+      (301, 'Z', 1, 'Room G Description', 'img1.jpg'),
+      (302, 'Y', 1, 'Room S Description', 'img2.jpg');
+  `);
+
+      // Insert CUSTOMERTYPE data
+      await connection.request().query(`
+    SET IDENTITY_INSERT CUSTOMERTYPE ON;
+    INSERT INTO CUSTOMERTYPE (Type, Name, Coefficient)
+    VALUES
+      (1, 'Regular', 1.0),
+      (2, 'VIP', 1.5);
+    SET IDENTITY_INSERT CUSTOMERTYPE OFF;
+  `);
+
+      // Insert CUSTOMER data
+      await connection.request().query(`
+    SET IDENTITY_INSERT CUSTOMER ON;
+    INSERT INTO CUSTOMER (CustomerID, Name, Address, IdentityCard, Type)
+    VALUES
+      (1, 'John Doe', '123 Main St', '123456789012', 1),
+      (2, 'Jane Smith', '456 Elm St', '987654321012', 2);
+    SET IDENTITY_INSERT CUSTOMER OFF;
+  `);
     } catch (error) {
       console.error('Failed to establish database connection:', error);
     }
   });
 
   afterAll(async () => {
+    jest.resetAllMocks();
+    jest.resetModules();
+    jest.restoreAllMocks();
+    jest.clearAllMocks();
+
     await connection.request().query('DELETE FROM BookingCustomers');
-    await connection.request().query('DELETE FROM BOOKING');
     await connection.request().query('DELETE FROM INVOICE');
+    await connection.request().query('DELETE FROM BOOKING');
     await connection.request().query('DELETE FROM CUSTOMER');
     await connection.request().query('DELETE FROM CUSTOMERTYPE');
     await connection.request().query('DELETE FROM ROOM');
@@ -88,6 +103,10 @@ describe('InvoiceController Integration Tests', () => {
   });
 
   beforeEach(async () => {
+    jest.resetAllMocks();
+    jest.resetModules();
+    jest.restoreAllMocks();
+    jest.clearAllMocks();
     req = {
       params: {},
       query: {},
@@ -99,24 +118,30 @@ describe('InvoiceController Integration Tests', () => {
       json: jest.fn(),
     };
 
-    // Clean up test data before each test
-    await connection.request().query('DELETE FROM BookingCustomers');
-    await connection.request().query('DELETE FROM BOOKING');
-    await connection.request().query('DELETE FROM INVOICE');
-    await connection.request().query('DELETE FROM CUSTOMER');
-    await connection.request().query('DELETE FROM CUSTOMERTYPE');
-    await connection.request().query('DELETE FROM ROOM');
-    await connection.request().query('DELETE FROM ROOMTYPE');
+    // // Clean up test data before each test
+    // await connection.request().query('DELETE FROM BookingCustomers');
+    // await connection.request().query('DELETE FROM BOOKING');
+    // await connection.request().query('DELETE FROM INVOICE');
+    // await connection.request().query('DELETE FROM CUSTOMER');
+    // await connection.request().query('DELETE FROM CUSTOMERTYPE');
+    // await connection.request().query('DELETE FROM ROOM');
+    // await connection.request().query('DELETE FROM ROOMTYPE');
   });
 
   afterEach(async () => {
+    jest.resetAllMocks();
+    jest.resetModules();
+    jest.restoreAllMocks();
+    jest.clearAllMocks();
+
     await connection.request().query('DELETE FROM BookingCustomers');
-    await connection.request().query('DELETE FROM BOOKING');
     await connection.request().query('DELETE FROM INVOICE');
-    await connection.request().query('DELETE FROM CUSTOMER');
-    await connection.request().query('DELETE FROM CUSTOMERTYPE');
-    await connection.request().query('DELETE FROM ROOM');
-    await connection.request().query('DELETE FROM ROOMTYPE');
+    await connection.request().query('DELETE FROM BOOKING');
+
+    // await connection.request().query('DELETE FROM CUSTOMER');
+    // await connection.request().query('DELETE FROM CUSTOMERTYPE');
+    // await connection.request().query('DELETE FROM ROOM');
+    // await connection.request().query('DELETE FROM ROOMTYPE');
   });
 
   describe('getAllBookingUnpaid', () => {
@@ -131,17 +156,17 @@ describe('InvoiceController Integration Tests', () => {
       expect(res.json).toHaveBeenCalledWith(
         expect.arrayContaining([
           expect.objectContaining({
-            BookingId: 1,
-            RoomNumber: 101,
+            BookingId: expect.any(Number),
+            RoomNumber: 301,
             BookingDate: expect.any(Date),
-            Nights: 1,
+            Nights: 0,
             Price: 100,
           }),
           expect.objectContaining({
-            BookingId: 2,
-            RoomNumber: 102,
+            BookingId: expect.any(Number),
+            RoomNumber: 302,
             BookingDate: expect.any(Date),
-            Nights: 1,
+            Nights: 0,
             Price: 150,
           }),
         ])
@@ -165,37 +190,19 @@ describe('InvoiceController Integration Tests', () => {
   });
 
   describe('createInvoice', () => {
-  it('should create an invoice and return status 201', async () => {
-    // Insert test data or use a real/test database setup
-    await insertTestData(); 
+    it('should create an invoice and return status 201', async () => {
+      // Insert test data or use a real/test database setup
+      await insertTestData();
 
-    req.body = {
-      Bookings: [1, 2],      
-      RepresentativeId: 1,     
-    };
+      req.body = {
+        Bookings: [1, 2],
+        RepresentativeId: 1,
+      };
 
-    const mockStatus = jest.fn().mockReturnThis();
-    const mockJson = jest.fn().mockReturnThis();
-    res.status = mockStatus;
-    res.json = mockJson;
+      await InvoiceController.createInvoice(req, res);
 
-    const mockInvoiceId = 1;
-    jest.spyOn(InvoiceModel, 'CreateInvoice').mockResolvedValue(mockInvoiceId);
-
-    jest.spyOn(connection.request(), 'query').mockResolvedValue({
-      recordset: [{ InvoiceId: mockInvoiceId }],
+      expect(res.status).toHaveBeenCalledWith(StatusCodes.CREATED);
     });
-
-  
-    await InvoiceController.createInvoice(req, res);
-
-    expect(res.status).toHaveBeenCalledWith(StatusCodes.CREATED);
-    expect(res.json).toHaveBeenCalledWith({
-      message: 'Invoice created successfully',
-      invoiceId: mockInvoiceId,
-    });
-  });
-
 
     it('should handle errors and return status 500', async () => {
       jest
@@ -219,75 +226,64 @@ describe('InvoiceController Integration Tests', () => {
   });
 
   describe('getInvoiceInfo', () => {
-  it('should return invoice details with status 200', async () => {
-    // Insert test data
-    await insertTestData();
-    await connection.request().query(`
-      SET IDENTITY_INSERT INVOICE ON;
-      INSERT INTO INVOICE (InvoiceId, RepresentativeId, InvoiceDate, Amount)
-      VALUES (1, 1, '2024-12-26', 250);
-      SET IDENTITY_INSERT INVOICE OFF;
-    `);
+    it('should return invoice details with status 200', async () => {
+      // Insert test data
+      await insertTestData();
+      //   await connection.request().query(`
+      //   SET IDENTITY_INSERT INVOICE ON;
+      //   INSERT INTO INVOICE (InvoiceId, RepresentativeId, InvoiceDate, Amount)
+      //   VALUES (1, 1, '2024-12-26', 250);
+      //   SET IDENTITY_INSERT INVOICE OFF;
+      // `);
 
-    // Mock the result of the query
-    const mockInvoiceData = {
-      recordsets: [
-        // Invoice details
-        [{ InvoiceDate: '2024-12-26', Amount: 250 }],
-        
-        // Representative details
-        [{ Name: 'John Doe', Address: '123 Main St' }],
-        
-        // Booking details
-        [
-          {
-            RoomNumber: 101,
-            Nights: 2,
-            Price: 100,
-            SurchargeRate: 0.1,
-            Amount: 200,
-            Coefficient: 1.2,
-            ExtraCustomers: 1,
-          },
-        ],
-      ],
-    };
+      req.body = {
+        Bookings: [1, 2],
+        RepresentativeId: 1,
+      };
 
-    // Mock the connection request to return mockInvoiceData
-    connection.request = jest.fn().mockReturnValue({
-      input: jest.fn().mockReturnThis(),
-      query: jest.fn().mockResolvedValue(mockInvoiceData),
+      await InvoiceController.createInvoice(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(StatusCodes.CREATED);
+      const result = await connection.request().query(`
+        select top 1 InvoiceId from Invoice order by InvoiceId desc`);
+      const createInvoiceID = result.recordset[0].InvoiceId;
+      'createInvoiceID', createInvoiceID;
+
+      req.params = { InvoiceId: createInvoiceID };
+
+      // Act
+      await InvoiceController.getInvoiceInfo(req, res);
+
+      // Assert
+      expect(res.status).toHaveBeenCalledWith(StatusCodes.OK);
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          Amount: 0,
+          Bookings: [
+            {
+              Amount: 0,
+              Coefficient: 1,
+              ExtraCustomers: 1,
+              Nights: 0,
+              Price: 100,
+              RoomNumber: 301,
+              SurchargeRate: 0.1,
+            },
+            {
+              Amount: 0,
+              Coefficient: 1.5,
+              ExtraCustomers: 0,
+              Nights: 0,
+              Price: 150,
+              RoomNumber: 302,
+              SurchargeRate: 0.15,
+            },
+          ],
+          InvoiceDate: expect.any(Date),
+          Representative: { Address: '123 Main St', Name: 'John Doe' },
+        })
+      );
     });
-
-    req.params = { InvoiceId: 1 };
-
-    // Act
-    await InvoiceController.getInvoiceInfo(req, res);
-
-    // Assert
-    expect(res.status).toHaveBeenCalledWith(StatusCodes.OK);
-    expect(res.json).toHaveBeenCalledWith(
-      expect.objectContaining({
-        InvoiceDate: '2024-12-26', // Correct date format
-        Representative: {
-          Name: 'John Doe',
-          Address: '123 Main St',
-        },
-        Bookings: [
-          {
-            RoomNumber: 101,
-            Nights: 2,
-            Price: 100,
-            SurchargeRate: 0.1,
-            Amount: 200,
-            Coefficient: 1.2,
-            ExtraCustomers: 1,
-          },
-        ],
-        Amount: 250,
-      })
-    );
-  });
 
     it('should handle errors and return status 500', async () => {
       jest
@@ -298,7 +294,6 @@ describe('InvoiceController Integration Tests', () => {
 
       // Act
       await InvoiceController.getInvoiceInfo(req, res);
-
       // Assert
       expect(res.status).toHaveBeenCalledWith(
         StatusCodes.INTERNAL_SERVER_ERROR

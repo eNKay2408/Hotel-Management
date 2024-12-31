@@ -78,20 +78,21 @@ export const RoomController = {
       const { id } = req.params;
       const { Type, Status, Description, ImgUrl } = req.body;
 
-      // Check for missing fields
-      if (id == null || Type == null) {
-        return res
-          .status(StatusCodes.BAD_REQUEST)
-          .send('RoomId and Type are required');
-      }
-
       if (ImgUrl.startsWith('data:image')) {
         const result = await cloudinary.uploader.upload(ImgUrl, {
           folder: 'HotelManagement/Rooms',
         });
         ImgUrl = result.secure_url;
       }
+      console.log(Type, id);
+      if (Type == null || id == null) {
+        console.log('WTF');
 
+        return res
+          .status(StatusCodes.BAD_REQUEST)
+          .send('RoomId and Type are required');
+      }
+      console.log(id, Type, Status, Description, ImgUrl);
       const result = await RoomModel.updateRoom(
         id,
         Type,
@@ -99,15 +100,16 @@ export const RoomController = {
         Description,
         ImgUrl
       );
-
-
-      if (result.rowsAffected == null || result.rowsAffected == 0) {
-        return res.status(StatusCodes.NOT_FOUND).send('Room not found');
+      console.log('code in controller', result.code);
+      if (result.code == StatusCodes.NOT_FOUND) {
+        return res
+          .status(StatusCodes.NOT_FOUND)
+          .json({ message: result.message });
+      } else if (result.code == StatusCodes.OK) {
+        return res.status(StatusCodes.OK).json({ message: result.message });
       }
-
-      return res.status(StatusCodes.OK).json(result);
-
     } catch (err) {
+      console.log('error', err);
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
     }
   },
