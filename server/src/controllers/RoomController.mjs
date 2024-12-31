@@ -76,8 +76,7 @@ export const RoomController = {
   updateRoom: async (req, res) => {
     try {
       const { id } = req.params;
-      const { Type, Status, Description } = req.body;
-      let { ImgUrl } = req.body;
+      const { Type, Status, Description, ImgUrl } = req.body;
 
       // Check for missing fields
       if (id == null || Type == null) {
@@ -101,11 +100,13 @@ export const RoomController = {
         ImgUrl
       );
 
+
       if (result.rowsAffected == null || result.rowsAffected == 0) {
         return res.status(StatusCodes.NOT_FOUND).send('Room not found');
       }
 
       return res.status(StatusCodes.OK).json(result);
+
     } catch (err) {
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
     }
