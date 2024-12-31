@@ -78,6 +78,13 @@ export const RoomController = {
       const { id } = req.params;
       const { Type, Status, Description, ImgUrl } = req.body;
 
+      // Check for missing fields
+      if (id == null || Type == null) {
+        return res
+          .status(StatusCodes.BAD_REQUEST)
+          .send('RoomId and Type are required');
+      }
+
       if (ImgUrl.startsWith('data:image')) {
         const result = await cloudinary.uploader.upload(ImgUrl, {
           folder: 'HotelManagement/Rooms',
@@ -85,7 +92,7 @@ export const RoomController = {
         ImgUrl = result.secure_url;
       }
 
-      const room = await RoomModel.updateRoom(
+      const result = await RoomModel.updateRoom(
         id,
         Type,
         Status,
@@ -93,11 +100,13 @@ export const RoomController = {
         ImgUrl
       );
 
-      if(room.code !== 200) 
-        {
-          return res.status(room.code).send(room.message);
-        }
-      return res.status(StatusCodes.OK).json(room);
+
+      if (result.rowsAffected == null || result.rowsAffected == 0) {
+        return res.status(StatusCodes.NOT_FOUND).send('Room not found');
+      }
+
+      return res.status(StatusCodes.OK).json(result);
+
     } catch (err) {
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
     }

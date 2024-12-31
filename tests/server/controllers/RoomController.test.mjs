@@ -19,7 +19,7 @@ const SAMPLE_ROOM = {
 
 /**
  * Inserts test data into the Room table.
- * 
+ *
  * This function inserts the following rooms:
  * - RoomID: 101, Type: 'A', IsAvailable: 0 (false), Description: 'Test Room', ImgUrl: 'https://placehold.co/400'
  * - RoomID: 102, Type: 'B', IsAvailable: 1 (true), Description: 'Another Test Room', ImgUrl: 'https://placehold.co/400'
@@ -41,17 +41,14 @@ describe('RoomController Integration Tests', () => {
       console.log('Database connection established successfully');
 
       connection.request().query(`
-      INSERT INTO [ROOMTYPE] VALUES 
+      INSERT INTO ROOMTYPE VALUES 
       ('A', 150, 6, 0.25, 3),
       ('B', 170, 4, 0.25, 2),
       ('C', 200, 2, 0.25, 1)`);
-      console.log('Default RoomTypes inserted successfully');
+      console.log('Default RoomTypes were inserted successfully');
     } catch (error) {
       console.error('Failed to establish database connection:', error);
     }
-
-    // Delete all data from Room table, prepare for testing
-    await connection.request().query('DELETE FROM Room');
   });
 
   afterAll(async () => {
@@ -76,12 +73,13 @@ describe('RoomController Integration Tests', () => {
   afterEach(async () => {
     // Clean up the database after each test
     await connection.request().query('DELETE FROM Room');
+    jest.restoreAllMocks();
   });
 
   describe('getAllRooms', () => {
     it('should return all rooms', async () => {
       await insertTestData();
-                    
+
       await RoomController.getAllRooms(req, res);
 
       expect(res.status).toHaveBeenCalledWith(StatusCodes.OK);
@@ -161,12 +159,14 @@ describe('RoomController Integration Tests', () => {
 
   describe('addNewRoom', () => {
     it('should create a new room', async () => {
-
-      req.body = {...SAMPLE_ROOM};
+      req.body = { ...SAMPLE_ROOM };
       await RoomController.addNewRoom(req, res);
 
       expect(res.status).toHaveBeenCalledWith(StatusCodes.CREATED);
-      expect(res.json).toHaveBeenCalledWith( { message: 'Room created successfully', rowsAffected: [1]});
+      expect(res.json).toHaveBeenCalledWith({
+        message: 'Room created successfully',
+        rowsAffected: [1],
+      });
 
       // Verify the room was added to the database
       const result = await connection
@@ -176,7 +176,7 @@ describe('RoomController Integration Tests', () => {
 
       expect(result.recordset).toHaveLength(1);
 
-      const expectedReturnedRoom = {...SAMPLE_ROOM};
+      const expectedReturnedRoom = { ...SAMPLE_ROOM };
       expectedReturnedRoom.RoomID = SAMPLE_ROOM.RoomId;
       delete expectedReturnedRoom.RoomId;
       expectedReturnedRoom.IsAvailable = false;
@@ -185,43 +185,45 @@ describe('RoomController Integration Tests', () => {
     });
 
     it('should return 400 if RoomId and Type fields are missing', async () => {
-      req.body = {...SAMPLE_ROOM};
-  
+      req.body = { ...SAMPLE_ROOM };
+
       //missing 'RoomId' and 'Type' field
       delete req.body.Type;
       delete req.body.RoomId;
-  
+
       await RoomController.addNewRoom(req, res);
-  
+
       expect(res.status).toHaveBeenCalledWith(StatusCodes.BAD_REQUEST);
       expect(res.send).toHaveBeenCalledWith('RoomId and Type are required');
     });
 
     it('should return 400 if Type field are missing', async () => {
-      req.body = {...SAMPLE_ROOM};
+      req.body = { ...SAMPLE_ROOM };
       req.params.id = 103;
 
       //missing 'Type' field
       delete req.body.Type;
-  
+
       await RoomController.addNewRoom(req, res);
-  
+
       expect(res.status).toHaveBeenCalledWith(StatusCodes.BAD_REQUEST);
       expect(res.send).toHaveBeenCalledWith('RoomId and Type are required');
     });
 
-    it('should return 500 if an error occurs', async() => {
+    it('should return 500 if an error occurs', async () => {
       const errorMessage = 'Internal Server Error';
       jest
         .spyOn(RoomModel, 'createRoom')
         .mockRejectedValue(new Error(errorMessage));
-      
-      req.body = {...SAMPLE_ROOM};
+
+      req.body = { ...SAMPLE_ROOM };
       req.params.id = req.body.RoomId;
-      
+
       await RoomController.addNewRoom(req, res);
 
-      expect(res.status).toHaveBeenCalledWith(StatusCodes.INTERNAL_SERVER_ERROR);
+      expect(res.status).toHaveBeenCalledWith(
+        StatusCodes.INTERNAL_SERVER_ERROR
+      );
       expect(res.send).toHaveBeenCalledWith(errorMessage);
     });
   });
@@ -232,7 +234,7 @@ describe('RoomController Integration Tests', () => {
 
       // ensure the room exists in the database
       let updatedRoomID = 101;
-      const updatedRoom = {...SAMPLE_ROOM};
+      const updatedRoom = { ...SAMPLE_ROOM };
       updatedRoom.RoomId = updatedRoomID;
       req.params.id = updatedRoomID;
       req.body = updatedRoom;
@@ -242,16 +244,17 @@ describe('RoomController Integration Tests', () => {
       expect(res.status).toHaveBeenCalledWith(StatusCodes.OK);
       expect(res.json).toHaveBeenCalledWith({
         message: 'Room updated successfully',
-        rowsAffected: [1],});
-        
-        // Verify the room was updated in the database
-        const result = await connection
+        rowsAffected: [1],
+      });
+
+      // Verify the room was updated in the database
+      const result = await connection
         .request()
         .input('RoomID', updatedRoomID)
         .query('SELECT * FROM Room WHERE RoomID = @RoomID');
-        expect(result.recordset).toHaveLength(1);
-        
-      const expectedReturnedRoom = {...updatedRoom};
+      expect(result.recordset).toHaveLength(1);
+
+      const expectedReturnedRoom = { ...updatedRoom };
       expectedReturnedRoom.RoomID = updatedRoomID;
       delete expectedReturnedRoom.RoomId;
       expectedReturnedRoom.IsAvailable = false;
@@ -261,7 +264,7 @@ describe('RoomController Integration Tests', () => {
 
     it('should return 404 if the room is not found', async () => {
       req.params.id = ID_DOES_NOT_EXIST;
-      req.body = {...SAMPLE_ROOM};
+      req.body = { ...SAMPLE_ROOM };
       req.body.RoomId = ID_DOES_NOT_EXIST;
       await RoomController.updateRoom(req, res);
 
@@ -271,7 +274,7 @@ describe('RoomController Integration Tests', () => {
 
     it('should return 400 if missing RoomId and Type fields', async () => {
       //missing 'RoomId' and Type' fields
-      req.body = {...SAMPLE_ROOM};
+      req.body = { ...SAMPLE_ROOM };
       delete req.body.Type;
       delete req.body.RoomId;
 
@@ -282,7 +285,7 @@ describe('RoomController Integration Tests', () => {
 
     it('should return 400 if missing RoomId field', async () => {
       //missing 'RoomId' field
-      req.body = {...SAMPLE_ROOM};
+      req.body = { ...SAMPLE_ROOM };
       delete req.body.RoomId;
       await RoomController.updateRoom(req, res);
       expect(res.status).toHaveBeenCalledWith(StatusCodes.BAD_REQUEST);
@@ -296,7 +299,7 @@ describe('RoomController Integration Tests', () => {
         .mockRejectedValue(new Error(errorMessage));
 
       req.params.id = 103;
-      req.body = {...SAMPLE_ROOM};
+      req.body = { ...SAMPLE_ROOM };
 
       await RoomController.updateRoom(req, res);
 
@@ -305,5 +308,5 @@ describe('RoomController Integration Tests', () => {
       );
       expect(res.send).toHaveBeenCalledWith(errorMessage);
     });
-  });  
+  });
 });
