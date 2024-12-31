@@ -93,8 +93,8 @@ export const RoomController = {
         ImgUrl
       );
 
-      if (result.code !== 200) {
-        return res.status(result.code).send(result.message);
+      if (result.rowsAffected == null || result.rowsAffected == 0) {
+        return res.status(StatusCodes.NOT_FOUND).send('Room not found');
       }
       return res.status(StatusCodes.OK).json(result);
     } catch (err) {
