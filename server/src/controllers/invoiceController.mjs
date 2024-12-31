@@ -20,7 +20,7 @@ export const InvoiceController = {
         RepresentativeId
       );
       
-      return res.status(StatusCodes.CREATED).json({ message: "Invoice created successfully", invoiceId: invoice });
+      return res.status(StatusCodes.CREATED).json(invoice);
     } catch (err) {
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
     }
