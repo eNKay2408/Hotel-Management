@@ -7,11 +7,19 @@ import settingIcon from './icon/setting.png';
 
 import logo from './logo.png';
 import logoBackground from './logo-background.png';
+import heroHome from './heroHome.png'
+import headquarter from './headquarter.png';
 
 import facebook from './social/facebook.png';
 import x from './social/x.png';
 import instagram from './social/instagram.png';
 import linkedin from './social/linkedin.png';
+
+import company1 from './company/company1.png';
+import company2 from './company/company2.png';
+import company3 from './company/company3.png';
+import company4 from './company/company4.png';
+import company5 from './company/company5.png';
 
 import avatar1 from './avatar/1.png';
 import avatar2 from './avatar/2.png';
@@ -33,10 +41,17 @@ export {
   settingIcon,
   logo,
   logoBackground,
+  heroHome,
+  headquarter,
   facebook,
   x,
   instagram,
   linkedin,
+  company1,
+  company2,
+  company3,
+  company4,
+  company5,
   avatar1,
   avatar2,
   avatar3,
