@@ -93,10 +93,10 @@ export const RoomController = {
         ImgUrl
       );
 
-      if (room.code !== 200) {
-        return res.status(room.code).send(room.message);
+      if (result.code !== 200) {
+        return res.status(result.code).send(result.message);
       }
-      return res.status(StatusCodes.OK).json(room);
+      return res.status(StatusCodes.OK).json(result);
     } catch (err) {
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
     }

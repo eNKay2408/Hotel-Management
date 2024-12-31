@@ -81,10 +81,10 @@ export default class RoomModel {
     ImgUrl = null
   ) {
     try {
-      if (RoomId === null) {
-        return { 
+      if (RoomId == null) {
+        return {
           message: 'RoomId is required',
-          code: 400
+          code: 400,
         };
       }
       let query = `UPDATE Room SET `;
@@ -126,9 +126,9 @@ export default class RoomModel {
           code: 200,
         };
       } else {
-        return { 
+        return {
           message: 'No room found',
-          code: 404
+          code: 404,
         };
       }
     } catch (error) {

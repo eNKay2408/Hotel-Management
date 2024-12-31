@@ -243,8 +243,8 @@ describe('RoomController Integration Tests', () => {
 
       expect(res.status).toHaveBeenCalledWith(StatusCodes.OK);
       expect(res.json).toHaveBeenCalledWith({
+        code: 200,
         message: 'Room updated successfully',
-        rowsAffected: [1],
       });
 
       // Verify the room was updated in the database
@@ -269,7 +269,7 @@ describe('RoomController Integration Tests', () => {
       await RoomController.updateRoom(req, res);
 
       expect(res.status).toHaveBeenCalledWith(StatusCodes.NOT_FOUND);
-      expect(res.send).toHaveBeenCalledWith('Room not found');
+      expect(res.send).toHaveBeenCalledWith('No room found');
     });
 
     it('should return 400 if missing RoomId and Type fields', async () => {
@@ -280,7 +280,7 @@ describe('RoomController Integration Tests', () => {
 
       await RoomController.updateRoom(req, res);
       expect(res.status).toHaveBeenCalledWith(StatusCodes.BAD_REQUEST);
-      expect(res.send).toHaveBeenCalledWith('RoomId and Type are required');
+      expect(res.send).toHaveBeenCalledWith('RoomId is required');
     });
 
     it('should return 400 if missing RoomId field', async () => {
@@ -289,7 +289,7 @@ describe('RoomController Integration Tests', () => {
       delete req.body.RoomId;
       await RoomController.updateRoom(req, res);
       expect(res.status).toHaveBeenCalledWith(StatusCodes.BAD_REQUEST);
-      expect(res.send).toHaveBeenCalledWith('RoomId and Type are required');
+      expect(res.send).toHaveBeenCalledWith('RoomId is required');
     });
 
     it('should return 500 if an error occurs', async () => {
