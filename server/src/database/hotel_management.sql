@@ -1,4 +1,4 @@
-﻿--Create database
+--Create database
 
 CREATE DATABASE HOTEL_MANAGEMENT
 GO
