@@ -113,6 +113,7 @@ CREATE TABLE OCCUPANCY_HAS_ROOM
     FOREIGN KEY (Month, Year) REFERENCES OCCUPANCY (Month, year) ON DELETE CASCADE,
     FOREIGN KEY (RoomId) REFERENCES ROOM (RoomId) ON DELETE CASCADE,
 )
+GO
 
 -- Hàm đếm số lượng khách hàng
 CREATE FUNCTION CountNumberOfCustomer(@bookingId INT)
@@ -331,7 +332,12 @@ BEGIN
     SET @Year = YEAR(@InvoiceDate);
 
     -- Tính tổng số ngày thuê (bao gồm cả ngày bắt đầu)
-    SELECT @RentalDays = ISNULL(SUM(DATEDIFF(DAY, BookingDate, InvoiceDate)), 0)
+    SELECT @RentalDays = ISNULL(SUM(
+    CASE 
+        WHEN DATEDIFF(DAY, BookingDate, InvoiceDate) = 0 THEN 1
+        ELSE DATEDIFF(DAY, BookingDate, InvoiceDate)
+    END
+	), 0)
     FROM BOOKING b
         JOIN INVOICE i ON b.InvoiceId = i.InvoiceID
     WHERE i.InvoiceID = @InvoiceID;
@@ -387,7 +393,11 @@ BEGIN
     BEGIN
         -- Nếu tồn tại, cập nhật RentalDays
         UPDATE o
-        SET RentalDays = RentalDays + ISNULL(DATEDIFF(DAY, b.BookingDate, @InvoiceDate), 0)
+        SET RentalDays = RentalDays + ISNULL(
+		CASE 
+			WHEN DATEDIFF(DAY, BookingDate, InvoiceDate) = 0 THEN 1
+			ELSE DATEDIFF(DAY, BookingDate, InvoiceDate)
+		END, 1)
         FROM OCCUPANCY_HAS_ROOM o
         JOIN BOOKING b ON b.RoomID = o.RoomID
         JOIN INVOICE i ON b.InvoiceID = i.InvoiceID
@@ -402,8 +412,13 @@ BEGIN
             @Month,
             @Year,
             b.RoomID,
-            ISNULL(DATEDIFF(DAY, b.BookingDate, @InvoiceDate), 0) AS RentalDays
-        FROM BOOKING b
+            ISNULL(
+		CASE 
+			WHEN DATEDIFF(DAY, BookingDate, InvoiceDate) = 0 THEN 1
+			ELSE DATEDIFF(DAY, BookingDate, InvoiceDate)
+		END, 1) AS RentalDays
+        FROM BOOKING b JOIN INVOICE I
+		ON B.InvoiceId = I.InvoiceID
         WHERE b.InvoiceId = @InvoiceID;
     END
 END;

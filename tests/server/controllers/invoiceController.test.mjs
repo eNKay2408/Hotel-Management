@@ -117,15 +117,6 @@ describe('InvoiceController Integration Tests', () => {
       send: jest.fn(),
       json: jest.fn(),
     };
-
-    // // Clean up test data before each test
-    // await connection.request().query('DELETE FROM BookingCustomers');
-    // await connection.request().query('DELETE FROM BOOKING');
-    // await connection.request().query('DELETE FROM INVOICE');
-    // await connection.request().query('DELETE FROM CUSTOMER');
-    // await connection.request().query('DELETE FROM CUSTOMERTYPE');
-    // await connection.request().query('DELETE FROM ROOM');
-    // await connection.request().query('DELETE FROM ROOMTYPE');
   });
 
   afterEach(async () => {
@@ -138,10 +129,6 @@ describe('InvoiceController Integration Tests', () => {
     await connection.request().query('DELETE FROM INVOICE');
     await connection.request().query('DELETE FROM BOOKING');
 
-    // await connection.request().query('DELETE FROM CUSTOMER');
-    // await connection.request().query('DELETE FROM CUSTOMERTYPE');
-    // await connection.request().query('DELETE FROM ROOM');
-    // await connection.request().query('DELETE FROM ROOMTYPE');
   });
 
   describe('getAllBookingUnpaid', () => {
@@ -159,14 +146,14 @@ describe('InvoiceController Integration Tests', () => {
             BookingId: expect.any(Number),
             RoomNumber: 301,
             BookingDate: expect.any(Date),
-            Nights: 0,
+            Nights: 1,
             Price: 100,
           }),
           expect.objectContaining({
             BookingId: expect.any(Number),
             RoomNumber: 302,
             BookingDate: expect.any(Date),
-            Nights: 0,
+            Nights: 1,
             Price: 150,
           }),
         ])
@@ -247,7 +234,7 @@ describe('InvoiceController Integration Tests', () => {
       const result = await connection.request().query(`
         select top 1 InvoiceId from Invoice order by InvoiceId desc`);
       const createInvoiceID = result.recordset[0].InvoiceId;
-      'createInvoiceID', createInvoiceID;
+      // 'createInvoiceID', createInvoiceID;
 
       req.params = { InvoiceId: createInvoiceID };
 
@@ -258,29 +245,29 @@ describe('InvoiceController Integration Tests', () => {
       expect(res.status).toHaveBeenCalledWith(StatusCodes.OK);
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
-          Amount: 0,
+          InvoiceDate: expect.any(Date),
+          Representative: { Name: 'John Doe', Address: '123 Main St' },
           Bookings: [
             {
-              Amount: 0,
+              RoomNumber: 301,
+              Nights: 1,
+              Price: 100,
+              SurchargeRate: 0.1,
+              Amount: 100,
               Coefficient: 1,
               ExtraCustomers: 1,
-              Nights: 0,
-              Price: 100,
-              RoomNumber: 301,
-              SurchargeRate: 0.1,
             },
             {
-              Amount: 0,
+              RoomNumber: 302,
+              Nights: 1,
+              Price: 150,
+              SurchargeRate: 0.15,
+              Amount: 225,
               Coefficient: 1.5,
               ExtraCustomers: 0,
-              Nights: 0,
-              Price: 150,
-              RoomNumber: 302,
-              SurchargeRate: 0.15,
             },
           ],
-          InvoiceDate: expect.any(Date),
-          Representative: { Address: '123 Main St', Name: 'John Doe' },
+          Amount: 325,
         })
       );
     });
