@@ -218,14 +218,14 @@ describe('BookingController Integration Tests', () => {
           BookingId: expect.any(Number), //auto created by db
           RoomNumber: 110,
           BookingDate: expect.any(Date),
-          Nights: EXPECTED_NIGHTS_RESULT,
+          Nights: 1,
           Price: 150,
         },
         {
           BookingId: expect.any(Number), //auto created by db
           RoomNumber: 112,
           BookingDate: expect.any(Date),
-          Nights: EXPECTED_NIGHTS_RESULT,
+          Nights: 1,
           Price: 200,
         },
       ]);

@@ -20,7 +20,11 @@ export default class InvoiceModel {
       from INVOICE i join CUSTOMER c on i.RepresentativeId = c.CustomerID
       where InvoiceID = @InvoiceId
       
-      select r.RoomID as RoomNumber, DATEDIFF(DAY, b.BookingDate, i.InvoiceDate) as Nights,
+      select r.RoomID as RoomNumber, 
+      CASE 
+        WHEN DATEDIFF(DAY, b.BookingDate, i.InvoiceDate) = 0 THEN 1
+        ELSE DATEDIFF(DAY, b.BookingDate, i.InvoiceDate)
+      END AS Nights,
           rt.Price, rt.Surcharge_Rate as SurchargeRate, b.Cost as Amount,
           dbo.GetMaxCoefficient(b.BookingID) as Coefficient,
           Greatest((dbo.CountNumberOfCustomer(b.BookingID) - (rt.Min_Customer_for_Surcharge-1)),0) as ExtraCustomers

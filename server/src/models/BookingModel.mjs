@@ -100,7 +100,10 @@ export default class BookingModel {
   static async getAllBookingUnpaid() {
     const result = await connection.request()
       .query(`SELECT b.BookingID as BookingId, b.RoomID as RoomNumber, b.BookingDate, 
-                      DATEDIFF(Day, b.BookingDate, GetDate()) as Nights, rt.Price
+                      CASE 
+                        WHEN DATEDIFF(DAY, BookingDate, GETDATE()) = 0 THEN 1
+                        ELSE DATEDIFF(DAY, BookingDate, GETDATE())
+                      END as Nights, rt.Price
               FROM Booking b join ROOM r on b.RoomID = r.RoomID
                       join ROOMTYPE rt on r.Type = rt.Type
               WHERE b.Cost is NULL`);
