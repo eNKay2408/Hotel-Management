@@ -302,7 +302,10 @@ BEGIN
     SET @maxCoefficient = dbo.GetMaxCoefficient(@bookingId);
 
     -- Tính số đêm
-    SELECT @nights = DATEDIFF(DAY, BookingDate, GETDATE())
+    SELECT @nights = CASE 
+        WHEN DATEDIFF(DAY, BookingDate, GETDATE()) = 0 THEN 1
+        ELSE DATEDIFF(DAY, BookingDate, GETDATE())
+    END
     FROM BOOKING
     WHERE BookingID = @bookingId;
 
